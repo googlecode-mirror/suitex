@@ -70,6 +70,7 @@ class wineX {
                 fwrite($fp, $text);
                 fclose($fp);
                 $wArray['date'] = $date;
+                $wArray['timestamp'] = time();
                 update_option('winex_options', $wArray);
             }
         }
@@ -122,9 +123,10 @@ class wineX {
     	$page['post_content']   = 'This page is used to display your CellarTracker wine cellar via WineX.<br /><br /><!--WINEX-->';
 
     	$page_id = wp_insert_post($page);
-    	$wArray['page_id'] = $page_id;
-    	$wArray['user_id'] = '';
-    	$wArray['date']    = '';
+    	$wArray['page_id']   = $page_id;
+    	$wArray['user_id']   = '';
+    	$wArray['date']      = '';
+    	$wArray['timestamp'] = '';
 
     	update_option('winex_options', $wArray);
 
@@ -199,7 +201,7 @@ class wineX {
 		}
 
 		if ($wArray["date"] == 0){ $lastUpdate = "No Results Cached"; }
-		else { $lastUpdate = $wArray["date"]; }
+		else { $lastUpdate = date("M-d-Y H:i", $wArray["timestamp"]); }
 
         $text .= "<div class=\"wrap\"><h2>WineX</h2>";
         $text .= "WineX enables you to import your <a href=\"http://www.cellartracker.com\" target=\"_new\">CellarTracker</a>";
