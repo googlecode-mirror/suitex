@@ -2,6 +2,30 @@
 
 class listingx_admin {
 
+    function __construct(){
+    	$this->getMessage();
+
+
+
+
+
+    	/*$options = get_option('listingx_options');
+
+        $page                   = array();
+        $page['post_type']      = 'page';
+        $page['post_title']     = 'ListingX';
+        $page['post_name']      = 'listingx';
+        $page['post_status']    = 'publish';
+        $page['comment_status'] = 'closed';
+        $page['post_content']   = 'This is your ListingX Page.';
+        //$page_id = wp_insert_post($page);
+        $options['page_id'] = $page_id;
+
+        //update_option('listingx_options', $options);
+        */
+
+    }
+
 
     function listingx_install(){
 	    /**
@@ -82,12 +106,10 @@ class listingx_admin {
 
 
         $text .= "<div class=\"wrap\">";
-
-
         $text .= "<h2>ListingX</h2>";
-
-
         $text .= "</div>";
+
+
 
         //Projects awaiting Approval
         //Releases awaiting approval for announcement
@@ -96,6 +118,39 @@ class listingx_admin {
 
 
 
+
+    }
+
+    function getMessage(){
+		if ($_GET["code"]){
+		    switch($_GET["code"]){
+		    	case "a":
+		    		$message = "Project Added";
+		    		break;
+
+		    	case "ap":
+		    		$message = "Project Approved";
+		    		break;
+
+		    	case "m":
+		    		$message = "Project Modified";
+		    		break;
+
+		    	case "d":
+		    		$message = "Project Deleted";
+		    		break;
+		    }
+			$this->message = "<br /><b><span style=\"color:#FF0000;\">$message</span></b>";
+		}
+
+
+
+
+    }
+
+    function pageDirect($url){
+    	$text = "<script language=\"javascript\"> window.location = '$url'; </script>";
+    	print($text);
 
     }
 }
