@@ -26,6 +26,12 @@ class listingx_projects {
         		$this->submitForm();
         		break;
 
+        	case "release":
+    			$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'listingx';
+    			require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_releases.php');
+        		$this->releaseObj = new listingx_releases($this->parent);
+        		$this->releaseObj->run();
+
 			default:
 				$this->listProjects();
 				break;
@@ -114,7 +120,7 @@ class listingx_projects {
         $text .= "<td>" . $row->user_login . "</td></tr>";
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>Project Description:</strong></td>";
-        $text .= "<td>" . $row->desc . "</td></tr>";
+        $text .= "<td>" . str_replace("\r\n", "<br />", $row->desc) . "</td></tr>";
 
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>Project Categories:</strong></td>";
@@ -151,6 +157,12 @@ class listingx_projects {
         $text .= "</p>";
 
         $text .= "</div></div></div></div></div>";
+
+
+        //RELEASES
+
+
+
 		$text .= "</div>";
 		$this->text = $text;
 
@@ -216,11 +228,6 @@ class listingx_projects {
         	$url = "admin.php?page=projects&action=view&id=" . $_GET["id"] . "&code=ap";
     	}
     	else { die("Action not valid"); }
-
-
-        //RESULT CODES
-
-        //die();
     	$this->parent->pageDirect($url);
 	}
 
@@ -306,8 +313,6 @@ class listingx_projects {
 
     	$list->addFilter("p.lx_project_approved", "Approved", array("0" => "No", "1" => "Yes"));
 
-
-
 		$text = "<div class=\"wrap\">";
 		$text .= "<h2>ListingX - Projects</h2>";
 		$text .= "<a href=\"?page=projects&action=form&sub=add\">Add Project</a>";
@@ -319,7 +324,6 @@ class listingx_projects {
 		$headers["c.lx_project_cat_name"] = "Categories";
 		$headers["p.lx_project_approved"] = "Approved";
 
-
 		$order = "p.lx_project_name";
 		$sort  = "asc";
 
@@ -328,26 +332,15 @@ class listingx_projects {
 
      	$result = $this->wpdb->get_results($query);
 
-
      	foreach($result as $row){
         	$approved = $filter[$row->lx_project_approved];
-
            	$categories = $this->catForm("list", $row->lx_project_id);
-
         	$rows[$row->lx_project_id] = array($row->lx_project_name, $row->user_login, $categories, $approved);
-
      	}
         $url = "admin.php?page=projects&action=view&id=";
-
         $list->startList($headers, $url, $order, $sort, $rows, array("page" => "projects"));
-
         $text .= $list->text . "</div>";
-
 		$this->text = $text;
-
-
-
-
 	}
 
 }
