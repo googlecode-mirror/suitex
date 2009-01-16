@@ -157,11 +157,22 @@ class listingx_projects {
         $text .= "</p>";
 
         $text .= "</div></div></div></div></div>";
+		$text .= "<div id=\"poststuff\" class=\"metabox-holder\">";
+		$text .= "<div id=\"post-body\" class=\"has-sidebar\">";
+		$text .= "<div id=\"post-body-content\" class=\"has-sidebar-content\">";
 
 
-        //RELEASES
+        $text .= "<div class=\"postbox\">";
+        $text .= "<h3><label>Project Releases </label></h3>";
+		$text .= "<div class=\"inside\">";
 
+    	$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'listingx';
+    	require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_releases.php');
+       	$this->releaseObj = new listingx_releases($this->parent);
 
+        $text .= $this->releaseObj->listReleases($_GET["id"]);
+
+        $text .= "</div></div></div></div></div>";
 
 		$text .= "</div>";
 		$this->text = $text;

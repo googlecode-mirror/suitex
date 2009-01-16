@@ -28,6 +28,7 @@ yyaa_lx_project_cat
 Field 			Type 		Null
 lx_project_cat_id 	int(10) 	No
 user_id			int(10)		No
+lx_project_id		int(10)		No
 lx_project_cat_name 	varchar(255) 	No
 lx_project_cat_approved	tinyint(1)	No
 
@@ -46,6 +47,9 @@ user_id 		int(10) 	No
 lx_release_date 	int(10) 	No
 lx_release_version 	varchar(30) 	No
 lx_release_public 	tinyint(1) 	No
+lx_release_approved	tinyint(1)	No
+lx_release_notes	text		Yes
+lx_release_log		text		Yes
 
 
 yyaa_lx_user

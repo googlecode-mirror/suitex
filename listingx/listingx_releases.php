@@ -38,9 +38,7 @@ class listingx_releases {
     	$list->search    = false;
     	$list->orderForm = false;
     	$list->omit      = array("cb");
-
-    	$list->addFilter("r.lx_release_approved", "Approved", array("0" => "No", "1" => "Yes"));
-    	$list->addFilter("r.lx_release_public", "Approved", array("0" => "No", "1" => "Yes"));
+    	$list->fold		 = true;
 
 		$headers["cb"]                    = "<input type=\"checkbox\" />";
 		$headers["r.lx_release_version"]  = "Version";
@@ -50,30 +48,28 @@ class listingx_releases {
 		$headers["r.lx_release_public"]   = "Public";
 		$headers["r.lx_release_approved"] = "Approved";
 
-		$order = "r.lx_release_version";
-		$sort  = "asc";
-
 		$query = "select r.lx_release_version as version, ";
-		$query .= "u.user_login as owner, ";
-		$query .= "r.lx_release_notes, ";
-		$query .= "r.lx_release_log, ";
-		$query .= "r.lx_release_public, ";
-		$query .= "r.lx_release_approved ";
+		$query .= "r.lx_release_id as id, ";
+		$query .= "u.user_login as owner as user, ";
+		$query .= "r.lx_release_notes as notes, ";
+		$query .= "r.lx_release_log as log, ";
+		$query .= "r.lx_release_public as public, ";
+		$query .= "r.lx_release_approved as approved ";
 		$query .= "from " . $this->wpdb->prefix . "lx_release ";
 		$query .= "left join " . $this->wpdb->prefix . "users on u.ID = r.user_id ";
-		$query .= "where r.project_id = '$project_id' order by $order $sort";
+		$query .= "where r.project_id = '$project_id' order by r.lx_release_version asc";
 
      	$result = $this->wpdb->get_results($query);
 
      	foreach($result as $row){
-        	$approved = $filter[$row->lx_project_approved];
-           	$categories = $this->catForm("list", $row->lx_project_id);
-        	$rows[$row->lx_project_id] = array($row->lx_project_name, $row->user_login, $categories, $approved);
+        	$approved = $filter[$row->approved];
+        	$public   = $filter[$row->public];
+        	$rows[$row->id] = array($row->version, $row->user, $row->notes, $row->log, $public, $approved);
      	}
-        $url = "admin.php?page=projects&action=view&id=";
-        $list->startList($headers, $url, $order, $sort, $rows, array("page" => "projects"));
+        //$url = "admin.php?page=projects&action=view&id=";
+        $list->startList($headers, $url, '', '', $rows, array("page" => "projects"));
         $text .= $list->text . "</div>";
-		$this->text = $text;
+		return $text;
 
 	}
 
