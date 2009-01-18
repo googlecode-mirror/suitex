@@ -10,6 +10,7 @@ class listingx_projects {
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->parent = $parent;
+        $this->options = get_option('listingx_options');
 
         switch($_GET["action"]){
         	case "view":
@@ -20,9 +21,14 @@ class listingx_projects {
         		$this->projectForm();
         		break;
 
+        	case "user":
+        		$this->projectUser();
+        		break;
+
         	case "submit":
         	case "approve":
         	case "delete":
+        	case "user":
         		$this->submitForm();
         		break;
 
@@ -30,7 +36,6 @@ class listingx_projects {
     			$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'listingx';
     			require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_releases.php');
         		$this->releaseObj = new listingx_releases($this->parent);
-        		$this->releaseObj->run();
 
 			default:
 				$this->listProjects();
@@ -39,6 +44,11 @@ class listingx_projects {
 
         }
 		$this->parent->stroke($this->text);
+	}
+
+	function projectUser(){
+		//Search
+		//Search Results
 	}
 
 	function catForm($type, $current=''){
@@ -145,7 +155,7 @@ class listingx_projects {
         $text .= "<td>" . date($dateFormat, $row->updated) . "</td></tr>";
         $text .= "</table>";
 
-
+        //USERS
 		$nonce = wp_create_nonce();
 
         $text .= "<p class=\"submit\">";
@@ -157,6 +167,8 @@ class listingx_projects {
         $text .= "</p>";
 
         $text .= "</div></div></div></div></div>";
+
+
 		$text .= "<div id=\"poststuff\" class=\"metabox-holder\">";
 		$text .= "<div id=\"post-body\" class=\"has-sidebar\">";
 		$text .= "<div id=\"post-body-content\" class=\"has-sidebar-content\">";
@@ -216,9 +228,21 @@ class listingx_projects {
             	$q .= "values (%d, %d)";
             	$this->wpdb->query($this->wpdb->prepare($q, $id, $c));
             }
+
+            $body = $_POST["name"] . "<br /><br />" . $_POST["desc"];
+
+
+	        $page                   = array();
+        	$page['post_type']      = 'page';
+        	$page['post_title']     = $_POST["name"];
+        	$page['post_name']      = $_POST["name"];
+        	$page['post_status']    = 'publish';
+        	$page['comment_status'] = 'open';
+        	$page['post_parent']    = $this->options["page_id"];
+        	$page['post_content']   = $body;
+        	$page_id = wp_insert_post($page);
+
             $url = "admin.php?page=projects&action=view&id=" . $id . "&code=a";
-
-
     	}
     	else if ($_GET["action"] == "delete"){
 
@@ -228,8 +252,6 @@ class listingx_projects {
         	$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
         	$this->wpdb->query($this->wpdb->prepare($q1, $_GET["id"]));
         	$this->wpdb->query($this->wpdb->prepare($q2, $_GET["id"]));
-
-
         	$url = "admin.php?page=projects&code=d";
     	}
     	else if ($_GET["action"] == "approve"){
@@ -237,6 +259,12 @@ class listingx_projects {
         	$q = "update " . $this->wpdb->prefix . "lx_project set lx_project_approved = '1' where lx_project_id = %s limit 1";
         	$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
         	$url = "admin.php?page=projects&action=view&id=" . $_GET["id"] . "&code=ap";
+    	}
+    	else if ($_GET["action"] == "user"){
+        	if ($_GET["project_id"] == '' && $_GET["user_id"] == ''){ die("Action without valid arguments"); }
+
+
+
     	}
     	else { die("Action not valid"); }
     	$this->parent->pageDirect($url);

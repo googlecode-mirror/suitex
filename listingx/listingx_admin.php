@@ -6,9 +6,6 @@ class listingx_admin {
     	$this->getMessage();
 
 
-
-
-
     	/*$options = get_option('listingx_options');
 
         $page                   = array();
@@ -36,11 +33,11 @@ class listingx_admin {
 	        $options				= array();
 	        $page                   = array();
         	$page['post_type']      = 'page';
-        	$page['post_title']     = 'ListingX';
+        	$page['post_title']     = 'Projects';
         	$page['post_name']      = 'listingx';
         	$page['post_status']    = 'publish';
         	$page['comment_status'] = 'closed';
-        	$page['post_content']   = 'This is your ListingX Page.';
+        	$page['post_content']   = 'This is your ListingX Top level page.  All projects will be sub pages underneath this page.';
         	$page_id = wp_insert_post($page);
         	$options['page_id'] = $page_id;
 

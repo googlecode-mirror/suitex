@@ -40,6 +40,8 @@ class listingx_releases {
     	$list->omit      = array("cb");
     	$list->fold		 = true;
 
+    	$rows = array();
+
 		$headers["cb"]                    = "<input type=\"checkbox\" />";
 		$headers["r.lx_release_version"]  = "Version";
 		$headers["u.user_login"]          = "Owner";
