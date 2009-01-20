@@ -28,7 +28,8 @@ class listingx_projects {
         	case "submit":
         	case "approve":
         	case "delete":
-        	case "user":
+        	case "userToggle":
+        	case "admin":
         		$this->submitForm();
         		break;
 
@@ -47,8 +48,72 @@ class listingx_projects {
 	}
 
 	function projectUser(){
-		//Search
-		//Search Results
+    	$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'listingx';
+    	require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_list.php');
+    	global $filter;
+
+		$projectName = $this->wpdb->get_var("select lx_project_name from " . $this->wpdb->prefix . "lx_project where lx_project_id = '" . $_GET["id"] . "' limit 1");
+
+		$text = "<div class=\"wrap\">";
+		$text .= "<h2>ListingX - $projectName : Users</h2>";
+		$text .= "<a href=\"admin.php?page=projects&id=" . $_GET["id"] . "&action=view\">Back to Project</a>";
+		$text .= $this->parent->message;
+
+		if ($_GET["s"]){
+            $searchTerm = "%" . $_GET["s"] . "%";
+            $query  = "select u.ID as id, ";
+            $query .= "u.user_login as login, ";
+            $query .= "u.user_nicename as name, ";
+            $query .= "u.user_email as email ";
+            $query .= "from " . $this->wpdb->prefix . "users u ";
+     		$query .= "where (u.user_login like %s or u.user_nicename like %s or u.user_email like %s) and ";
+     		$query .= "u.ID not in (select lx.user_id from " . $this->wpdb->prefix . "lx_user lx where lx.lx_project_id ";
+     	   	$query .= " = %d) ";
+     		$query .= "order by u.user_login asc";
+
+     		$q = $this->wpdb->prepare($query, $searchTerm, $searchTerm, $searchTerm, $_GET["id"]);
+     		$result = $this->wpdb->get_results($q);
+		}
+		else {
+            $query  = "select u.ID as id, ";
+            $query .= "u.user_login as login, ";
+            $query .= "u.user_nicename as name, ";
+            $query .= "u.user_email as email, ";
+            $query .="p.lx_user_perm as perm from ";
+     		$query .= $this->wpdb->prefix . "lx_user p left join " . $this->wpdb->prefix . "users u on u.ID = p.user_id ";
+     		$query .= "where p.lx_project_id = '" . $_GET["id"] . "' ";
+     		$query .= "order by u.user_login asc";
+     		$result = $this->wpdb->get_results($query);
+		}
+
+     	$list              = new listingx_list();
+    	$list->search      = true;
+    	$list->orderForm   = false;
+    	$list->omit        = array("cb");
+    	$list->searchLabel = "Search Users";
+
+
+		$headers["cb"]              = "<input type=\"checkbox\" />";
+		$headers["u.user_login"]    = "Username";
+		$headers["u.user_nicename"] = "User Real Name";
+		$headers["u.user_email"]    = "Email Address";
+		$headers["p.lx_user_perm"]  = "Admin";
+
+        $nonce = wp_create_nonce();
+
+     	foreach($result as $row){
+        	if ($row->perm == 1){ $approved = "Yes"; }
+        	else if ($_GET["s"]) { $approved = "No"; }
+        	else {
+        		$approved = "<a href=\"admin.php?_wpnonce=$nonce&page=projects&user_id=" . $row->id . "&project_id=" . $_GET["id"] . "&action=admin\">";
+        		$approved .= "No</a>";
+			}
+        	$rows[$row->id] = array($row->login, $row->name, $row->email, $approved);
+     	}
+        $url = "admin.php?_wpnonce=$nonce&page=projects&action=userToggle&project_id=" . $_GET["id"] . "&user_id=";
+        $list->startList($headers, $url, '', '', $rows, array("page" => "projects", "id" => $_GET["id"], "action" => "user"));
+        $text .= $list->text . "</div>";
+		$this->text = $text;
 	}
 
 	function catForm($type, $current=''){
@@ -107,6 +172,22 @@ class listingx_projects {
         $row = $this->wpdb->get_row($query);
         $categories = $this->catForm("list", $_GET["id"]);
 
+        $query = "select u.user_login as login, lu.lx_user_perm as perm from ";
+        $query .= $this->wpdb->prefix . "users u, ";
+        $query .= $this->wpdb->prefix . "lx_user lu ";
+        $query .= "where u.ID = lu.user_id and lu.lx_project_id = '" . $_GET["id"] . "' ";
+        $query .= "order by login";
+
+        $result = $this->wpdb->get_results($query);
+
+        if ($result){
+        	foreach($result as $r){
+        		if ($r->perm == 1){	$users .= "<strong>" . $r->login . "</strong>, "; }
+        		else { $users .= $r->login . ", "; }
+        	}
+        }
+        $users = substr($users, 0, -2);
+
         $dateFormat = get_option("date_format") . ", " . get_option("time_format");
 
 		$text = "<div class=\"wrap\">";
@@ -128,6 +209,13 @@ class listingx_projects {
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>Project Owner:</strong></td>";
         $text .= "<td>" . $row->user_login . "</td></tr>";
+
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>Project Developers:</strong></td>";
+        $text .= "<td>" . $users . "</td></tr>";
+
+
+
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>Project Description:</strong></td>";
         $text .= "<td>" . str_replace("\r\n", "<br />", $row->desc) . "</td></tr>";
@@ -155,12 +243,12 @@ class listingx_projects {
         $text .= "<td>" . date($dateFormat, $row->updated) . "</td></tr>";
         $text .= "</table>";
 
-        //USERS
 		$nonce = wp_create_nonce();
 
         $text .= "<p class=\"submit\">";
         $text .= "<input type=\"button\" value=\"Modify\" onClick=\"goToURL('admin.php?page=projects&id=" . $_GET["id"] . "&action=form');\" />";
-		$text .= " <input type=\"button\" value=\"Delete\" onClick=\"goToURL('admin.php?page=projects&id=" . $_GET["id"] . "&action=delete&_wpnonce=$nonce');\" />";
+        $text .= " <input type=\"button\" value=\"Change Users\" onClick=\"goToURL('admin.php?page=projects&id=" . $_GET["id"] . "&action=user');\" />";
+		$text .= " <input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you sure you want to DELETE this Project?', 'admin.php?page=projects&id=" . $_GET["id"] . "&action=delete&_wpnonce=$nonce');\" />";
 		if ($row->approved == 0){
 			$text .= " <input type=\"button\" value=\"Approve\" onClick=\"goToURL('admin.php?page=projects&id=" . $_GET["id"] . "&action=approve&_wpnonce=$nonce');\" />";
 		}
@@ -192,12 +280,14 @@ class listingx_projects {
 	}
 
 	function submitForm(){
-    	//print_r($_POST);
     	if ($_POST["_wpnonce"]){ $nonce = $_POST["_wpnonce"]; }
     	else if ($_GET["_wpnonce"]){ $nonce = $_GET["_wpnonce"]; }
 
         if (!wp_verify_nonce($nonce)){ die('Security check'); }
     	if ($_POST["action"] == "modify"){
+        	$q = "select lx_project_page_id from " . $this->wpdb->prefix . "lx_project where lx_project_id = %d limit 1";
+        	$page_id = $this->wpdb->get_var($this->wpdb->prepare($q, $_GET["id"]));
+
         	$q = "update " . $this->wpdb->prefix . "lx_project set ";
         	$q .= "lx_project_name = %s, lx_project_desc = %s, lx_project_url = %s, ";
         	$q .= "lx_project_donate_url = %s, lx_project_date_updated = %d ";
@@ -212,16 +302,51 @@ class listingx_projects {
             	$q .= "values (%d, %d)";
             	$this->wpdb->query($this->wpdb->prepare($q, $_POST["id"], $c));
             }
+
+            $body = $_POST["name"] . "<br /><br />" . $_POST["desc"];
+            $page['post_title'] = $_POST["name"];
+            $page['post_content'] = $body;
+            $page['ID'] = $page_id;
+            wp_update_post($page);
+
+
+
             $url = "admin.php?page=projects&action=view&id=" . $_POST["id"] . "&code=m";
     	}
     	else if ($_POST["action"] == "add"){
         	global $user_ID;
 
-        	$q = "insert into " . $this->wpdb->prefix . "lx_project ";
-        	$q .= "(user_id, lx_project_name, lx_project_desc, lx_project_url, lx_project_donate_url, lx_project_date_added, lx_project_date_updated, lx_project_approved)";
-        	$q .= " values (%d, %s, %s, %s, %s, %d, %d, %d)";
+        	$page['post_type']      = 'page';
+        	$page['post_title']     = $_POST["name"];
+        	$page['post_name']      = $_POST["name"];
+        	$page['post_status']    = 'publish';
+        	$page['comment_status'] = 'open';
+        	$page['post_content']   = $body;
+        	$page['post_parent']    = $this->options["page_id"];
+			$page_id = wp_insert_post($page);
 
-        	$this->wpdb->query($this->wpdb->prepare($q, $user_ID, $_POST["name"], $_POST["desc"], $_POST["url"], $_POST["donate"], time(), time(), 1));
+        	$page = array();
+        	$body = "Another Extend Picasa project was just added. <br /><br />" . $_POST["desc"];
+        	$body .= "<a href=\"somelink\">Project Homepage</a>";
+
+        	$page['post_type']      = 'post';
+        	$page['post_title']     = "New Project: " . $_POST["name"];
+        	$page['post_name']      = $_POST["name"];
+        	$page['post_status']    = 'publish';
+        	$page['comment_status'] = 'open';
+        	$page['post_content']   = $body;
+			wp_insert_post($page);
+
+
+
+
+
+
+        	$q = "insert into " . $this->wpdb->prefix . "lx_project ";
+        	$q .= "(lx_project_page_id, user_id, lx_project_name, lx_project_desc, lx_project_url, lx_project_donate_url, lx_project_date_added, lx_project_date_updated, lx_project_approved)";
+        	$q .= " values (%d, %d, %s, %s, %s, %s, %d, %d, %d)";
+
+        	$this->wpdb->query($this->wpdb->prepare($q, $page_id, $user_ID, $_POST["name"], $_POST["desc"], $_POST["url"], $_POST["donate"], time(), time(), 1));
         	$id = $this->wpdb->insert_id;
             foreach($_POST["cat"] as $c){
             	$q = "insert into " . $this->wpdb->prefix . "lx_project_cat_link (lx_project_id, lx_project_cat_id) ";
@@ -229,42 +354,67 @@ class listingx_projects {
             	$this->wpdb->query($this->wpdb->prepare($q, $id, $c));
             }
 
-            $body = $_POST["name"] . "<br /><br />" . $_POST["desc"];
+            $q = "insert into " . $this->wpdb->prefix . "lx_user (user_id, lx_project_id, lx_user_perm) values (%d, %d, %d)";
+            $this->wpdb->query($this->wpdb->prepare($q, $user_ID, $id, 1));
 
 
-	        $page                   = array();
-        	$page['post_type']      = 'page';
-        	$page['post_title']     = $_POST["name"];
-        	$page['post_name']      = $_POST["name"];
-        	$page['post_status']    = 'publish';
-        	$page['comment_status'] = 'open';
-        	$page['post_parent']    = $this->options["page_id"];
-        	$page['post_content']   = $body;
-        	$page_id = wp_insert_post($page);
 
             $url = "admin.php?page=projects&action=view&id=" . $id . "&code=a";
     	}
     	else if ($_GET["action"] == "delete"){
 
-        	$q = "delete from " . $this->wpdb->prefix . "lx_project where lx_project_id = '%d'";
-        	$q1 = "delete from " . $this->wpdb->prefix . "lx_project_cat_link where lx_project_id = '%d'";
-        	$q2 = "delete from " . $this->wpdb->prefix . "lx_project_cat where lx_project_id = '%d'";
+        	$q = "select lx_project_page_id from " . $this->wpdb->prefix . "lx_project where lx_project_id = %d limit 1";
+        	$page_id = $this->wpdb->get_var($this->wpdb->prepare($q, $_GET["id"]));
+
+        	$q = "delete from " . $this->wpdb->prefix . "lx_project where lx_project_id = %d";
+        	$q1 = "delete from " . $this->wpdb->prefix . "lx_project_cat_link where lx_project_id = %d";
+        	$q2 = "delete from " . $this->wpdb->prefix . "lx_project_cat where lx_project_id = %d";
         	$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
         	$this->wpdb->query($this->wpdb->prepare($q1, $_GET["id"]));
         	$this->wpdb->query($this->wpdb->prepare($q2, $_GET["id"]));
+
+        	wp_delete_post($page_id);
+
         	$url = "admin.php?page=projects&code=d";
     	}
     	else if ($_GET["action"] == "approve"){
 
+        	$q = "select lx_project_page_id from " . $this->wpdb->prefix . "lx_project where lx_project_id = %d limit 1";
+        	$page_id = $this->wpdb->get_var($this->wpdb->prepare($q, $_GET["id"]));
+
         	$q = "update " . $this->wpdb->prefix . "lx_project set lx_project_approved = '1' where lx_project_id = %s limit 1";
         	$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
+
+			wp_publish_post($page_id);
+
         	$url = "admin.php?page=projects&action=view&id=" . $_GET["id"] . "&code=ap";
     	}
-    	else if ($_GET["action"] == "user"){
+    	else if ($_GET["action"] == "userToggle"){
         	if ($_GET["project_id"] == '' && $_GET["user_id"] == ''){ die("Action without valid arguments"); }
+        	$q = "select count(*) as cnt from " . $this->wpdb->prefix . "lx_user where user_id = %d and lx_project_id = %d limit 1";
+        	$count = $this->wpdb->get_var($this->wpdb->prepare($q, $_GET["user_id"], $_GET["project_id"]));
+			if ($count == 0){
+				$q = "insert into " . $this->wpdb->prefix . "lx_user (user_id, lx_project_id, lx_user_perm) values (%d, %d, %d)";
+			}
+			else {
+				$q = "delete from " . $this->wpdb->prefix . "lx_user where user_id = %d and lx_project_id = %d and lx_user_perm = %d limit 1";
+			}
+			$this->wpdb->query($this->wpdb->prepare($q, $_GET["user_id"], $_GET["project_id"], 0));
+			$url = "admin.php?page=projects&action=user&id=" . $_GET["project_id"];
+    	}
+    	else if ($_GET["action"] == "admin"){
+            if ($_GET["project_id"] == '' && $_GET["user_id"] == ''){ die("Action without valid arguments"); }
+            $q = "update " . $this->wpdb->prefix . "lx_user set lx_user_perm = 0 where lx_project_id = %d";
+            $this->wpdb->query($this->wpdb->prepare($q, $_GET["project_id"]));
+
+            $q = "update " . $this->wpdb->prefix . "lx_user set lx_user_perm = 1 where lx_project_id = %d and user_id = %d limit 1";
+            $this->wpdb->query($this->wpdb->prepare($q, $_GET["project_id"], $_GET["user_id"]));
+
+            $q = "update " . $this->wpdb->prefix . "lx_project set user_id = %d where lx_project_id = %d limit 1";
+            $this->wpdb->query($this->wpdb->prepare($q, $_GET["user_id"], $_GET["project_id"]));
 
 
-
+    		$url = "admin.php?page=projects&action=user&id=" . $_GET["project_id"];
     	}
     	else { die("Action not valid"); }
     	$this->parent->pageDirect($url);

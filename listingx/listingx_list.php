@@ -57,12 +57,15 @@ class listingx_list {
 		}
 
 		if ($this->search){
+			//if ($this->searchLink){ $searchAction = $this->searchLink; }
+			//else { $searchAction = $link; }
+
 			$text .= "<form class=\"search-form\" action=\"$link\" method=\"get\">";
 			$text .= "<p class=\"search-box\">";
-			$text .= "<label class=\"hidden\" for=\"project-search-input\">Search Projects:</label>";
+			$text .= "<label class=\"hidden\" for=\"\">" . $this->searchLabel . ":</label>";
 			$text .= $h;
-			$text .= "<input type=\"text\" class=\"search-input\" id=\"project-search-input\" name=\"s\" value=\"" .  _admin_search_query() . "\" />";
-			$text .= "<input type=\"submit\" value=\"Search Projects\" class=\"button\" />";
+			$text .= "<input type=\"text\" class=\"search-input\" id=\"project-search-input\" name=\"s\" value=\"" .  $_GET["s"] . "\" />";
+			$text .= "<input type=\"submit\" value=\"" . $this->searchLabel . "\" class=\"button\" />";
 			$text .= "</p>";
 			$text .= "</form>";
 			$text .= "<br class=\"clear\" />";
