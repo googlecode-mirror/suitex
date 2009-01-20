@@ -59,6 +59,7 @@ class listingx_admin {
     	* The hook for the admin menu
     	*/
         add_menu_page('ListingX', 'ListingX', 5, __FILE__, array($this, 'listingx_admin_page'));
+        add_submenu_page(__FILE__, 'ListingX Settings', 'Settings', 5, 'settings', array($this, 'listingx_settings'));
         add_submenu_page(__FILE__, 'ListingX Project Admin', 'Projects', 5, 'projects', array($this, 'listingx_projects'));
         add_submenu_page(__FILE__, 'ListingX Category Admin', 'Categories', 5, 'categories', array($this, 'listingx_categories'));
     }
@@ -84,20 +85,77 @@ class listingx_admin {
 
     }
 
+    function listingx_settings(){
+        clearstatcache();
 
+        $options = get_option('listingx_options');
+        if ($_POST['action'] == "update"){
+        	$options["newReleaseText"] = htmlentities($_POST["newReleaseText"]);
+        	$options["newProjectPageText"] = htmlentities($_POST["newProjectPageText"]);
+        	$options["newProjectPostText"] = htmlentities($_POST["newProjectPostText"]);
+        	update_option('listingx_options', $options);
+        	$this->getMessage("sc");
+        }
+
+        $text .= "<div class=\"wrap\">";
+        $text .= "<h2>ListingX - Settings</h2>";
+        $text .= $this->message;
+
+		$text .= "<div id=\"poststuff\" class=\"metabox-holder\">";
+		$text .= "<div id=\"post-body\" class=\"has-sidebar\">";
+		$text .= "<div id=\"post-body-content\" class=\"has-sidebar-content\">";
+        $text .= "<div class=\"postbox\">";
+        $text .= "<h3><label>ListingX Settings</label></h3>";
+		$text .= "<div class=\"inside\">";
+        $text .= "<form method=\"post\" action=\"\">";
+        $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . wp_create_nonce() . "\" />";
+        $text .= "<input type=\"hidden\" name=\"action\" value=\"update\" />";
+
+        $text .= "<table class=\"form-table\">";
+        $text .= "<tr><td colspan=\"2\"><strong>Template Labels</strong><br />";
+        $text .= "::NAME::";
+        $text .= ", ::DESC::";
+        $text .= ", ::OWNER::";
+        $text .= ", ::USERS::";
+        $text .= ", ::CATEGORIES::";
+        $text .= ", ::ADDED::";
+        $text .= ", ::MODIFIED::";
+        $text .= ", ::URL::";
+        $text .= ", ::DONATE::";
+        $text .= ", ::RELEASES::";
+        $text .= "</td></tr>";
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td valign=\"top\"><strong>Default Project Page:</strong>";
+        $text .= "</td>";
+        $text .= "<td><textarea name=\"newProjectPageText\">" . stripslashes($options["newProjectPageText"]) . "</textarea>";
+        $text .= "</td></tr>";
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td valign=\"top\"><strong>New Project Post:</strong>";
+        $text .= "</td>";
+        $text .= "<td><textarea name=\"newProjectPostText\">" . stripslashes($options["newProjectPostText"]) . "</textarea>";
+        $text .= "</td></tr>";
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td valign=\"top\"><strong>New Release:</strong>";
+        $text .= "</td>";
+        $text .= "<td><textarea name=\"newReleaseText\">" . stripslashes($options["newReleaseText"]) . "</textarea>";
+        $text .= "</td></tr>";
+
+
+        $text .= "</table>";
+        $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
+        $text .= "</p></form>";
+		$text .= "</div></div></div></div>";
+		$text .= "</div></div>";
+		$this->stroke($text);
+    }
 
     function listingx_admin_page(){
     	/**
     	* Creates the Admin page
     	*/
 
-        clearstatcache();
-
-        $options = get_option('listingx_options');
-		if ($_POST['action'] == "update"){
 
 
-		}
 
 
 
@@ -118,9 +176,10 @@ class listingx_admin {
 
     }
 
-    function getMessage(){
-		if ($_GET["code"]){
-		    switch($_GET["code"]){
+    function getMessage($code=''){
+		if ($_GET["code"]){ $code = $_GET["code"]; }
+		if ($code != ''){
+		    switch($code){
 		    	case "a":
 		    		$message = "Project Added";
 		    		break;
@@ -135,6 +194,10 @@ class listingx_admin {
 
 		    	case "d":
 		    		$message = "Project Deleted";
+		    		break;
+
+		    	case "sc":
+		    		$message = "Settings Saved";
 		    		break;
 		    }
 			$this->message = "<br /><b><span style=\"color:#FF0000;\">$message</span></b>";

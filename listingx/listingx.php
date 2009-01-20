@@ -49,7 +49,7 @@ add_action('admin_menu', array($aObj, 'listingx_admin_menu'));
 
 /* Vars */
 $filter = array("No", "Yes");
-
+//$templateArray
 
 
 

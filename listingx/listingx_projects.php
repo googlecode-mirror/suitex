@@ -154,6 +154,26 @@ class listingx_projects {
 		return $categories;
 	}
 
+	function getUsers($project_id){
+        $query = "select u.user_login as login, lu.lx_user_perm as perm from ";
+        $query .= $this->wpdb->prefix . "users u, ";
+        $query .= $this->wpdb->prefix . "lx_user lu ";
+        $query .= "where u.ID = lu.user_id and lu.lx_project_id = '$project_id' ";
+        $query .= "order by login";
+
+        $result = $this->wpdb->get_results($query);
+
+        if ($result){
+        	foreach($result as $r){
+        		if ($r->perm == 1){	$users .= "<strong>" . $r->login . "</strong>, "; }
+        		else { $users .= $r->login . ", "; }
+        	}
+        }
+        $users = substr($users, 0, -2);
+        return $users;
+
+	}
+
 	function viewProject(){
         global $filter;
         $query = "select u.user_login, ";
@@ -171,22 +191,8 @@ class listingx_projects {
 
         $row = $this->wpdb->get_row($query);
         $categories = $this->catForm("list", $_GET["id"]);
+        $users = $this->getUsers($_GET["id"]);
 
-        $query = "select u.user_login as login, lu.lx_user_perm as perm from ";
-        $query .= $this->wpdb->prefix . "users u, ";
-        $query .= $this->wpdb->prefix . "lx_user lu ";
-        $query .= "where u.ID = lu.user_id and lu.lx_project_id = '" . $_GET["id"] . "' ";
-        $query .= "order by login";
-
-        $result = $this->wpdb->get_results($query);
-
-        if ($result){
-        	foreach($result as $r){
-        		if ($r->perm == 1){	$users .= "<strong>" . $r->login . "</strong>, "; }
-        		else { $users .= $r->login . ", "; }
-        	}
-        }
-        $users = substr($users, 0, -2);
 
         $dateFormat = get_option("date_format") . ", " . get_option("time_format");
 
@@ -303,9 +309,7 @@ class listingx_projects {
             	$this->wpdb->query($this->wpdb->prepare($q, $_POST["id"], $c));
             }
 
-            $body = $_POST["name"] . "<br /><br />" . $_POST["desc"];
             $page['post_title'] = $_POST["name"];
-            $page['post_content'] = $body;
             $page['ID'] = $page_id;
             wp_update_post($page);
 
@@ -316,37 +320,11 @@ class listingx_projects {
     	else if ($_POST["action"] == "add"){
         	global $user_ID;
 
-        	$page['post_type']      = 'page';
-        	$page['post_title']     = $_POST["name"];
-        	$page['post_name']      = $_POST["name"];
-        	$page['post_status']    = 'publish';
-        	$page['comment_status'] = 'open';
-        	$page['post_content']   = $body;
-        	$page['post_parent']    = $this->options["page_id"];
-			$page_id = wp_insert_post($page);
-
-        	$page = array();
-        	$body = "Another Extend Picasa project was just added. <br /><br />" . $_POST["desc"];
-        	$body .= "<a href=\"somelink\">Project Homepage</a>";
-
-        	$page['post_type']      = 'post';
-        	$page['post_title']     = "New Project: " . $_POST["name"];
-        	$page['post_name']      = $_POST["name"];
-        	$page['post_status']    = 'publish';
-        	$page['comment_status'] = 'open';
-        	$page['post_content']   = $body;
-			wp_insert_post($page);
-
-
-
-
-
-
         	$q = "insert into " . $this->wpdb->prefix . "lx_project ";
-        	$q .= "(lx_project_page_id, user_id, lx_project_name, lx_project_desc, lx_project_url, lx_project_donate_url, lx_project_date_added, lx_project_date_updated, lx_project_approved)";
-        	$q .= " values (%d, %d, %s, %s, %s, %s, %d, %d, %d)";
+        	$q .= "(user_id, lx_project_name, lx_project_desc, lx_project_url, lx_project_donate_url, lx_project_date_added, lx_project_date_updated, lx_project_approved)";
+        	$q .= " values (%d, %s, %s, %s, %s, %d, %d, %d)";
 
-        	$this->wpdb->query($this->wpdb->prepare($q, $page_id, $user_ID, $_POST["name"], $_POST["desc"], $_POST["url"], $_POST["donate"], time(), time(), 1));
+        	$this->wpdb->query($this->wpdb->prepare($q, $user_ID, $_POST["name"], $_POST["desc"], $_POST["url"], $_POST["donate"], time(), time(), 1));
         	$id = $this->wpdb->insert_id;
             foreach($_POST["cat"] as $c){
             	$q = "insert into " . $this->wpdb->prefix . "lx_project_cat_link (lx_project_id, lx_project_cat_id) ";
@@ -357,7 +335,21 @@ class listingx_projects {
             $q = "insert into " . $this->wpdb->prefix . "lx_user (user_id, lx_project_id, lx_user_perm) values (%d, %d, %d)";
             $this->wpdb->query($this->wpdb->prepare($q, $user_ID, $id, 1));
 
+			$dateFormat = get_option("date_format") . ", " . get_option("time_format");
+        	$body = $this->options["newProjectPageText"];
 
+
+
+        	$page['post_type']      = 'page';
+        	$page['post_title']     = $_POST["name"];
+        	$page['post_name']      = $_POST["name"];
+        	$page['post_status']    = 'publish';
+        	$page['comment_status'] = 'open';
+        	$page['post_content']   = $this->options["newProjectPageText"];
+        	$page['post_parent']    = $this->options["page_id"];
+			$page_id = wp_insert_post($page);
+
+			$this->wpdb->query("update " . $this->wpdb->prefix . "lx_project set lx_project_page_id = '$page_id' where lx_project_id = '$id' limit 1");
 
             $url = "admin.php?page=projects&action=view&id=" . $id . "&code=a";
     	}
