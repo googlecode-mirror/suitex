@@ -6,45 +6,46 @@ class listingx_projects {
  	* @package WordPress
  	*/
 
-	function __construct($parent){
+	function __construct($parent, $autoexec=true){
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->parent = $parent;
         $this->options = get_option('listingx_options');
 
-        switch($_GET["action"]){
-        	case "view":
-        		$this->viewProject();
-        		break;
+        if ($autoexec != false){
 
-        	case "form":
-        		$this->projectForm();
-        		break;
+	        switch($_GET["action"]){
+        		case "view":
+	        		$this->viewProject();
+        			break;
 
-        	case "user":
-        		$this->projectUser();
-        		break;
+        		case "form":
+	        		$this->projectForm();
+        			break;
 
-        	case "submit":
-        	case "approve":
-        	case "delete":
-        	case "userToggle":
-        	case "admin":
-        		$this->submitForm();
-        		break;
+	        	case "user":
+        			$this->projectUser();
+        			break;
 
-        	case "release":
-    			$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'listingx';
-    			require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_releases.php');
-        		$this->releaseObj = new listingx_releases($this->parent);
+        		case "submit":
+        		case "approve":
+        		case "delete":
+        		case "userToggle":
+        		case "admin":
+	        		$this->submitForm();
+        			break;
 
-			default:
-				$this->listProjects();
-				break;
+	        	case "release":
+    				$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'listingx';
+    				require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_releases.php');
+	        		$this->releaseObj = new listingx_releases($this->parent);
 
-
-        }
-		$this->parent->stroke($this->text);
+				default:
+					$this->listProjects();
+					break;
+        	}
+			$this->parent->stroke($this->text);
+		}
 	}
 
 	function projectUser(){
@@ -174,7 +175,10 @@ class listingx_projects {
 
 	}
 
-	function viewProject(){
+	function viewProject($id=''){
+
+	    if ($id == ''){ $id = $_GET["id"]; }
+
         global $filter;
         $query = "select u.user_login, ";
         $query .= "p.lx_project_approved as approved, ";
@@ -186,12 +190,12 @@ class listingx_projects {
         $query .= "p.lx_project_date_updated as updated ";
         $query .= "from " . $this->wpdb->prefix . "lx_project p ";
         $query .= "left join " . $this->wpdb->prefix . "users u on u.ID = p.user_id ";
-        $query .= "where p.lx_project_id = '" . $_GET["id"] . "' limit 1";
+        $query .= "where p.lx_project_id = '" . $id . "' limit 1";
 
 
         $row = $this->wpdb->get_row($query);
-        $categories = $this->catForm("list", $_GET["id"]);
-        $users = $this->getUsers($_GET["id"]);
+        $categories = $this->catForm("list", $id);
+        $users = $this->getUsers($id);
 
 
         $dateFormat = get_option("date_format") . ", " . get_option("time_format");
@@ -252,11 +256,11 @@ class listingx_projects {
 		$nonce = wp_create_nonce();
 
         $text .= "<p class=\"submit\">";
-        $text .= "<input type=\"button\" value=\"Modify\" onClick=\"goToURL('admin.php?page=projects&id=" . $_GET["id"] . "&action=form');\" />";
-        $text .= " <input type=\"button\" value=\"Change Users\" onClick=\"goToURL('admin.php?page=projects&id=" . $_GET["id"] . "&action=user');\" />";
-		$text .= " <input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you sure you want to DELETE this Project?', 'admin.php?page=projects&id=" . $_GET["id"] . "&action=delete&_wpnonce=$nonce');\" />";
+        $text .= "<input type=\"button\" value=\"Modify\" onClick=\"goToURL('admin.php?page=projects&id=" . $id . "&action=form');\" />";
+        $text .= " <input type=\"button\" value=\"Change Users\" onClick=\"goToURL('admin.php?page=projects&id=" . $id . "&action=user');\" />";
+		$text .= " <input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you sure you want to DELETE this Project?', 'admin.php?page=projects&id=" . $id . "&action=delete&_wpnonce=$nonce');\" />";
 		if ($row->approved == 0){
-			$text .= " <input type=\"button\" value=\"Approve\" onClick=\"goToURL('admin.php?page=projects&id=" . $_GET["id"] . "&action=approve&_wpnonce=$nonce');\" />";
+			$text .= " <input type=\"button\" value=\"Approve\" onClick=\"goToURL('admin.php?page=projects&id=" . $id . "&action=approve&_wpnonce=$nonce');\" />";
 		}
         $text .= "</p>";
 
@@ -276,7 +280,7 @@ class listingx_projects {
     	require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_releases.php');
        	$this->releaseObj = new listingx_releases($this->parent);
 
-        $text .= $this->releaseObj->listReleases($_GET["id"]);
+        $text .= $this->releaseObj->listReleases($id);
 
         $text .= "</div></div></div></div></div>";
 

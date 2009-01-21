@@ -123,6 +123,11 @@ class listingx_admin {
         $text .= ", ::URL::";
         $text .= ", ::DONATE::";
         $text .= ", ::RELEASES::";
+        $text .= ", ::FILES::";
+        $text .= ", ::DATE::";
+        $text .= ", ::VERSION::";
+        $text .= ", ::NOTES::";
+        $text .= ", ::LOG::";
         $text .= "</td></tr>";
         $text .= "<tr class=\"form-field\">";
         $text .= "<td valign=\"top\"><strong>Default Project Page:</strong>";
