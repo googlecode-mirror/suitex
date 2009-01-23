@@ -76,6 +76,11 @@ class listingx_releases {
 	}
 
 	function submitForm(){
+		if ($_GET["releaseAction"] == "approve"){
+			$this->wpdb->query($this->wpdb->prepare($q, %d));//stopped
+
+		}
+
 
 	}
 

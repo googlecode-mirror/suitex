@@ -101,7 +101,9 @@ class listingx_list {
 		$text .= "<thead><tr>$cols</tr></thead><tfoot><tr>$cols</tr></tfoot>";
 		$text .= "<tbody>";
 
-
+        if (!is_array($rows)){
+        	$rows = array();
+        }
         $x=1;
 
         foreach(array_keys($rows) as $id){
@@ -114,7 +116,7 @@ class listingx_list {
         		$text .= "<input type=\"checkbox\" name=\"linkcheck[]\" value=\"$id\" />";
         		$text .= "</th>";
         	}
-        	else { die("NO CHECK BOX"); }
+        	//else { die("NO CHECK BOX"); }
         	$j=1;
         	foreach($rows[$id] as $r){
             	$text .= "<td>";

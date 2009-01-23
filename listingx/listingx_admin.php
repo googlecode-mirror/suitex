@@ -4,7 +4,9 @@ class listingx_admin {
 
     function __construct(){
     	$this->getMessage();
+        global $wpdb;
 
+        $this->wpdb = $wpdb;
 
     	/*$options = get_option('listingx_options');
 
@@ -42,6 +44,8 @@ class listingx_admin {
         	$options['page_id'] = $page_id;
 
     	    update_option('listingx_options', $options);
+    	    //default options
+    	    //default categories
         }
 
     }
@@ -128,6 +132,7 @@ class listingx_admin {
         $text .= ", ::VERSION::";
         $text .= ", ::NOTES::";
         $text .= ", ::LOG::";
+        $text .= ", ::PROJECTPAGE::";
         $text .= "</td></tr>";
         $text .= "<tr class=\"form-field\">";
         $text .= "<td valign=\"top\"><strong>Default Project Page:</strong>";
@@ -158,26 +163,92 @@ class listingx_admin {
     	/**
     	* Creates the Admin page
     	*/
+        $dateFormat = get_option("date_format") . ", " . get_option("time_format");
+        $pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'listingx';
+    	require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_list.php');
+    	require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_projects.php');
+    	global $filter;
 
+		$projectObj = new listingx_projects($this, false);
 
-
-
-
-
+    	$nonce = wp_create_nonce();
+    	$list            = new listingx_list();
+    	$list->search    = false;
+    	$list->orderForm = false;
+    	$list->filters   = false;
+    	$list->omit      = array("cb");
 
         $text .= "<div class=\"wrap\">";
         $text .= "<h2>ListingX</h2>";
-        $text .= "</div>";
+		$text .= $this->parent->message;
+
+		$headers["p.lx_project_name"]    = "Project Name";
+		$headers["u.user_login"]         = "Added By";
+		$headers["r.lx_release_version"] = "Approve";
+		$headers["r.lx_release_date"]    = "Date";
+		$headers["r.lx_release_notes"]   = "Notes";
+		$headers["r.lx_release_log"]     = "Change Log";
+
+		$order = "p.lx_project_name";
+		$sort  = "asc";
+
+     	$query  = "select p.lx_project_id as project_id, ";
+     	$query .= "p.lx_project_name as project, ";
+     	$query .= "u.user_login as username, ";
+     	$query .= "r.lx_release_id as release_id, ";
+     	$query .= "r.lx_release_date as releaseDate, ";
+     	$query .= "r.lx_release_version as version, ";
+     	$query .= "r.lx_release_notes as notes, ";
+     	$query .= "r.lx_release_log as log ";
+ 		$query .= "from (" . $this->wpdb->prefix . "lx_release r,";
+ 		$query .= $this->wpdb->prefix . "lx_project p) ";
+ 		$query .= "left join " . $this->wpdb->prefix . "users u on u.ID = r.user_id ";
+ 		$query .= "where r.lx_release_approved = 0 and r.lx_project_id = p.lx_project_id ";
+ 		$query .= "and r.lx_release_public = 1 ";
+ 		$query .= "order by $order $sort";
+
+   		$result = $this->wpdb->get_results($query);
+
+
+     	foreach($result as $row){
+       		$approved = "<a href=\"admin.php?page=projects&action=release&releaseAction=approve&_wpnonce=$nonce&id=" . $row->release_id . "\">Approve</a>";
+			$date = date($dateFormat, $row->releaseDate);
+        	$rows[$row->project_id] = array($row->project, $row->username, $approved, $date, $row->version, $row->notes, $row->log);
+     	}
+        $url = "admin.php?page=projects&action=view&id=";
+        $list->startList($headers, $url, $order, $sort, $rows, array("page" => "projects"));
 
 
 
-        //Projects awaiting Approval
-        //Releases awaiting approval for announcement
-        //Stats
+    	$list1            = new listingx_list();
+    	$list1->search    = false;
+    	$list1->orderForm = false;
+    	$list1->omit      = array("cb");
+
+		$headers = array();
+		$headers["p.lx_project_name"]     = "Project Name";
+		$headers["u.user_login"]          = "Owner";
+		$headers["c.lx_project_cat_name"] = "Categories";
+		$headers["p.lx_project_approved"] = "Approved";
+
+		$order = "p.lx_project_name";
+		$sort  = "asc";
+
+     	$query  = "select p.lx_project_id, p.lx_project_name, u.user_login, p.lx_project_approved from ";
+     	$query .= $this->wpdb->prefix . "lx_project p left join " . $this->wpdb->prefix . "users u on u.ID = p.user_id ";
+     	$query .= "where p.lx_project_approved = 0 order by $order $sort";
+
+     	$result = $this->wpdb->get_results($query);
+     	foreach($result as $row){
+        	$approved = "<a href=\"admin.php?page=projects&action=approve&_wpnonce=$nonce&id=" . $row->lx_project_id . "\">Approve</a>";
+           	$categories = $projectObj->catForm("list", $row->lx_project_id);
+        	$rows[$row->lx_project_id] = array($row->lx_project_name, $row->user_login, $categories, $approved);
+     	}
+        $url = "admin.php?page=projects&action=view&id=";
+        $list1->startList($headers, $url, $order, $sort, $rows, array("page" => "projects"));
+
+        $text .= $list->text . "<br /><br />" . $list1->text . "</div>";
         $this->stroke($text);
-
-
-
 
     }
 
@@ -203,6 +274,22 @@ class listingx_admin {
 
 		    	case "sc":
 		    		$message = "Settings Saved";
+		    		break;
+
+		    	case "ca":
+		    		$message = "Category Added";
+		    		break;
+
+		    	case "cap":
+		    		$message = "Category Approved";
+		    		break;
+
+		    	case "cm":
+		    		$message = "Category Modified";
+		    		break;
+
+		    	case "cd":
+		    		$message = "Category Deleted";
 		    		break;
 		    }
 			$this->message = "<br /><b><span style=\"color:#FF0000;\">$message</span></b>";

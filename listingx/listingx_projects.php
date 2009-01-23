@@ -340,8 +340,6 @@ class listingx_projects {
             $this->wpdb->query($this->wpdb->prepare($q, $user_ID, $id, 1));
 
 			$dateFormat = get_option("date_format") . ", " . get_option("time_format");
-        	$body = $this->options["newProjectPageText"];
-
 
 
         	$page['post_type']      = 'page';
@@ -351,9 +349,29 @@ class listingx_projects {
         	$page['comment_status'] = 'open';
         	$page['post_content']   = $this->options["newProjectPageText"];
         	$page['post_parent']    = $this->options["page_id"];
+        	$page['post_author']    = $user_ID;
 			$page_id = wp_insert_post($page);
 
 			$this->wpdb->query("update " . $this->wpdb->prefix . "lx_project set lx_project_page_id = '$page_id' where lx_project_id = '$id' limit 1");
+            $cat_id = $this->wpdb->get_var("select term_id from " . $this->wpdb->prefix . "terms where slug = 'new-project' limit 1");
+            $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "post where ID = '$page_id' limit 1");
+            $link = "<a href=\"" . $link . "\">Project Homepage</a>";
+
+    		$body = $this->options["newProjectPostText"];
+			$body = str_replace("::PROJECTPAGE::", $link, $body);
+			$body = str_replace("::DESC::", $_POST["desc"], $body);
+
+			$page = array();
+
+        	$page['post_type']      = 'post';
+        	$page['post_title']     = $_POST["name"];
+        	$page['post_name']      = $_POST["name"];
+        	$page['post_status']    = 'publish';
+        	$page['comment_status'] = 'open';
+        	$page['post_content']   = $body;
+        	$page['post_category']  = array($cat_id);
+        	$page['post_author']    = $user_ID;
+			$page_id = wp_insert_post($page);
 
             $url = "admin.php?page=projects&action=view&id=" . $id . "&code=a";
     	}
@@ -375,11 +393,45 @@ class listingx_projects {
     	}
     	else if ($_GET["action"] == "approve"){
 
-        	$q = "select lx_project_page_id from " . $this->wpdb->prefix . "lx_project where lx_project_id = %d limit 1";
-        	$page_id = $this->wpdb->get_var($this->wpdb->prepare($q, $_GET["id"]));
+        	$q = "select lx_project_page_id, lx_project_name, lx_project_desc from " . $this->wpdb->prefix . "lx_project where lx_project_id = %d limit 1";
+        	$row = $this->wpdb->get_row($this->wpdb->prepare($q, $_GET["id"]));
+        	$page_id = $row->lx_project_page_id;
 
         	$q = "update " . $this->wpdb->prefix . "lx_project set lx_project_approved = '1' where lx_project_id = %s limit 1";
         	$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
+
+			$dateFormat = get_option("date_format") . ", " . get_option("time_format");
+
+        	$page['post_type']      = 'page';
+        	$page['post_title']     = $row->lx_project_name;
+        	$page['post_name']      = $row->lx_project_name;
+        	$page['post_status']    = 'publish';
+        	$page['comment_status'] = 'open';
+        	$page['post_content']   = $this->options["newProjectPageText"];
+        	$page['post_parent']    = $this->options["page_id"];
+        	$page['post_author']    = $user_ID;
+			$page_id = wp_insert_post($page);
+
+			$this->wpdb->query("update " . $this->wpdb->prefix . "lx_project set lx_project_page_id = '$page_id' where lx_project_id = '$id' limit 1");
+            $cat_id = $this->wpdb->get_var("select term_id from " . $this->wpdb->prefix . "terms where slug = 'new-project' limit 1");
+            $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "post where ID = '$page_id' limit 1");
+            $link = "<a href=\"" . $link . "\">Project Homepage</a>";
+
+    		$body = $this->options["newProjectPostText"];
+			$body = str_replace("::PROJECTPAGE::", $link, $body);
+			$body = str_replace("::DESC::", $row->lx_project_desc, $body);
+
+			$page = array();
+
+        	$page['post_type']      = 'post';
+        	$page['post_title']     = $row->lx_project_name;
+        	$page['post_name']      = $row->lx_project_name;
+        	$page['post_status']    = 'publish';
+        	$page['comment_status'] = 'open';
+        	$page['post_content']   = $body;
+        	$page['post_category']  = array($cat_id);
+        	$page['post_author']    = $user_ID;
+			$page_id = wp_insert_post($page);
 
 			wp_publish_post($page_id);
 
