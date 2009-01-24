@@ -63,9 +63,9 @@ class listingx_admin {
     	* The hook for the admin menu
     	*/
         add_menu_page('ListingX', 'ListingX', 5, __FILE__, array($this, 'listingx_admin_page'));
-        add_submenu_page(__FILE__, 'ListingX Settings', 'Settings', 5, 'settings', array($this, 'listingx_settings'));
-        add_submenu_page(__FILE__, 'ListingX Project Admin', 'Projects', 5, 'projects', array($this, 'listingx_projects'));
-        add_submenu_page(__FILE__, 'ListingX Category Admin', 'Categories', 5, 'categories', array($this, 'listingx_categories'));
+        add_submenu_page(__FILE__, 'ListingX Settings', 'Settings', 5, 'lx_settings', array($this, 'listingx_settings'));
+        add_submenu_page(__FILE__, 'ListingX Project Admin', 'Projects', 5, 'lx_projects', array($this, 'listingx_projects'));
+        add_submenu_page(__FILE__, 'ListingX Category Admin', 'Categories', 5, 'lx_categories', array($this, 'listingx_categories'));
     }
 
     function listingx_projects(){
@@ -211,12 +211,12 @@ class listingx_admin {
 
 
      	foreach($result as $row){
-       		$approved = "<a href=\"admin.php?page=projects&action=release&releaseAction=approve&_wpnonce=$nonce&id=" . $row->release_id . "\">Approve</a>";
+       		$approved = "<a href=\"admin.php?page=lx_projects&action=release&releaseAction=approve&_wpnonce=$nonce&id=" . $row->release_id . "\">Approve</a>";
 			$date = date($dateFormat, $row->releaseDate);
         	$rows[$row->project_id] = array($row->project, $row->username, $approved, $date, $row->version, $row->notes, $row->log);
      	}
-        $url = "admin.php?page=projects&action=view&id=";
-        $list->startList($headers, $url, $order, $sort, $rows, array("page" => "projects"));
+        $url = "admin.php?page=lx_projects&action=view&id=";
+        $list->startList($headers, $url, $order, $sort, $rows, array("page" => "lx_projects"));
 
 
 
@@ -240,12 +240,12 @@ class listingx_admin {
 
      	$result = $this->wpdb->get_results($query);
      	foreach($result as $row){
-        	$approved = "<a href=\"admin.php?page=projects&action=approve&_wpnonce=$nonce&id=" . $row->lx_project_id . "\">Approve</a>";
+        	$approved = "<a href=\"admin.php?page=lx_projects&action=approve&_wpnonce=$nonce&id=" . $row->lx_project_id . "\">Approve</a>";
            	$categories = $projectObj->catForm("list", $row->lx_project_id);
         	$rows[$row->lx_project_id] = array($row->lx_project_name, $row->user_login, $categories, $approved);
      	}
-        $url = "admin.php?page=projects&action=view&id=";
-        $list1->startList($headers, $url, $order, $sort, $rows, array("page" => "projects"));
+        $url = "admin.php?page=lx_projects&action=view&id=";
+        $list1->startList($headers, $url, $order, $sort, $rows, array("page" => "lx_projects"));
 
         $text .= $list->text . "<br /><br />" . $list1->text . "</div>";
         $this->stroke($text);
@@ -255,65 +255,22 @@ class listingx_admin {
     function getMessage($code=''){
 		if ($_GET["code"]){ $code = $_GET["code"]; }
 		if ($code != ''){
-		    switch($code){
-		    	case "a":
-		    		$message = "Project Added";
-		    		break;
+		    $codeArray["a"] = "Project Added";
+		    $codeArray["ap"] = "Project Approved";
+		    $codeArray["m"] = "Project Modified";
+		    $codeArray["d"] = "Project Deleted";
+		    $codeArray["sc"] = "Settings Saved";
+		    $codeArray["ca"] = "Category Added";
+		    $codeArray["cap"] = "Category Approved";
+		    $codeArray["cm"] = "Category Modified";
+		    $codeArray["cd"] = "Category Deleted";
+		    $codeArray["ra"] = "Release Added";
+		   	$codeArray["rm"] = "Release Modified";
+		   	$codeArray["rd"] = "Release Deleted";
+		   	$codeArray["rap"] = "Release Approved";
 
-		    	case "ap":
-		    		$message = "Project Approved";
-		    		break;
-
-		    	case "m":
-		    		$message = "Project Modified";
-		    		break;
-
-		    	case "d":
-		    		$message = "Project Deleted";
-		    		break;
-
-		    	case "sc":
-		    		$message = "Settings Saved";
-		    		break;
-
-		    	case "ca":
-		    		$message = "Category Added";
-		    		break;
-
-		    	case "cap":
-		    		$message = "Category Approved";
-		    		break;
-
-		    	case "cm":
-		    		$message = "Category Modified";
-		    		break;
-
-		    	case "cd":
-		    		$message = "Category Deleted";
-		    		break;
-
-		    	case "ra":
-		    		$message = "Release Added";
-		    		break;
-
-		   		case "rm":
-		   			$message = "Release Modified";
-		   			break;
-
-		   		case "rd":
-		   			$message = "Release Deleted";
-		   			break;
-
-		   		case "rap":
-		   			$message = "Release Approved";
-		   			break;
-		    }
-			$this->message = "<br /><b><span style=\"color:#FF0000;\">$message</span></b>";
+		   	$this->message = "<br /><b><span style=\"color:#FF0000;\">" . $codeArray[$code] . "</span></b>";
 		}
-
-
-
-
     }
 
     function pageDirect($url){

@@ -69,8 +69,8 @@ class listingx_releases {
         	$public   = $filter[$row->public];
         	$rows[$row->id] = array($row->version, $row->user, $row->notes, $row->log, $public, $approved);
      	}
-        //$url = "admin.php?page=projects&action=view&id=";
-        $list->startList($headers, $url, '', '', $rows, array("page" => "projects"));
+        //$url = "admin.php?page=lx_projects&action=view&id=";
+        $list->startList($headers, $url, '', '', $rows, array("page" => "lx_projects"));
         $text .= $list->text . "</div>";
 		return $text;
 
@@ -80,7 +80,7 @@ class listingx_releases {
 		if ($_GET["releaseAction"] == "approve"){
 			$q = "update " . $this->wpdb->prefix . "lx_release set lx_releae_approved = 1 where lx_release_id = %d limit 1";
 			$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
-			$url = "admin.php?page=projects&action=release&releaseAction=modify&id=" . $_GET["id"];
+			$url = "admin.php?page=lx_projects&action=release&releaseAction=modify&id=" . $_GET["id"];
 		}
 		else if ($_GET["releaseAction"] == "delete"){
 
@@ -91,7 +91,7 @@ class listingx_releases {
 		else if ($_POST["releaseAction"] == "modify"){
 
 		}
-		
+
 		$this->parent->pageDirect($url);
 	}
 

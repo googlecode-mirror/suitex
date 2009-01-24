@@ -52,7 +52,7 @@ class listingx_categories {
 
 		$text = "<div class=\"wrap\">";
 		$text .= "<h2>ListingX - Project Categories</h2>";
-		$text .= "<a href=\"?page=categories&action=form&sub=add\">Add Category</a>";
+		$text .= "<a href=\"?page=lx_categories&action=form&sub=add\">Add Category</a>";
 		$text .= $this->parent->message;
 
 		$headers["cb"]                    = "<input type=\"checkbox\" />";
@@ -80,12 +80,12 @@ class listingx_categories {
      	foreach($result as $row){
         	if ($row->lx_project_cat_approved == 1){ $approved = $filter[$row->lx_project_cat_approved]; }
         	else {
-        		$approved = "<a href=\"admin.php?page=categories&action=approve&_wpnonce=$nonce&id=" . $row->lx_project_cat_id . "\">No</a>";
+        		$approved = "<a href=\"admin.php?page=lx_categories&action=approve&_wpnonce=$nonce&id=" . $row->lx_project_cat_id . "\">No</a>";
         	}
         	$rows[$row->lx_project_cat_id] = array($row->lx_project_cat_name, $row->user_login,  $approved);
      	}
-        $url = "admin.php?page=categories&action=form&id=";
-        $list->startList($headers, $url, $order, $sort, $rows, array("page" => "categories"));
+        $url = "admin.php?page=lx_categories&action=form&id=";
+        $list->startList($headers, $url, $order, $sort, $rows, array("page" => "lx_categories"));
         $text .= $list->text . "</div>";
 		$this->text = $text;
 	}
@@ -104,13 +104,13 @@ class listingx_categories {
 			$q = "insert into " . $this->wpdb->prefix . "lx_project_cat (user_id, lx_project_cat_name, lx_project_cat_approved) values ";
 			$q .= "(%d, %s, %d)";
 			$this->wpdb->query($this->wpdb->prepare($q, $user_ID, $name, 1));
-			$url = "admin.php?page=categories&code=ca";
+			$url = "admin.php?page=lx_categories&code=ca";
 		}
 		else if ($_POST["action"] == "modify"){
 			$name = strip_tags(htmlentities($_POST["name"]));
 			$q = "update " . $this->wpdb->prefix . "lx_project_cat set lx_project_cat_name = %s where lx_project_cat_id = %s limit 1";
 			$this->wpdb->query($this->wpdb->prepare($q, $name, $_POST["id"]));
-			$url = "admin.php?page=categories&code=cm";
+			$url = "admin.php?page=lx_categories&code=cm";
 
 		}
 		else if ($_GET["action"] == "delete"){
@@ -119,12 +119,12 @@ class listingx_categories {
 			$q2 = "delete from " . $this->wpdb->prefix . "lx_project_cat_link where lx_project_cat_id = %d";
 			$this->wpdb->query($this->wpdb->prepare($q, $id));
 			$this->wpdb->query($this->wpdb->prepare($q2, $id));
-			$url = "admin.php?page=categories&code=cd";
+			$url = "admin.php?page=lx_categories&code=cd";
 
 		}
 		else if ($_GET["action"] == "approve"){
 			$this->wpdb->query("update " . $this->wpdb->prefix . "lx_project_cat set lx_project_cat_approved = '1' where lx_project_cat_id = '" . $_GET["id"] . "' limit 1");
-       		$url = "admin.php?page=categories&code=cap";
+       		$url = "admin.php?page=lx_categories&code=cap";
 		}
 		$this->parent->pageDirect($url);
 
@@ -159,7 +159,7 @@ class listingx_categories {
         $text .= "<div class=\"postbox\">";
         $text .= "<h3><label>$label</label></h3>";
 		$text .= "<div class=\"inside\">";
-        $text .= "<form method=\"post\" action=\"admin.php?page=categories&action=$action\">";
+        $text .= "<form method=\"post\" action=\"admin.php?page=lx_categories&action=$action\">";
         $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . $nonce . "\" />";
         $text .= "<input type=\"hidden\" name=\"action\" value=\"$action\" />";
         if ($_GET["id"]){
@@ -174,7 +174,7 @@ class listingx_categories {
         $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
         if ($_GET["id"]){
         	$text .= "&nbsp;<input type=\"button\" value=\"Delete Category\" onClick=\"confirmAction('Are you Sure you want to Delete this Category?', ";
-        	$text .= "'admin.php?page=categories&action=delete&id=" . $_GET["id"] . "&_wpnonce=$nonce');\">";
+        	$text .= "'admin.php?page=lx_categories&action=delete&id=" . $_GET["id"] . "&_wpnonce=$nonce');\">";
 		}
 
         $text .= "</p></form>";

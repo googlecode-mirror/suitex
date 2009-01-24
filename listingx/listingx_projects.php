@@ -57,7 +57,7 @@ class listingx_projects {
 
 		$text = "<div class=\"wrap\">";
 		$text .= "<h2>ListingX - $projectName : Users</h2>";
-		$text .= "<a href=\"admin.php?page=projects&id=" . $_GET["id"] . "&action=view\">Back to Project</a>";
+		$text .= "<a href=\"admin.php?page=lx_projects&id=" . $_GET["id"] . "&action=view\">Back to Project</a>";
 		$text .= $this->parent->message;
 
 		if ($_GET["s"]){
@@ -106,13 +106,13 @@ class listingx_projects {
         	if ($row->perm == 1){ $approved = "Yes"; }
         	else if ($_GET["s"]) { $approved = "No"; }
         	else {
-        		$approved = "<a href=\"admin.php?_wpnonce=$nonce&page=projects&user_id=" . $row->id . "&project_id=" . $_GET["id"] . "&action=admin\">";
+        		$approved = "<a href=\"admin.php?_wpnonce=$nonce&page=lx_projects&user_id=" . $row->id . "&project_id=" . $_GET["id"] . "&action=admin\">";
         		$approved .= "No</a>";
 			}
         	$rows[$row->id] = array($row->login, $row->name, $row->email, $approved);
      	}
-        $url = "admin.php?_wpnonce=$nonce&page=projects&action=userToggle&project_id=" . $_GET["id"] . "&user_id=";
-        $list->startList($headers, $url, '', '', $rows, array("page" => "projects", "id" => $_GET["id"], "action" => "user"));
+        $url = "admin.php?_wpnonce=$nonce&page=lx_projects&action=userToggle&project_id=" . $_GET["id"] . "&user_id=";
+        $list->startList($headers, $url, '', '', $rows, array("page" => "lx_projects", "id" => $_GET["id"], "action" => "user"));
         $text .= $list->text . "</div>";
 		$this->text = $text;
 	}
@@ -126,7 +126,7 @@ class listingx_projects {
         	$query2 .= "where l.lx_project_id = '$current' order by c.lx_project_cat_name asc";
         	$cats = $this->wpdb->get_results($query2);
         	foreach($cats as $c){
-        		$categories .= "<a href=\"admin.php?page=categories&id=" . $c->lx_project_cat_id . "&action=form\">";
+        		$categories .= "<a href=\"admin.php?page=lx_categories&id=" . $c->lx_project_cat_id . "&action=form\">";
         		$categories .= $c->lx_project_cat_name . "</a>, ";
         	}
         	$categories = substr($categories, 0, -2);
@@ -256,11 +256,11 @@ class listingx_projects {
 		$nonce = wp_create_nonce();
 
         $text .= "<p class=\"submit\">";
-        $text .= "<input type=\"button\" value=\"Modify\" onClick=\"goToURL('admin.php?page=projects&id=" . $id . "&action=form');\" />";
-        $text .= " <input type=\"button\" value=\"Change Users\" onClick=\"goToURL('admin.php?page=projects&id=" . $id . "&action=user');\" />";
-		$text .= " <input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you sure you want to DELETE this Project?', 'admin.php?page=projects&id=" . $id . "&action=delete&_wpnonce=$nonce');\" />";
+        $text .= "<input type=\"button\" value=\"Modify\" onClick=\"goToURL('admin.php?page=lx_projects&id=" . $id . "&action=form');\" />";
+        $text .= " <input type=\"button\" value=\"Change Users\" onClick=\"goToURL('admin.php?page=lx_projects&id=" . $id . "&action=user');\" />";
+		$text .= " <input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you sure you want to DELETE this Project?', 'admin.php?page=lx_projects&id=" . $id . "&action=delete&_wpnonce=$nonce');\" />";
 		if ($row->approved == 0){
-			$text .= " <input type=\"button\" value=\"Approve\" onClick=\"goToURL('admin.php?page=projects&id=" . $id . "&action=approve&_wpnonce=$nonce');\" />";
+			$text .= " <input type=\"button\" value=\"Approve\" onClick=\"goToURL('admin.php?page=lx_projects&id=" . $id . "&action=approve&_wpnonce=$nonce');\" />";
 		}
         $text .= "</p>";
 
@@ -319,7 +319,7 @@ class listingx_projects {
 
 
 
-            $url = "admin.php?page=projects&action=view&id=" . $_POST["id"] . "&code=m";
+            $url = "admin.php?page=lx_projects&action=view&id=" . $_POST["id"] . "&code=m";
     	}
     	else if ($_POST["action"] == "add"){
         	global $user_ID;
@@ -373,7 +373,7 @@ class listingx_projects {
         	$page['post_author']    = $user_ID;
 			$page_id = wp_insert_post($page);
 
-            $url = "admin.php?page=projects&action=view&id=" . $id . "&code=a";
+            $url = "admin.php?page=lx_projects&action=view&id=" . $id . "&code=a";
     	}
     	else if ($_GET["action"] == "delete"){
 
@@ -389,7 +389,7 @@ class listingx_projects {
 
         	wp_delete_post($page_id);
 
-        	$url = "admin.php?page=projects&code=d";
+        	$url = "admin.php?page=lx_projects&code=d";
     	}
     	else if ($_GET["action"] == "approve"){
 
@@ -435,7 +435,7 @@ class listingx_projects {
 
 			wp_publish_post($page_id);
 
-        	$url = "admin.php?page=projects&action=view&id=" . $_GET["id"] . "&code=ap";
+        	$url = "admin.php?page=lx_projects&action=view&id=" . $_GET["id"] . "&code=ap";
     	}
     	else if ($_GET["action"] == "userToggle"){
         	if ($_GET["project_id"] == '' && $_GET["user_id"] == ''){ die("Action without valid arguments"); }
@@ -448,7 +448,7 @@ class listingx_projects {
 				$q = "delete from " . $this->wpdb->prefix . "lx_user where user_id = %d and lx_project_id = %d and lx_user_perm = %d limit 1";
 			}
 			$this->wpdb->query($this->wpdb->prepare($q, $_GET["user_id"], $_GET["project_id"], 0));
-			$url = "admin.php?page=projects&action=user&id=" . $_GET["project_id"];
+			$url = "admin.php?page=lx_projects&action=user&id=" . $_GET["project_id"];
     	}
     	else if ($_GET["action"] == "admin"){
             if ($_GET["project_id"] == '' && $_GET["user_id"] == ''){ die("Action without valid arguments"); }
@@ -462,7 +462,7 @@ class listingx_projects {
             $this->wpdb->query($this->wpdb->prepare($q, $_GET["user_id"], $_GET["project_id"]));
 
 
-    		$url = "admin.php?page=projects&action=user&id=" . $_GET["project_id"];
+    		$url = "admin.php?page=lx_projects&action=user&id=" . $_GET["project_id"];
     	}
     	else { die("Action not valid"); }
     	$this->parent->pageDirect($url);
@@ -503,7 +503,7 @@ class listingx_projects {
         $text .= "<div class=\"postbox\">";
         $text .= "<h3><label>$label</label></h3>";
 		$text .= "<div class=\"inside\">";
-        $text .= "<form method=\"post\" action=\"admin.php?page=projects&action=submit\">";
+        $text .= "<form method=\"post\" action=\"admin.php?page=lx_projects&action=submit\">";
         $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . wp_create_nonce() . "\" />";
         $text .= "<input type=\"hidden\" name=\"action\" value=\"$action\" />";
         if ($_GET["id"]){
@@ -552,7 +552,7 @@ class listingx_projects {
 
 		$text = "<div class=\"wrap\">";
 		$text .= "<h2>ListingX - Projects</h2>";
-		$text .= "<a href=\"?page=projects&action=form&sub=add\">Add Project</a>";
+		$text .= "<a href=\"?page=lx_projects&action=form&sub=add\">Add Project</a>";
 		$text .= $this->parent->message;
 
 		$headers["cb"]                    = "<input type=\"checkbox\" />";
@@ -574,8 +574,8 @@ class listingx_projects {
            	$categories = $this->catForm("list", $row->lx_project_id);
         	$rows[$row->lx_project_id] = array($row->lx_project_name, $row->user_login, $categories, $approved);
      	}
-        $url = "admin.php?page=projects&action=view&id=";
-        $list->startList($headers, $url, $order, $sort, $rows, array("page" => "projects"));
+        $url = "admin.php?page=lx_projects&action=view&id=";
+        $list->startList($headers, $url, $order, $sort, $rows, array("page" => "lx_projects"));
         $text .= $list->text . "</div>";
 		$this->text = $text;
 	}
