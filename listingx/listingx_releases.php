@@ -19,7 +19,8 @@ class listingx_releases {
         		$this->releaseForm();
         		break;
 
-        	case "submit":
+        	case "add":
+        	case "modify":
         	case "approve":
         	case "delete":
         		$this->submitForm();
@@ -77,11 +78,20 @@ class listingx_releases {
 
 	function submitForm(){
 		if ($_GET["releaseAction"] == "approve"){
-			$this->wpdb->query($this->wpdb->prepare($q, %d));//stopped
+			$q = "update " . $this->wpdb->prefix . "lx_release set lx_releae_approved = 1 where lx_release_id = %d limit 1";
+			$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
+			$url = "admin.php?page=projects&action=release&releaseAction=modify&id=" . $_GET["id"];
+		}
+		else if ($_GET["releaseAction"] == "delete"){
 
 		}
+		else if ($_POST["releaseAction"] == "add"){
 
+		}
+		else if ($_POST["releaseAction"] == "modify"){
 
+		}
+		$this->parent->pageDirect($url);
 	}
 
 	function releaseForm(){

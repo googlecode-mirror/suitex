@@ -55,10 +55,7 @@ class listingx_front {
 
 	function listingx_page(){
 		global $id;
-		if ($this->options["page_id"] == $id){
-			$this->listingx_defaultPage();
-		}
-		else {
+		if ($this->options["page_id"] != $id){
 			$query = "select lx_project_page_id from " . $this->wpdb->prefix . "lx_project where lx_project_approved = '1'";
 			$row = $this->wpdb->get_row($query);
 
@@ -68,6 +65,9 @@ class listingx_front {
 			if (in_array($id, $idArray)){
 				$this->listingx_viewProject($id);
 			}
+		}
+		else {
+        	$this->text = $this->wpdb->get_var("select post_content from " . $this->wpdb->prefix . "posts where ID = '$id' limit 1");
 		}
 	}
 

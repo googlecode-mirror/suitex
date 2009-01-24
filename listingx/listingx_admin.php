@@ -291,6 +291,22 @@ class listingx_admin {
 		    	case "cd":
 		    		$message = "Category Deleted";
 		    		break;
+
+		    	case "ra":
+		    		$message = "Release Added";
+		    		break;
+
+		   		case "rm":
+		   			$message = "Release Modified";
+		   			break;
+
+		   		case "rd":
+		   			$message = "Release Deleted";
+		   			break;
+
+		   		case "rap":
+		   			$message = "Release Approved";
+		   			break;
 		    }
 			$this->message = "<br /><b><span style=\"color:#FF0000;\">$message</span></b>";
 		}
