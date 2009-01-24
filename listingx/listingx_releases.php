@@ -91,6 +91,7 @@ class listingx_releases {
 		else if ($_POST["releaseAction"] == "modify"){
 
 		}
+		
 		$this->parent->pageDirect($url);
 	}
 
