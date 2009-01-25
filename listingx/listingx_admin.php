@@ -255,18 +255,18 @@ class listingx_admin {
     function getMessage($code=''){
 		if ($_GET["code"]){ $code = $_GET["code"]; }
 		if ($code != ''){
-		    $codeArray["a"] = "Project Added";
-		    $codeArray["ap"] = "Project Approved";
-		    $codeArray["m"] = "Project Modified";
-		    $codeArray["d"] = "Project Deleted";
-		    $codeArray["sc"] = "Settings Saved";
-		    $codeArray["ca"] = "Category Added";
+		    $codeArray["a"]   = "Project Added";
+		    $codeArray["ap"]  = "Project Approved";
+		    $codeArray["m"]   = "Project Modified";
+		    $codeArray["d"]   = "Project Deleted";
+		    $codeArray["sc"]  = "Settings Saved";
+		    $codeArray["ca"]  = "Category Added";
 		    $codeArray["cap"] = "Category Approved";
-		    $codeArray["cm"] = "Category Modified";
-		    $codeArray["cd"] = "Category Deleted";
-		    $codeArray["ra"] = "Release Added";
-		   	$codeArray["rm"] = "Release Modified";
-		   	$codeArray["rd"] = "Release Deleted";
+		    $codeArray["cm"]  = "Category Modified";
+		    $codeArray["cd"]  = "Category Deleted";
+		    $codeArray["ra"]  = "Release Added";
+		   	$codeArray["rm"]  = "Release Modified";
+		   	$codeArray["rd"]  = "Release Deleted";
 		   	$codeArray["rap"] = "Release Approved";
 
 		   	$this->message = "<br /><b><span style=\"color:#FF0000;\">" . $codeArray[$code] . "</span></b>";

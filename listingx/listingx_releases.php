@@ -78,14 +78,64 @@ class listingx_releases {
 
 	function submitForm(){
 		if ($_GET["releaseAction"] == "approve"){
-			$q = "update " . $this->wpdb->prefix . "lx_release set lx_releae_approved = 1 where lx_release_id = %d limit 1";
+            $q = "select p.lx_project_id as project_id, ";
+            $q .= "p.lx_project_page_id as page_id, ";
+            $q .= "p.lx_project_desc as project_desc, ";
+            $q .= "p.lx_project_name as name, ";
+            $q .= "r.lx_release_version as version, ";
+            $q .= "r.lx_release_public as public, ";
+            $q .= "r.lx_release_log as log, ";
+            $q .= "r.user_id as user ";
+            $q .= "from  " . $this->wpdb->prefix . "lx_project p, " . $this->wpdb->prefix . "lx_release r where r.lx_project_id = p.lx_project_id and r.lx_release_id = %d";
+            $row = $this->wpdb->get_row($this->wpdb->prepare($q, $_GET["id"]));
+
+            $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "post where ID = '" . $row->page_id . "' limit 1");
+            $link = "<a href=\"" . $link . "\">Project Homepage</a>";
+
+			$q = "update " . $this->wpdb->prefix . "lx_release set lx_release_approved = 1 where lx_release_id = %d limit 1";
 			$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
+
+  			if ($row->public == 1){
+    			$body = $this->options["newReleaseText"];
+				$body = str_replace("::PROJECTPAGE::", $link, $body);
+				$body = str_replace("::DESC::", $row->project_desc, $body);
+				$body = str_replace("::LOG::", $row->log, $body);
+				$body = str_replace("::CATEGORIES::", $this->parent->catForm("list", $row->project_id));
+
+                $cat_id = $this->wpdb->get_var("select term_id from " . $this->wpdb->prefix . "terms where slug = 'new-release' limit 1");
+
+                $name = $row->name . " " . $row->version;
+
+				$page = array();
+        		$page['post_type']      = 'post';
+        		$page['post_title']     = $name;
+        		$page['post_name']      = $name;
+        		$page['post_status']    = 'publish';
+    	    	$page['comment_status'] = 'open';
+	        	$page['post_content']   = $body;
+        		$page['post_category']  = array($cat_id);
+        		$page['post_author']    = $row->user;
+				$page_id = wp_insert_post($page);
+
+				wp_publish_post($page_id);
+
+            }
+
 			$url = "admin.php?page=lx_projects&action=release&releaseAction=modify&id=" . $_GET["id"];
 		}
 		else if ($_GET["releaseAction"] == "delete"){
+			$q = "select lx_project_id from " . $this->wpdb->prefix . "lx_relase where lx_release_id = %d limit 1";
+			$project_id = $this->wpdb->get_var($this->wpdb->prepare($q, $_GET["id"]));
+			$q = "delete from " . $this->wpdb->prefix . "lx_release where lx_release_id = %d limit 1";
+			$q2 = "delete from " . $this->wpdb->prefix . "lx_file where lx_release_id = %d";
+			$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
+			$this->wpdb->query($this->wpdb->prepare($q2, $_GET["id"]));
+			$url = "admin.php?page=lx_projects&action=view&id=$project_id";
 
 		}
 		else if ($_POST["releaseAction"] == "add"){
+
+			//publish
 
 		}
 		else if ($_POST["releaseAction"] == "modify"){
