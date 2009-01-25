@@ -7,8 +7,7 @@ class listingx_admin {
         global $wpdb;
 
         $this->wpdb = $wpdb;
-
-
+           
     }
 
 
