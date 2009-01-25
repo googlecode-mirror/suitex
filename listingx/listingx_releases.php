@@ -176,6 +176,11 @@ class listingx_releases {
 
 		$this->parent->parent->pageDirect($url);
 	}
+    
+    function processFile($release_id, $fileNumber){
+        
+        
+    }
 
 	function releaseForm(){
 		global $filter;
