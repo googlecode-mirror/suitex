@@ -38,7 +38,7 @@ class listingx_projects {
 	        	case "release":
     				$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'listingx';
     				require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_releases.php');
-	        		$this->releaseObj = new listingx_releases($this->parent);
+	        		$this->releaseObj = new listingx_releases($this);
 	        		$this->releaseObj->run();
 	        		break;
 

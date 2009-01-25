@@ -6,8 +6,7 @@ class listingx_releases {
  	* @package WordPress
  	*/
 	function __construct($parent){
-		global $wpdb;
-		$this->wpdb   = $wpdb;
+		$this->wpdb   = $parent->wpdb;
 		$this->parent = $parent;
 
 	}
@@ -27,7 +26,7 @@ class listingx_releases {
         		break;
 
         }
-		$this->parent->stroke($this->text);
+		$this->parent->text = $this->text;
 	}
 
 	function listReleases($project_id){
@@ -77,7 +76,12 @@ class listingx_releases {
 	}
 
 	function submitForm(){
-		if ($_GET["releaseAction"] == "approve"){
+	    if ($_POST["_wpnonce"]){ $nonce = $_POST["_wpnonce"]; }
+        else if ($_GET["_wpnonce"]){ $nonce = $_GET["_wpnonce"]; }
+
+        if (!wp_verify_nonce($nonce)){ die('Security check'); }
+        
+        if ($_GET["releaseAction"] == "approve"){
             $q = "select p.lx_project_id as project_id, ";
             $q .= "p.lx_project_page_id as page_id, ";
             $q .= "p.lx_project_desc as project_desc, ";
@@ -133,8 +137,11 @@ class listingx_releases {
 			$url = "admin.php?page=lx_projects&action=view&id=$project_id";
 
 		}
-		else if ($_POST["releaseAction"] == "add"){
-			global $user_ID;
+		else if ($_GET["releaseAction"] == "add"){
+			print_r($_POST);
+            print_r($_FILES);
+            die();
+            global $user_ID;
 			
 			if ($_POST["public"] == 1){
     			$body = $this->options["newReleaseText"];
@@ -163,11 +170,11 @@ class listingx_releases {
             }
 
 		}
-		else if ($_POST["releaseAction"] == "modify"){
+		else if ($_GET["releaseAction"] == "modify"){
 
 		}
 
-		$this->parent->pageDirect($url);
+		$this->parent->parent->pageDirect($url);
 	}
 
 	function releaseForm(){
@@ -198,7 +205,7 @@ class listingx_releases {
         $text .= "<div class=\"postbox\">";
         $text .= "<h3><label>$label</label></h3>";
 		$text .= "<div class=\"inside\">";
-        $text .= "<form method=\"post\" action=\"admin.php?page=lx_projects&action=release&releaseAction=submit\">";
+        $text .= "<form enctype=\"multipart/form-data\" method=\"post\" action=\"admin.php?page=lx_projects&action=release&releaseAction=$action\">";
         $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . wp_create_nonce() . "\" />";
         $text .= "<input type=\"hidden\" name=\"action\" value=\"$action\" />";
         $text .= "<input type=\"hidden\" name=\"project_id\" value=\"" . $_GET["project_id"] . "\" />";
