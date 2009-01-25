@@ -134,8 +134,33 @@ class listingx_releases {
 
 		}
 		else if ($_POST["releaseAction"] == "add"){
+			global $user_ID;
+			
+			if ($_POST["public"] == 1){
+    			$body = $this->options["newReleaseText"];
+				$body = str_replace("::PROJECTPAGE::", $link, $body);
+				$body = str_replace("::DESC::", $row->project_desc, $body);
+				$body = str_replace("::LOG::", $_POST["log"], $body);
+				$body = str_replace("::CATEGORIES::", $this->parent->catForm("list", $row->project_id));
 
-			//publish
+                $cat_id = $this->wpdb->get_var("select term_id from " . $this->wpdb->prefix . "terms where slug = 'new-release' limit 1");
+
+                $name = $row->name . " " . $row->version;
+
+				$page = array();
+        		$page['post_type']      = 'post';
+        		$page['post_title']     = $name;
+        		$page['post_name']      = $name;
+        		$page['post_status']    = 'publish';
+    	    	$page['comment_status'] = 'open';
+	        	$page['post_content']   = $body;
+        		$page['post_category']  = array($cat_id);
+        		$page['post_author']    = $user_ID;
+				$page_id = wp_insert_post($page);
+
+				wp_publish_post($page_id);
+
+            }
 
 		}
 		else if ($_POST["releaseAction"] == "modify"){
