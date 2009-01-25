@@ -171,7 +171,99 @@ class listingx_releases {
 	}
 
 	function releaseForm(){
+		global $filter;
+		if ($_GET["id"]){
+			$label = "Modify Release";
+			$action = "modify";
+			
+			
+			
+		}   
+		else {
+			$label = "Add Release";
+			$action = "add";
+			
+			
+		}     
 
+
+		$text = "<div class=\"wrap\">";
+        $text .= "<h2>ListingX - Release</h2>";
+        $text .= "<br />";
+
+
+		$text .= "<div id=\"poststuff\" class=\"metabox-holder\">";
+		$text .= "<div id=\"post-body\" class=\"has-sidebar\">";
+		$text .= "<div id=\"post-body-content\" class=\"has-sidebar-content\">";
+        $text .= "<div class=\"postbox\">";
+        $text .= "<h3><label>$label</label></h3>";
+		$text .= "<div class=\"inside\">";
+        $text .= "<form method=\"post\" action=\"admin.php?page=lx_projects&action=release&releaseAction=submit\">";
+        $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . wp_create_nonce() . "\" />";
+        $text .= "<input type=\"hidden\" name=\"action\" value=\"$action\" />";
+        $text .= "<input type=\"hidden\" name=\"project_id\" value=\"" . $_GET["project_id"] . "\" />";
+        if ($_GET["id"]){
+        	$text .= "<input type=\"hidden\" name=\"id\" value=\"" . $_GET["id"] . "\" />";
+        }
+        $text .= "<table class=\"form-table\">";
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>Release Version:</strong></td>";
+        $text .= "<td><input type=\"text\" name=\"version\" value=\"" . $row->version . "\" />";
+        $text .= "</td></tr>";
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>Release Notes:</strong></td>";
+        $text .= "<td><textarea name=\"notes\">" . $row->notes . "</textarea>";
+        $text .= "</td></tr>";
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>Release ChangeLog:</strong></td>";
+        $text .= "<td><textarea name=\"log\">" . $row->log . "</textarea>";
+        $text .= "</td></tr>";      
+        
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>Release Public:</strong></td>";
+        $text .= "<td>";
+        $text .= "<select name=\"public\">";
+        for($i=0;$i<2;$i++){
+        	if ($row->public == $i){ $s = "selected"; }
+        	else { $s = ''; }
+        	$text .= "<option value=\"$i\">" . $filter[$i] . "</option>";
+        }
+        $text .= "</select></td></tr>";            
+
+
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>File 1:</strong></td>";
+        $text .= "<td><input type=\"file\" name=\"file1\" /><br />";
+        $text .= $file1;
+        $text .= "</td></tr>";
+
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>File 2:</strong></td>";
+        $text .= "<td><input type=\"file\" name=\"file2\" /><br />";
+        $text .= $file2;
+        $text .= "</td></tr>";
+        
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>File 3:</strong></td>";
+        $text .= "<td><input type=\"file\" name=\"file3\" /><br />";
+        $text .= $file3;
+        $text .= "</td></tr>";
+
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>File 4:</strong></td>";
+        $text .= "<td><input type=\"file\" name=\"file4\" /><br />";
+        $text .= $file4;
+        $text .= "</td></tr>";        
+        $text .= "</table>";       
+        
+        
+        $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
+        $text .= "</p></form>";
+		$text .= "</div></div></div></div>";
+		$text .= "</div></div>";
+		$this->text = $text;
+        
+        
 	}
 
 

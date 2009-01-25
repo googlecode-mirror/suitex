@@ -39,6 +39,8 @@ class listingx_projects {
     				$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'listingx';
     				require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'listingx_releases.php');
 	        		$this->releaseObj = new listingx_releases($this->parent);
+	        		$this->releaseObj->run();
+	        		break;
 
 				default:
 					$this->listProjects();
@@ -262,6 +264,7 @@ class listingx_projects {
 		if ($row->approved == 0){
 			$text .= " <input type=\"button\" value=\"Approve\" onClick=\"goToURL('admin.php?page=lx_projects&id=" . $id . "&action=approve&_wpnonce=$nonce');\" />";
 		}
+		$text .= " <input type=\"button\" value=\"Add Release\" onClick=\"goToURL('admin.php?page=lx_projects&project_id=" . $id . "&action=release&releaseAction=form');\" />";
         $text .= "</p>";
 
         $text .= "</div></div></div></div></div>";
