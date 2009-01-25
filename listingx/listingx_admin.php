@@ -8,20 +8,6 @@ class listingx_admin {
 
         $this->wpdb = $wpdb;
 
-    	/*$options = get_option('listingx_options');
-
-        $page                   = array();
-        $page['post_type']      = 'page';
-        $page['post_title']     = 'ListingX';
-        $page['post_name']      = 'listingx';
-        $page['post_status']    = 'publish';
-        $page['comment_status'] = 'closed';
-        $page['post_content']   = 'This is your ListingX Page.';
-        //$page_id = wp_insert_post($page);
-        $options['page_id'] = $page_id;
-
-        //update_option('listingx_options', $options);
-        */
 
     }
 
