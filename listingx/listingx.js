@@ -3,7 +3,6 @@ function goToURL(url){
 }
 
 function confirmAction(actionText, url){
-
 	if (confirm(actionText)){
 		window.location = url;
 	}
