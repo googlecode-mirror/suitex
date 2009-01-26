@@ -5,6 +5,9 @@ class listingx_releases {
 	* The front-end methods for listingX.
  	* @package WordPress
  	*/
+    var $parent;
+    var $wpdb;
+    
 	function __construct($parent){
 		$this->wpdb   = $parent->wpdb;
 		$this->parent = $parent;
@@ -125,7 +128,7 @@ class listingx_releases {
 
             }
 
-			$url = "admin.php?page=lx_projects&action=release&releaseAction=modify&id=" . $_GET["id"];
+			$url = "admin.php?page=lx_projects&code=rap&action=release&releaseAction=modify&id=" . $_GET["id"];
 		}
 		else if ($_GET["releaseAction"] == "delete"){
 			$q = "select lx_project_id from " . $this->wpdb->prefix . "lx_relase where lx_release_id = %d limit 1";
@@ -134,20 +137,58 @@ class listingx_releases {
 			$q2 = "delete from " . $this->wpdb->prefix . "lx_file where lx_release_id = %d";
 			$this->wpdb->query($this->wpdb->prepare($q, $_GET["id"]));
 			$this->wpdb->query($this->wpdb->prepare($q2, $_GET["id"]));
-			$url = "admin.php?page=lx_projects&action=view&id=$project_id";
+			$url = "admin.php?page=lx_projects&action=view&id=$project_id&code=rd";
 
 		}
 		else if ($_GET["releaseAction"] == "add"){
-			print_r($_POST);
-            print_r($_FILES);
-            die();
-            global $user_ID;
+		    global $user_ID; 
+            $q = "select p.lx_project_id as project_id, ";
+            $q .= "p.lx_project_page_id as page_id, ";
+            $q .= "p.lx_project_desc as project_desc, ";
+            $q .= "p.lx_project_name as name ";
+            $q .= "from " . $this->wpdb->prefix . "lx_project where lx_project_id = '" . $_POST["projec_id"] . "' limit 1";
+            $row = $this->wpdb->get_row($q);
+
+            $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "post where ID = '" . $row->page_id . "' limit 1");
+            $link = "<a href=\"" . $link . "\">Project Homepage</a>";
+            
+            $version = strip_tags(htmlentities($_POST["version"]));
+            $log = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["log"])));
+            $notes = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["notes"]))); 
+            
+            $name = $row->name . " " . $version;
+            
+            $q = "insert into " . $this->wpdb->prefix . "lx_release ";
+            $q .= "(lx_project_id, user_id, lx_release_date, lx_release_version, lx_release_public, lx_release_approved, lx_release_notes, lx_release_log) ";
+            $q .= "values (%d, %d, %d, %s, %d, %d, %s, %s)";
+            $this->wpdb->query($this->wpdb->prepare($q, $_POST["project_id"], $user_ID, time(), $version, $_POST["public"], 1, $notes, $log));
+            $release_id = $this->wpdb->insert_id;           
+            
+            if ($_FILES){
+                for($i=1;$i<5;$i++){
+                    $arrayName = "file" . $i;
+                    if ($_FILES[$arrayName]["name"] != ''){
+                        $fileName = $_FILES[$arrayName]["name"];
+                        $fileType = $_FILES[$arrayName]["type"];
+                        $fileSize = $_FILES[$arrayName]["size"];
+                        $fp       = fopen($_FILES[$arrayName]["tmp_name"], 'r');
+                        $fileData = fread($fp, filesize($_FILES[$arrayName]["tmp_name"]));
+                        $fileData = addslashes($fileData);
+                        fclose($fp);
+                        
+                        $q = "insert into " . $this->wpdb->prefix . "lx_file";
+                        $q .= "(lx_release_id, user_id, lx_file_name, lx_file_type, lx_file_size, lx_file_data, lx_file_date_added, lx_file_date_updated, lx_file_download) ";
+                        $q .= "values (%d, %d, %s, %s, %d, %s, %d, %d, %d)";
+                        $this->wpdb->query($this->wpdb->prepare($q, $release_id, $user_ID, $fileName, $fileType, $fileSize, $fileData, time(), time(), 0));                        
+                    }
+                }
+            }
 			
 			if ($_POST["public"] == 1){
     			$body = $this->options["newReleaseText"];
 				$body = str_replace("::PROJECTPAGE::", $link, $body);
 				$body = str_replace("::DESC::", $row->project_desc, $body);
-				$body = str_replace("::LOG::", $_POST["log"], $body);
+				$body = str_replace("::LOG::", $log, $body);
 				$body = str_replace("::CATEGORIES::", $this->parent->catForm("list", $row->project_id));
 
                 $cat_id = $this->wpdb->get_var("select term_id from " . $this->wpdb->prefix . "terms where slug = 'new-release' limit 1");
@@ -168,6 +209,7 @@ class listingx_releases {
 				wp_publish_post($page_id);
 
             }
+            $url = "admin.php?page=lx_projects&action=view&id=$project_id&code=ra"; 
 
 		}
 		else if ($_GET["releaseAction"] == "modify"){
