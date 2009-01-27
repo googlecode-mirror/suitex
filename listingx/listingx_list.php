@@ -90,7 +90,7 @@ class listingx_list {
 
         $text .= "<input type=\"hidden\" id=\"_wpnonce\" name=\"_wpnonce\" value=\"" . wp_create_nonce() . "\" />";
         $text .= "<input type=\"hidden\" name=\"_wp_http_referer\" value=\"" . $_SERVER["PHP_SELF"] . "\" />";
-        $text .= "<table class=\"widefat fixed\" cellspacing=\"0\">";
+        $text .= "<table class=\"widefat fixed\" cellspacing=\"0\">\r\n";
 
 		foreach(array_keys($headers) as $h){
 			$cols .= "<th scope=\"col\" id=\"$h\" class=\"manage-column column-" . $h;
@@ -106,20 +106,25 @@ class listingx_list {
         }
         $x=1;
 
+        $plus = get_option('siteurl') . "/wp-content/plugins/listingx/plus.gif";
+
         foreach(array_keys($rows) as $id){
         	if ($x/2){ $class = "class=\"alternate\""; }
         	else { $x++; }
 
-        	$text .= "<tr id=\"link-$id\" valign=\"middle\" $class>";
+        	$text .= "<tr id=\"link-$id\" valign=\"middle\" $class>\r\n";
         	if ($cb){
         		$text .= "<th scope=\"row\" class=\"check-column\">";
         		$text .= "<input type=\"checkbox\" name=\"linkcheck[]\" value=\"$id\" />";
-        		$text .= "</th>";
+        		$text .= "</th>\r\n";
         	}
         	//else { die("NO CHECK BOX"); }
         	$j=1;
+
         	foreach($rows[$id] as $r){
-            	$text .= "<td>";
+            	$rowspan = '';
+            	if ($j == 1 && $this->fold == true){ $rowspan = "rowspan=\"2\""; $fold=1; }
+            	$text .= "<td $rowspan>";
             	if ($j == 1){
             		$text .= "<strong><a href=\"$link" . "$id\">";
             		$text .= $r . "</a></strong>";
@@ -127,20 +132,29 @@ class listingx_list {
 
             	}
             	else { $text .= $r; }
-            	$text .= "</td>";
+
+            	$text .= "</td>\r\n";
             	$j++;
         	}
-        	$text .= "</tr>";
+        	$text .= "</tr>\r\n";
+        	if ($fold == 1){
+        		$text .= "<tr>\r\n";
+        		$text .= "<td colspan=\"5\">";
+        		$text .= "<a href=\"javascript:openSub('release-$id', 'image-$id', '" . get_option('siteurl') . "/wp-content/plugins/listingx'); \">";
+        		$text .= "<img src=\"$plus\" border=\"0\" width=\"10\" height=\"10\" id=\"image-$id\" /></a>";
+        		$text .= "<div id=\"release-$id\" style=\"display:none;\">";
+        		$text .= "<table><tr><td><strong>Filename:</strong><br />FILENAME</td>\r\n";
+        		$text .= "<td><strong>Size:</strong><br />FILESIZE</td>\r\n";
+        		$text .= "<td><strong>Type:</strong><br />FILETYPE</td>\r\n";
+        		$text .= "<td><strong>Downloads:</strong><br />DOWNALODS</td>\r\n";
+        		$text .= "</tr>\r\n";
+        		$text .= "</table></div>";
 
+        		$fold = 0;
+        	}
         }
-
-
-        $text .= "</tbody></table>";
-
-
-
+        $text .= "</tbody></table>\r\n";
         $this->text = $text;
-
  	}
 
  	function endList($listName){
