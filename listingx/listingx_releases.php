@@ -234,28 +234,62 @@ class listingx_releases {
 		}
 
         else if ($_GET["releaseAction"] == "modify"){
-        	$log = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["log"])));
-            $notes = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["notes"])));
-            if ($_FILES){
-               	for($i=1;$i<5;$i++){
-                   	$arrayName = "file" . $i;
-                   	if ($_FILES[$arrayName]["name"] != ''){
-    	                $fileName = $_FILES[$arrayName]["name"];
-    			        $fileType = $_FILES[$arrayName]["type"];
-                        $fileSize = $_FILES[$arrayName]["size"];
-                       	$fp       = fopen($_FILES[$arrayName]["tmp_name"], 'r');
-                      	$fileData = fread($fp, filesize($_FILES[$arrayName]["tmp_name"]));
-                       	$fileData = addslashes($fileData);
-                       	fclose($fp);
+            $version = strip_tags(htmlentities($_POST["version"]));
+            $q = "select count(*) from " . $this->wpdb->prefix . "lx_release where ";
+            $q .= "lx_release_version = %s and lx_project_id = %d and lx_release_id != %d limit 1";
+            $dupe = $this->wpdb->get_var($this->wpdb->prepare($q, $version, $_POST["project_id"], $_POST["id"]));
+            if ($dupe != 0){
+	            $this->releaseForm(true);
+	        }
+	        else {
 
-    	                $q = "insert into " . $this->wpdb->prefix . "lx_file";
-                     	$q .= "(lx_release_id, user_id, lx_file_name, lx_file_type, lx_file_size, lx_file_data, lx_file_date_added, lx_file_date_updated, lx_file_download) ";
-                       	$q .= "values ($release_id, $user_ID, '$fileName', '$fileType', $fileSize, '$fileData', " . time() . ", " . time() . ", 0)";
-                       	$this->wpdb->query($q);
 
-                   	}
+
+        		$log = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["log"])));
+            	$notes = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["notes"])));
+
+            	$q = "update " . $this->wpdb->prefix . "lx_release set lx_release_version = %s, lx_release_public = %d, lx_release_notes = %s, lx_release_log = %s where lx_release_id = %d limit 1";
+            	$q2 = $this->wpdb->prepare($q, $version, $_POST["public"], $notes, $log, $_POST["id"]);
+            	$this->wpdb->query($q2);
+
+            	if ($_FILES){
+               		for($i=1;$i<5;$i++){
+                	   	$arrayName = "file" . $i;
+                	   	$check = $arrayName . "-id";
+
+                   		if ($_FILES[$arrayName]["name"] != ''){
+    	                	$fileName = $_FILES[$arrayName]["name"];
+    			        	$fileType = $_FILES[$arrayName]["type"];
+                        	$fileSize = $_FILES[$arrayName]["size"];
+                       		$fp       = fopen($_FILES[$arrayName]["tmp_name"], 'r');
+                      		$fileData = fread($fp, filesize($_FILES[$arrayName]["tmp_name"]));
+                       		$fileData = addslashes($fileData);
+                       		fclose($fp);
+
+                            if ($_POST[$check] != ''){
+                            	$q = "update " . $this->wpdb->prefix . "lx_file set ";
+                            	$q .= "lx_file_name = '$fileName', ";
+                            	$q .= "lx_file_type = '$fileType', ";
+                            	$q .= "lx_file_size = '$fileSize', ";
+                            	$q .= "lx_file_data = '$fileData', ";
+                            	$q .= "lx_file_date_updated = '" . time() . "', ";
+                            	$q .= "lx_file_download = '0' ";
+                            	$q .= "where lx_file_id = '" . $_POST[$check] . "' limit 1";
+                            }
+                            else {
+    	                		$q = "insert into " . $this->wpdb->prefix . "lx_file ";
+                     			$q .= "(lx_release_id, user_id, lx_file_name, lx_file_type, lx_file_size, lx_file_data, lx_file_date_added, lx_file_date_updated, lx_file_download) ";
+                       			$q .= "values ($release_id, $user_ID, '$fileName', '$fileType', $fileSize, '$fileData', " . time() . ", " . time() . ", 0)";
+                            }
+                            //print($q);
+                            //die();
+                       		$this->wpdb->query($q);
+
+	                   	}
+                	}
                 }
             }
+            $url = "admin.php?page=lx_projects&action=view&id=" . $_POST["project_id"] . "&code=rm";
         }
 
         if ($url != ''){
@@ -271,7 +305,11 @@ class listingx_releases {
     function releaseForm($post=''){
 	    global $filter;
         $nonce = wp_create_nonce();
-        if ($_GET["id"]){
+        if ($_GET["id"] || $_POST["id"]){
+
+
+
+
     	    $label = "Modify Release";
             $action = "modify";
          	$q = "select p.lx_project_id as project_id, ";
@@ -286,6 +324,13 @@ class listingx_releases {
         	$q .= "from  " . $this->wpdb->prefix . "lx_project p, " . $this->wpdb->prefix . "lx_release r where r.lx_project_id = p.lx_project_id and r.lx_release_id = %d";
         	$row = $this->wpdb->get_row($this->wpdb->prepare($q, $_GET["id"]));
         	$project_id = $row->project_id;
+            if ($post == true){
+            	$project_id = $_POST["project_id"];
+            	$row->version = $_POST["version"];
+            	$row->notes = $_POST["notes"];
+            	$row->log = $_POST["log"];
+            	$row->public = $_POST["public"];
+            }
 		}
         else {
             $label = "Add Release";
@@ -359,6 +404,8 @@ class listingx_releases {
             foreach($result1 as $r){
             	$varName = "file" . $x;
             	$$varName = "<a href=\"$subLink" . $r->id . "\">" . $r->name . "</a>";
+            	$$varName .= "<input type=\"hidden\" name=\"$varName" . "-id\" value=\"" . $r->id . "\" />";
+                $x++;
             }
         }
 
