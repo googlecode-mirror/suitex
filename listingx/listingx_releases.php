@@ -44,7 +44,6 @@ class listingx_releases {
 
     	$rows = array();
 
-
         $headers["r.lx_release_version"]  = "Version";
         $headers["u.user_login"]          = "Owner";
         $headers["r.lx_release_notes"]    = "Notes";
@@ -69,6 +68,17 @@ class listingx_releases {
             $approved = $filter[$row->approved];
             $public   = $filter[$row->public];
             $rows[$row->id] = array($row->version, $row->owner, $row->notes, $row->log, $public, $approved);
+
+            $query = "select lx_file_id as id, lx_file_name as name, lx_file_size as size, ";
+            $query .= "lx_file_type as type, lx_file_download as download from " . $this->wpdb->prefix . "lx_file where ";
+            $query .= "lx_release_id = '" . $row->id . "'";
+            $result1 = $this->wpdb->get_results($query);
+
+            $s = array();
+            foreach($result1 as $r){
+            	$s[] = array("id" => $r->id, "name" => $r->name, "size" => $r->size, "type" => $r->type, "download" => $r->download);
+            }
+            $rows[$row->id]["sub"] = $s;
     	}
     	$url = "admin.php?page=lx_projects&action=release&releaseAction=form&id=";
     	$list->startList($headers, $url, '', '', $rows, array("page" => "lx_projects"));
@@ -271,14 +281,6 @@ class listingx_releases {
             	$row->log = $_POST["log"];
             	$row->public = $_POST["public"];
             }
-
-
-
-
-
-
-
-
         }
 
         $text = "<div class=\"wrap\">";

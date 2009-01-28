@@ -10,6 +10,14 @@ class listingx_list {
  	var $search   = false;
  	var $orderForm = false;
 
+ 	function __construct(){
+ 		global $wpdb;
+
+ 		$this->wpdb = $wpdb;
+ 		$this->options = get_option('listingx_options');
+
+ 	}
+
  	function listHeaders($headerArray, $link, $order, $sort){
 
  	}
@@ -108,6 +116,12 @@ class listingx_list {
 
         $plus = get_option('siteurl') . "/wp-content/plugins/listingx/plus.gif";
 
+        if ($this->fold == true){
+        	print("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["download_page_id"] . "' limit 1");
+        	$subLink = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["download_page_id"] . "' limit 1");
+
+        }
+
         foreach(array_keys($rows) as $id){
         	if ($x/2){ $class = "class=\"alternate\""; }
         	else { $x++; }
@@ -120,21 +134,20 @@ class listingx_list {
         	}
         	//else { die("NO CHECK BOX"); }
         	$j=1;
-
         	foreach($rows[$id] as $r){
             	$rowspan = '';
             	if ($j == 1 && $this->fold == true){ $rowspan = "rowspan=\"2\""; $fold=1; }
-            	$text .= "<td $rowspan>";
-            	if ($j == 1){
-            		$text .= "<strong><a href=\"$link" . "$id\">";
-            		$text .= $r . "</a></strong>";
+            	if (!is_array($r)){
+            		$text .= "<td $rowspan>";
+            		if ($j == 1){
+            			$text .= "<strong><a href=\"$link" . "$id\">";
+            			$text .= $r . "</a></strong>";
+            		}
+        	    	else { $text .= $r; }
 
-
+    	        	$text .= "</td>\r\n";
+	            	$j++;
             	}
-            	else { $text .= $r; }
-
-            	$text .= "</td>\r\n";
-            	$j++;
         	}
         	$text .= "</tr>\r\n";
         	if ($fold == 1){
@@ -143,11 +156,17 @@ class listingx_list {
         		$text .= "<a href=\"javascript:openSub('release-$id', 'image-$id', '" . get_option('siteurl') . "/wp-content/plugins/listingx'); \">";
         		$text .= "<img src=\"$plus\" border=\"0\" width=\"10\" height=\"10\" id=\"image-$id\" /></a>";
         		$text .= "<div id=\"release-$id\" style=\"display:none;\">";
-        		$text .= "<table><tr><td><strong>Filename:</strong><br />FILENAME</td>\r\n";
-        		$text .= "<td><strong>Size:</strong><br />FILESIZE</td>\r\n";
-        		$text .= "<td><strong>Type:</strong><br />FILETYPE</td>\r\n";
-        		$text .= "<td><strong>Downloads:</strong><br />DOWNALODS</td>\r\n";
-        		$text .= "</tr>\r\n";
+        		$text .= "<table width=\"100%\">";
+        		$text .= "<tr><th>Filename</th><th>Size</th><th>Type</th><th>Downloads</th></tr>";
+
+        		foreach($rows[$id]["sub"] as $sub){
+	        		$text .= "<tr><td>";
+	        		$text .= "<a href=\"$subLink" . "&file=" . $sub["id"] . "\">" . $sub["name"] . "</a></td>\r\n";
+        			$text .= "<td>" . $this->fileSize($sub["size"]) . "</td>\r\n";
+        			$text .= "<td>" . $sub["type"] . "</td>\r\n";
+        			$text .= "<td>" . $sub["download"] . "</td>\r\n";
+        			$text .= "</tr>\r\n";
+        		}
         		$text .= "</table></div>";
 
         		$fold = 0;
@@ -160,5 +179,17 @@ class listingx_list {
  	function endList($listName){
 
  	}
+
+    function fileSize($size){
+    	if ($size < 1000){ return $size; }
+    	else if ($size < 1000000){
+    		$size = number_format($size/1000, 2) . "K";
+    		return $size;
+    	}
+    	else {
+    		$size = number_format($size/1000000, 2) . "M";
+    		return $size;
+    	}
+    }
 }
 ?>

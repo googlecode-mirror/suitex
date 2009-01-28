@@ -357,7 +357,7 @@ class listingx_projects {
 
 			$this->wpdb->query("update " . $this->wpdb->prefix . "lx_project set lx_project_page_id = '$page_id' where lx_project_id = '$id' limit 1");
             $cat_id = $this->wpdb->get_var("select term_id from " . $this->wpdb->prefix . "terms where slug = 'new-project' limit 1");
-            $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "post where ID = '$page_id' limit 1");
+            $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '$page_id' limit 1");
             $link = "<a href=\"" . $link . "\">Project Homepage</a>";
 
     		$body = $this->options["newProjectPostText"];
