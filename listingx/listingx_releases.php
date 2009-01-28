@@ -265,6 +265,7 @@ class listingx_releases {
         	$q .= "r.lx_release_version as version, ";
         	$q .= "r.lx_release_public as public, ";
         	$q .= "r.lx_release_log as log, ";
+        	$q .= "r.lx_release_notes as notes, ";
         	$q .= "r.user_id as user ";
         	$q .= "from  " . $this->wpdb->prefix . "lx_project p, " . $this->wpdb->prefix . "lx_release r where r.lx_project_id = p.lx_project_id and r.lx_release_id = %d";
         	$row = $this->wpdb->get_row($this->wpdb->prepare($q, $_GET["id"]));
@@ -323,10 +324,27 @@ class listingx_releases {
         for($i=0;$i<2;$i++){
         	if ($row->public == $i){ $s = "selected"; }
             else { $s = ''; }
-            $text .= "<option value=\"$i\">" . $filter[$i] . "</option>";
+            $text .= "<option value=\"$i\" $s>" . $filter[$i] . "</option>";
         }
         $text .= "</select></td></tr>";
 
+		if ($_GET["id"]){
+		    $options = get_option('listingx_options');
+		    $subLink = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $options["download_page_id"] . "' limit 1");
+		    $subLink .= "&file=";
+		    $query = "select lx_file_id as id, lx_file_name as name, lx_file_size as size, ";
+            $query .= "lx_file_type as type, lx_file_download as download from " . $this->wpdb->prefix . "lx_file where ";
+            $query .= "lx_release_id = '" . $_GET["id"] . "' order by lx_file_date_added asc";
+            $result1 = $this->wpdb->get_results($query);
+
+            $s = array();
+            $x=1;
+
+            foreach($result1 as $r){
+            	$varName = "file" . $x;
+            	$$varName = "<a href=\"$subLink" . $r->id . "\">" . $r->name . "</a>";
+            }
+        }
 
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>File 1:</strong></td>";
@@ -355,6 +373,10 @@ class listingx_releases {
 
 
 	    $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
+	    if ($_GET["id"]){
+	    	$text .= " <input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you Sure you want to Delete this Release?', 'admin.php?page=lx_projects&_wpnonce=$nonce&action=release&releaseAction=delete&id=" . $_GET["id"] . "\" />";
+	    }
+
     	$text .= "</p></form>";
         $text .= "</div></div></div></div>";
         $text .= "</div></div>";

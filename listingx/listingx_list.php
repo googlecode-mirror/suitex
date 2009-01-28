@@ -117,9 +117,7 @@ class listingx_list {
         $plus = get_option('siteurl') . "/wp-content/plugins/listingx/plus.gif";
 
         if ($this->fold == true){
-        	print("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["download_page_id"] . "' limit 1");
         	$subLink = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["download_page_id"] . "' limit 1");
-
         }
 
         foreach(array_keys($rows) as $id){
