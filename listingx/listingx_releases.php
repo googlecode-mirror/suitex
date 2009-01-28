@@ -140,7 +140,7 @@ class listingx_releases {
 		}
 
         else if ($_GET["releaseAction"] == "delete"){
-            $q = "select lx_project_id from " . $this->wpdb->prefix . "lx_relase where lx_release_id = %d limit 1";
+            $q = "select lx_project_id from " . $this->wpdb->prefix . "lx_release where lx_release_id = %d limit 1";
             $project_id = $this->wpdb->get_var($this->wpdb->prepare($q, $_GET["id"]));
             $q = "delete from " . $this->wpdb->prefix . "lx_release where lx_release_id = %d limit 1";
             $q2 = "delete from " . $this->wpdb->prefix . "lx_file where lx_release_id = %d";
@@ -197,8 +197,9 @@ class listingx_releases {
 
     	                    $q = "insert into " . $this->wpdb->prefix . "lx_file";
                         	$q .= "(lx_release_id, user_id, lx_file_name, lx_file_type, lx_file_size, lx_file_data, lx_file_date_added, lx_file_date_updated, lx_file_download) ";
-                        	$q .= "values (%d, %d, %s, %s, %d, %s, %d, %d, %d)";
-                        	$this->wpdb->query($this->wpdb->prepare($q, $release_id, $user_ID, $fileName, $fileType, $fileSize, $fileData, time(), time(), 0));
+                        	$q .= "values ($release_id, $user_ID, '$fileName', '$fileType', $fileSize, '$fileData', " . time() . ", " . time() . ", 0)";
+                        	$this->wpdb->query($q);
+                        	//$this->wpdb->query($this->wpdb->prepare($q, , , , , , , time(), time(), 0));
                     	}
                 	}
             	}
@@ -233,14 +234,28 @@ class listingx_releases {
 		}
 
         else if ($_GET["releaseAction"] == "modify"){
+        	$log = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["log"])));
+            $notes = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["notes"])));
+            if ($_FILES){
+               	for($i=1;$i<5;$i++){
+                   	$arrayName = "file" . $i;
+                   	if ($_FILES[$arrayName]["name"] != ''){
+    	                $fileName = $_FILES[$arrayName]["name"];
+    			        $fileType = $_FILES[$arrayName]["type"];
+                        $fileSize = $_FILES[$arrayName]["size"];
+                       	$fp       = fopen($_FILES[$arrayName]["tmp_name"], 'r');
+                      	$fileData = fread($fp, filesize($_FILES[$arrayName]["tmp_name"]));
+                       	$fileData = addslashes($fileData);
+                       	fclose($fp);
 
+    	                $q = "insert into " . $this->wpdb->prefix . "lx_file";
+                     	$q .= "(lx_release_id, user_id, lx_file_name, lx_file_type, lx_file_size, lx_file_data, lx_file_date_added, lx_file_date_updated, lx_file_download) ";
+                       	$q .= "values ($release_id, $user_ID, '$fileName', '$fileType', $fileSize, '$fileData', " . time() . ", " . time() . ", 0)";
+                       	$this->wpdb->query($q);
 
-
-
-
-
-
-
+                   	}
+                }
+            }
         }
 
         if ($url != ''){
@@ -255,6 +270,7 @@ class listingx_releases {
 
     function releaseForm($post=''){
 	    global $filter;
+        $nonce = wp_create_nonce();
         if ($_GET["id"]){
     	    $label = "Modify Release";
             $action = "modify";
@@ -297,7 +313,7 @@ class listingx_releases {
     	$text .= "<h3><label>$label</label></h3>";
         $text .= "<div class=\"inside\">";
     	$text .= "<form enctype=\"multipart/form-data\" method=\"post\" action=\"admin.php?page=lx_projects&action=release&releaseAction=$action\">";
-    	$text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . wp_create_nonce() . "\" />";
+    	$text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . $nonce . "\" />";
     	$text .= "<input type=\"hidden\" name=\"action\" value=\"$action\" />";
     	$text .= "<input type=\"hidden\" name=\"project_id\" value=\"" . $project_id . "\" />";
     	if ($_GET["id"]){
@@ -374,7 +390,7 @@ class listingx_releases {
 
 	    $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
 	    if ($_GET["id"]){
-	    	$text .= " <input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you Sure you want to Delete this Release?', 'admin.php?page=lx_projects&_wpnonce=$nonce&action=release&releaseAction=delete&id=" . $_GET["id"] . "\" />";
+	    	$text .= " <input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you Sure you want to Delete this Release?', 'admin.php?page=lx_projects&_wpnonce=$nonce&action=release&releaseAction=delete&id=" . $_GET["id"] . "');\" />";
 	    }
 
     	$text .= "</p></form>";

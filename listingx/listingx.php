@@ -47,6 +47,7 @@ register_deactivation_hook(__FILE__, array($aObj, 'listingx_uninstall'));
 add_action('admin_menu', array($aObj, 'listingx_admin_menu'));
 
 //add_filter('the_content', array($fObj, 'listingx_run'));
+add_action('wp', array($fObj, 'listingx_getFile'));
 
 
 
