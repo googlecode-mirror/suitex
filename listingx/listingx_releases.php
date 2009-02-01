@@ -83,6 +83,7 @@ class listingx_releases {
     	$url = "admin.php?page=lx_projects&action=release&releaseAction=form&id=";
     	$list->startList($headers, $url, '', '', $rows, array("page" => "lx_projects"));
     	$text .= $list->text . "</div>";
+
         return $text;
 
     }

@@ -27,3 +27,24 @@ function openSub(subName, imageName, imagePath){
 		}
 	}
 }
+
+function showTab(boxNum) {
+//alert(document.getElementById("tab").length);
+    for (i=1;i<5;i++) {
+        if (document.getElementById("tab"+i) && document.getElementById("vtab"+i)){
+            document.getElementById("tab"+i).className = "";
+            document.getElementById("vtab"+i).style.display = "none";
+        }
+    }
+    //if (!document.getElementById("tab"+boxNum)){ boxNum = 1; }
+    //if (!document.getElementById("tab"+boxNum)){ boxNum = 2; }
+
+    // added the if statements to avoid anoying javascript error messages
+    if ( document.getElementById("tab"+boxNum) ) {
+        document.getElementById("tab"+boxNum).className="selected";
+    }
+    if ( document.getElementById("vtab"+boxNum) ) {
+        document.getElementById("vtab"+boxNum).style.display = 'block';
+    }
+    //document.cookie =  page + "=" + escape(boxNum);
+}

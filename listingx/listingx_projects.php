@@ -128,7 +128,13 @@ class listingx_projects {
         	$query2 .= "where l.lx_project_id = '$current' order by c.lx_project_cat_name asc";
         	$cats = $this->wpdb->get_results($query2);
         	foreach($cats as $c){
-        		$categories .= "<a href=\"admin.php?page=lx_categories&id=" . $c->lx_project_cat_id . "&action=form\">";
+        		if ($this->frontEnd){
+        		    $categories .= "<a href=\"" . $this->projectPage . "&category_id=" . $c->lx_project_cat_id . "&action=search\">";
+        		}
+        		else {
+        			$categories .= "<a href=\"admin.php?page=lx_categories&id=" . $c->lx_project_cat_id . "&action=form\">";
+        		}
+
         		$categories .= $c->lx_project_cat_name . "</a>, ";
         	}
         	$categories = substr($categories, 0, -2);
