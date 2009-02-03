@@ -79,9 +79,9 @@ class listingx_admin {
 
         $options = get_option('listingx_options');
         if ($_POST['action'] == "update"){
-        	$options["newReleaseText"] = htmlentities($_POST["newReleaseText"]);
-        	$options["newProjectPageText"] = htmlentities($_POST["newProjectPageText"]);
-        	$options["newProjectPostText"] = htmlentities($_POST["newProjectPostText"]);
+        	$options["newReleaseText"] = $_POST["newReleaseText"];
+        	$options["newProjectPageText"] = $_POST["newProjectPageText"];
+        	$options["newProjectPostText"] = $_POST["newProjectPostText"];
         	update_option('listingx_options', $options);
         	$this->getMessage("sc");
         }

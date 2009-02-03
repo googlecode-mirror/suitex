@@ -242,13 +242,16 @@ class listingx_projects {
         $text .= "<td><strong>Project Categories:</strong></td>";
         $text .= "<td>" . $categories . "</td></tr>";
 
-
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>Project URL:</strong></td>";
-        $text .= "<td><a href=\"" . $row->url . "\" target=\"_new\">" . $row->url . "</a></td></tr>";
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>Project Donate URL:</strong></td>";
-        $text .= "<td><a href=\"" . $row->donate . "\" target=\"_new\">" . $row->donate . "</a></td></tr>";
+        if ($row->url != ''){
+        	$text .= "<tr class=\"form-field\">";
+        	$text .= "<td><strong>Project URL:</strong></td>";
+        	$text .= "<td><a href=\"" . $row->url . "\" target=\"_new\">" . $row->url . "</a></td></tr>";
+        }
+        if ($row->donate != ''){
+	        $text .= "<tr class=\"form-field\">";
+    	    $text .= "<td><strong>Project Donate URL:</strong></td>";
+        	$text .= "<td><a href=\"" . $row->donate . "\" target=\"_new\">" . $row->donate . "</a></td></tr>";
+        }
 
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>Project Approved:</strong></td>";
@@ -356,7 +359,8 @@ class listingx_projects {
         	$page['post_name']      = $_POST["name"];
         	$page['post_status']    = 'publish';
         	$page['comment_status'] = 'open';
-        	$page['post_content']   = $this->options["newProjectPageText"];
+        	//$page['post_content']   = $this->options["newProjectPageText"];
+        	$page['post_content']   = '';
         	$page['post_parent']    = $this->options["page_id"];
         	$page['post_author']    = $user_ID;
 			$page_id = wp_insert_post($page);
@@ -373,11 +377,12 @@ class listingx_projects {
 			$page = array();
 
         	$page['post_type']      = 'post';
-        	$page['post_title']     = $_POST["name"];
-        	$page['post_name']      = $_POST["name"];
+        	$page['post_title']     = "New Project: " . $_POST["name"];
+        	$page['post_name']      = "New Project: " . $_POST["name"];
         	$page['post_status']    = 'publish';
         	$page['comment_status'] = 'open';
         	$page['post_content']   = $body;
+        	$page['post_excerpt']   = $_POST["desc"];
         	$page['post_category']  = array($cat_id);
         	$page['post_author']    = $user_ID;
 			$page_id = wp_insert_post($page);
@@ -402,7 +407,8 @@ class listingx_projects {
     	}
     	else if ($_GET["action"] == "approve"){
 
-        	$q = "select lx_project_page_id, lx_project_name, lx_project_desc from " . $this->wpdb->prefix . "lx_project where lx_project_id = %d limit 1";
+        	$q = "select u.ID, u.user_email, p.lx_project_page_id, p.lx_project_name, p.lx_project_desc ";
+        	$q .= "from " . $this->wpdb->prefix . "lx_project p where p.lx_project_id = %d limit 1";
         	$row = $this->wpdb->get_row($this->wpdb->prepare($q, $_GET["id"]));
         	$page_id = $row->lx_project_page_id;
 
@@ -411,19 +417,9 @@ class listingx_projects {
 
 			$dateFormat = get_option("date_format") . ", " . get_option("time_format");
 
-        	$page['post_type']      = 'page';
-        	$page['post_title']     = $row->lx_project_name;
-        	$page['post_name']      = $row->lx_project_name;
-        	$page['post_status']    = 'publish';
-        	$page['comment_status'] = 'open';
-        	$page['post_content']   = $this->options["newProjectPageText"];
-        	$page['post_parent']    = $this->options["page_id"];
-        	$page['post_author']    = $user_ID;
-			$page_id = wp_insert_post($page);
-
 			$this->wpdb->query("update " . $this->wpdb->prefix . "lx_project set lx_project_page_id = '$page_id' where lx_project_id = '$id' limit 1");
             $cat_id = $this->wpdb->get_var("select term_id from " . $this->wpdb->prefix . "terms where slug = 'new-project' limit 1");
-            $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "post where ID = '$page_id' limit 1");
+            $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '$page_id' limit 1");
             $link = "<a href=\"" . $link . "\">Project Homepage</a>";
 
     		$body = $this->options["newProjectPostText"];
@@ -433,16 +429,35 @@ class listingx_projects {
 			$page = array();
 
         	$page['post_type']      = 'post';
-        	$page['post_title']     = $row->lx_project_name;
-        	$page['post_name']      = $row->lx_project_name;
+        	$page['post_title']     = "New Project: " . $row->lx_project_name;
+        	$page['post_name']      = "New Project: " . $row->lx_project_name;
         	$page['post_status']    = 'publish';
         	$page['comment_status'] = 'open';
         	$page['post_content']   = $body;
         	$page['post_category']  = array($cat_id);
+        	$page['post_excerpt']   = $row->lx_project_desc;
         	$page['post_author']    = $user_ID;
 			$page_id = wp_insert_post($page);
 
-			wp_publish_post($page_id);
+            $exclude = get_option('exclude_pages');
+
+            foreach($exclude as $e){
+            	if ($e != $row->lx_project_page_id){
+            		$hold[] = $e;
+            	}
+            }
+            update_option('exclude_pages', $hold);
+
+			$headers = "From: " . get_option("blogname") . " Administrator <" . get_option("admin_email") . ">\r\n";
+        	$headers .= "X-Sender: <" . get_option("admin_email") . ">\r\n";
+      		$headers .= "X-Mailer: PHP\r\n";
+      		$headers .= "X-Priority: 3\r\n";
+      	  	$headers .= "Reply-To: " . get_option("admin_email") . "\r\n";
+
+      	 	$subject = "Your project '" . $row->lx_project_name . "' has been approved";
+      	 	$message = "To view or modify your project, please login into " . get_option("blogname");
+
+      	 	mail($row->user_email, $subject, $message, $headers);
 
         	$url = "admin.php?page=lx_projects&action=view&id=" . $_GET["id"] . "&code=ap";
     	}

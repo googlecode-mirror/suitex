@@ -11,6 +11,8 @@ class listingx_releases {
     function __construct($parent){
     	$this->wpdb   = $parent->wpdb;
         $this->parent = $parent;
+        $this->options = get_option('listingx_options');
+
     }
 
     function run(){
@@ -60,7 +62,7 @@ class listingx_releases {
         $query .= "r.lx_release_approved as approved ";
         $query .= "from " . $this->wpdb->prefix . "lx_release r ";
         $query .= "left join " . $this->wpdb->prefix . "users u on u.ID = r.user_id ";
-        $query .= "where r.lx_project_id = '$project_id' order by r.lx_release_version asc";
+        $query .= "where r.lx_project_id = '$project_id' order by r.date asc";
 
     	$result = $this->wpdb->get_results($query);
 
@@ -106,7 +108,7 @@ class listingx_releases {
         	$q .= "from  " . $this->wpdb->prefix . "lx_project p, " . $this->wpdb->prefix . "lx_release r where r.lx_project_id = p.lx_project_id and r.lx_release_id = %d";
         	$row = $this->wpdb->get_row($this->wpdb->prepare($q, $_GET["id"]));
 
-        	$link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "post where ID = '" . $row->page_id . "' limit 1");
+        	$link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $row->page_id . "' limit 1");
         	$link = "<a href=\"" . $link . "\">Project Homepage</a>";
 
             $q = "update " . $this->wpdb->prefix . "lx_release set lx_release_approved = 1 where lx_release_id = %d limit 1";
@@ -130,6 +132,7 @@ class listingx_releases {
                 $page['post_status']    = 'publish';
 				$page['comment_status'] = 'open';
                 $page['post_content']   = $body;
+                $page['post_excerpt']   = $row->log;
                 $page['post_category']  = array($cat_id);
                 $page['post_author']    = $row->user;
                 $page_id = wp_insert_post($page);
@@ -166,12 +169,12 @@ class listingx_releases {
                 $q .= "p.lx_project_page_id as page_id, ";
                 $q .= "p.lx_project_desc as project_desc, ";
                 $q .= "p.lx_project_name as name ";
-                $q .= "from " . $this->wpdb->prefix . "lx_project where lx_project_id = '" . $_POST["project_id"] . "' limit 1";
+                $q .= "from " . $this->wpdb->prefix . "lx_project p where lx_project_id = '" . $_POST["project_id"] . "' limit 1";
                 $row = $this->wpdb->get_row($q);
 
-    	        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "post where ID = '" . $row->page_id . "' limit 1");
-            	$link = "<a href=\"" . $link . "\">Project Homepage</a>";
 
+    	        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $row->page_id . "' limit 1");
+            	$link = "<a href=\"" . $link . "\">Project Homepage</a>";
 
             	$log = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["log"])));
             	$notes = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["notes"])));
@@ -210,11 +213,9 @@ class listingx_releases {
                     $body = str_replace("::PROJECTPAGE::", $link, $body);
                     $body = str_replace("::DESC::", $row->project_desc, $body);
                     $body = str_replace("::LOG::", $log, $body);
-                    $body = str_replace("::CATEGORIES::", $this->parent->catForm("list", $row->project_id));
+                    $body = str_replace("::CATEGORIES::", $this->parent->catForm("list", $row->project_id), $body);
 
     	            $cat_id = $this->wpdb->get_var("select term_id from " . $this->wpdb->prefix . "terms where slug = 'new-release' limit 1");
-
-    	            $name = $row->name . " " . $row->version;
 
                     $page = array();
                     $page['post_type']      = 'post';
@@ -223,12 +224,13 @@ class listingx_releases {
                     $page['post_status']    = 'publish';
     	            $page['comment_status'] = 'open';
     	            $page['post_content']   = $body;
+    	            $page['post_excerpt']   = $log;
                     $page['post_category']  = array($cat_id);
                     $page['post_author']    = $user_ID;
                     $page_id = wp_insert_post($page);
-                    wp_publish_post($page_id);
+                    //wp_publish_post($page_id);
     			}
-
+                //die();
             	$url = "admin.php?page=lx_projects&action=view&id=" . $_POST["project_id"] . "&code=ra";
             }
 
