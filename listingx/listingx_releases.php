@@ -62,7 +62,7 @@ class listingx_releases {
         $query .= "r.lx_release_approved as approved ";
         $query .= "from " . $this->wpdb->prefix . "lx_release r ";
         $query .= "left join " . $this->wpdb->prefix . "users u on u.ID = r.user_id ";
-        $query .= "where r.lx_project_id = '$project_id' order by r.date asc";
+        $query .= "where r.lx_project_id = '$project_id' order by r.lx_release_date asc";
 
     	$result = $this->wpdb->get_results($query);
 

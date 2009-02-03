@@ -408,7 +408,9 @@ class listingx_projects {
     	else if ($_GET["action"] == "approve"){
 
         	$q = "select u.ID, u.user_email, p.lx_project_page_id, p.lx_project_name, p.lx_project_desc ";
-        	$q .= "from " . $this->wpdb->prefix . "lx_project p where p.lx_project_id = %d limit 1";
+        	$q .= "from " . $this->wpdb->prefix . "lx_project p ";
+        	$q .= "left join " . $this->wpdb->prefix . "users u on u.ID = p.user_id ";
+        	$q .= "where p.lx_project_id = %d limit 1";
         	$row = $this->wpdb->get_row($this->wpdb->prepare($q, $_GET["id"]));
         	$page_id = $row->lx_project_page_id;
 
@@ -436,17 +438,17 @@ class listingx_projects {
         	$page['post_content']   = $body;
         	$page['post_category']  = array($cat_id);
         	$page['post_excerpt']   = $row->lx_project_desc;
-        	$page['post_author']    = $user_ID;
+        	$page['post_author']    = $row->ID;
 			$page_id = wp_insert_post($page);
 
-            $exclude = get_option('exclude_pages');
+            //$exclude = get_option('exclude_pages');
 
-            foreach($exclude as $e){
-            	if ($e != $row->lx_project_page_id){
-            		$hold[] = $e;
-            	}
-            }
-            update_option('exclude_pages', $hold);
+            //foreach($exclude as $e){
+            //	if ($e != $row->lx_project_page_id){
+            //		$hold[] = $e;
+            //	}
+            //}
+            //update_option('exclude_pages', $hold);
 
 			$headers = "From: " . get_option("blogname") . " Administrator <" . get_option("admin_email") . ">\r\n";
         	$headers .= "X-Sender: <" . get_option("admin_email") . ">\r\n";
