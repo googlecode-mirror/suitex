@@ -1,15 +1,15 @@
 <?php
 /*
-Plugin Name: wineX
+Plugin Name: WineX
 Plugin URI: http://www.thisrand.com/scripts/winex
 Description: A lightwieght script used to display the contents of your CellarTracker cellar on your website.
-Version: 0.1
+Version: 1.1
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
 */
 
-/*  Copyright 2006  Xnuiem  (email : scripts @T thisrand D07 com)
+/*  Copyright 2008 Xnuiem  (email : scripts @T thisrand D07 com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ Author URI: http://www.thisrand.com
  * @since 2.6
  */
 
-ini_set('allow_url_fopen', "1");
+ini_set('allow_url_fopen', 1);
 
 $pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'winex';
 require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'winex_functions.php');
