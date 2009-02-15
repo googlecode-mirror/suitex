@@ -7,16 +7,18 @@ class themex_functions {
  	*/
 
 	function checkTheme(){
-
+        global $wpdb;
 		/**
 	 	* Checks to see if the theme/time are in sync, and changes the theme if not.
 	 	*/
 
 		$time = date("H", time());
 		$current = get_current_theme();
+		$themes  = get_themes();
 		$options = get_option("themex_options");
 
 		$offset = 0;
+        $current = $themes[$current]["Template"];
 
 		if (count($options) > 3){
 			//Ok, module is active, let's see what to do.
@@ -40,6 +42,7 @@ class themex_functions {
 						}
         			}
 				}
+
 
 				if (($time) >= $options['dayStart'] && $current != $options['dayTheme']){
 					//Time is past or equal to day start and current theme is night.
@@ -81,7 +84,6 @@ class themex_functions {
             	    else if ($compareDate > date('YndH')){ break; }
 
             	}
-
             	if ($current != $checkTheme){ switch_theme($checkTheme, $checkTheme); }
             }
 		}

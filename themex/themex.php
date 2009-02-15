@@ -3,7 +3,7 @@
 Plugin Name: ThemeX
 Plugin URI: http://www.thisrand.com/scripts/themex
 Description:  A lightweight plugin that will allow the automatic rotation of a pair of themes based on the time of day.
-Version: 0.3
+Version: 0.4
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
