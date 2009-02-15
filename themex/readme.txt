@@ -15,7 +15,7 @@ for each are customizable through an administration interface.
 
 == Installation ==
 
-1. Upload the ticketx directory to the `/wp-content/plugins/` directory
+1. Upload the themex directory to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Under the Tools menu, go to the 'ThemeX' administration page
 4. Enter in the two themes you wish to use, and the times for starts
