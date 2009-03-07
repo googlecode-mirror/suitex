@@ -3,8 +3,9 @@
 class themex_functions {
 	/**
 	* The front-end methods for themeX.
- 	* @package WordPress
- 	*/
+ 	* @package  WordPress
+    * @author   Xnuiem
+ 	*/          
 
 	function checkTheme(){
         global $wpdb;
@@ -19,6 +20,8 @@ class themex_functions {
 
 		$offset = 0;
         $current = $themes[$current]["Template"];
+        
+        
 
 		if (count($options) > 3){
 			//Ok, module is active, let's see what to do.
@@ -42,9 +45,8 @@ class themex_functions {
 						}
         			}
 				}
-
-
-				if (($time) >= $options['dayStart'] && $current != $options['dayTheme']){
+                
+				if (($time) >= $options['dayStart'] && $current != $options['dayTheme'] && ($time) <= $options['nightStart']){
 					//Time is past or equal to day start and current theme is night.
 					//print("Inside 1");
 					switch_theme($options['dayTheme'], $options['dayTheme']);

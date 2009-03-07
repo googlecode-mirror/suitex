@@ -44,7 +44,7 @@ register_activation_hook(__FILE__, array($aObj, 'themex_install'));
 register_deactivation_hook(__FILE__, array($aObj, 'themex_uninstall'));
 
 add_action('admin_menu', array($aObj, 'themex_admin_menu'));
-add_action('send_headers', array($tObj, 'checkTheme'));
+add_action('init', array($tObj, 'checkTheme'));
 
 
 
