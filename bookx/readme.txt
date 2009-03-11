@@ -1,34 +1,40 @@
-=== Plugin Name ===
+=== BookX ===
 Contributors: Xnuiem
 Donate link: http://www.thisrand.com
-Tags: comments, spam
+Tags: plugin, content
 Requires at least: 2.6
-Tested up to: 2.6
+Tested up to: 2.7.1
 Stable tag: 0.1
 
-A lightweight script used to display the contents of your CellarTracker cellar on your website.
+A simple but powerful recommended book plugin.
+
 
 == Description ==
 
-This plugin grabs the contents of your CellarTracker wine cellar once a day and stores it on your server
-allowing your users to see your wine cellar on your site, in your theme.
+BookX creates an easy way to give your site visitors a peek at your recommended books.  Using only ISBN numbers, it gets the
+information from Barnes and Noble (http://www.bn.com) and stores the information locally to both speed up the response time, but
+also to not bog down their servers with repetetive requests.  BookX creates a widget for your sidebar, a list view, and detail view, 
+all customizable from the easy to use admin interface.
 
 == Installation ==
 
-1. Upload the winex directory to the `/wp-content/plugins/` directory
+1. Upload the bookx directory to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Under "Manage" in the Administration area, update the WineX page with your CellarTracker Member #
+3. Under the Tools menu, go to the 'BookX' administration page 
+4. Now all you need to do is start adding your book's ISBN numbers.
 
 == Frequently Asked Questions ==
-
-See http://www.thisrand.com/scripts/winex for any questions
+None Yet
 
 == Change Log ==
+<b>0.1</b><br />
+Initial Release
 
-0.1
-Initial Version
+
+== Screenshots==
+None Yet
 
 
-== To Do ==
-Allow the selection of columns
-Order the columns
+== Demos ==
+[this.rand()](http://www.thisrand.com) <br />
+
