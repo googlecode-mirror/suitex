@@ -1,225 +1,288 @@
 <?php
 
 /**
- * The functions for WineX, both admin and front-end
+ * The functions for bookX, both admin and front-end
  *
  * @package WordPress
+ * @author  Xnuiem
  */
 
-class wineX {
+class bookx_functions {
     var $basePath;
+    var $options;
+    var $wpdb;
+    var $text;
+    
 
     /**
-    * The construct function for the wineX class.  It adds a path variable to class.
+    * The construct function for the bookX class.  It adds a path variable to class.
     *
     * @param NULL
     * @return NULL
     */
 
     function __construct(){
-        global $pluginBase;
-        $this->contentFile = $pluginBase . DIRECTORY_SEPARATOR . 'winex.contents';
-    }
-
-    /**
-    * Fetches the wine list from CellarTracker and creates the cache file
-    *
-    * @param array $wArray winex options array
-    * @return string $text page content
-    */
-
-    function winex_fetchWineList($wArray){
-
-    	if ($wArray['user_id']){
-        	$date = date('Ymd');
-    		$url = 'http://www.cellartracker.com/list.asp?iUserOverride=' . $wArray['user_id'] . '&Page=0';
-
-    		if (function_exists('curl_init')){
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url );
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                $lines = curl_exec($ch);
-                curl_close($ch);
-            }
-            else {
-                $lines = file_get_contents($url);
-            }
-
-
-            $start = "<table width='100%' class='editList'>";
-            $end = "<!-- END MAIN PAGE -->";
-            $lines = substr($lines, strpos($lines, $start));
-            $lines = substr($lines, 0, strpos($lines, $end));
-            $trans["href='wine.asp"] = " target='_new' href='http://www.cellartracker.com/wine.asp";
-            $trans["href='list.asp"] = " target='_new' href='http://www.cellartracker.com/list.asp";
-            $trans['/images/'] = "http://www.cellartracker.com/images/";
-            $trans['images/camera.gif'] = "http://www.cellartracker.com/images/camera.gif";
-            $trans['lbl_disp.asp'] = "http://www.cellartracker.com/lbl_disp.asp";
-            $trans['<i>'] = "<br><i>";
-            $trans['</th>'] = "</th>\r\n";
-            $trans['</tr>'] = "</tr>\r\n";
-            $trans['</td>'] = "</td>\r\n";
-            $trans["<span style='background:#FFFFCC'>"] = '';
-            $trans['</span>'] = '';
-            $text = strtr($lines,$trans);
-
-            $wArray['date'] = $date;
-            update_option('winex_options', $wArray);
-
-            touch($this->contentFile);
-            $fp = fopen($this->contentFile, 'w' );
-            fwrite($fp, $text);
-            fclose($fp);
-
-        }
-        else {
-            $text = 'WineX needs your CellarTracker user_id before it can download your cellar listing';
-
-        }
-        return $text;
-
-    }
-
-    /**
-    * Checks against date to see if a new cache file is required, otherwise returns
-    * the contents of the current one.
-    *
-    * @param string $content page content, incoming
-    * @return string $content page content
-    */
-
-    function winex_showWineList($content){
-		global $id;
-
-        $wArray = get_option('winex_options');
-        if ($id == $wArray['page_id']){
-            if ($wArray['date'] != date('Ymd')){
-                $content = $this->winex_fetchWineList($wArray);
-            }
-            else {
-                $content = file_get_contents($this->contentFile);
-            }
-        }
-        return $content;
-    }
-
-    /**
-    * Installs the plugin by creating the page and options
-    *
-    * @param NULL
-    * @return NULL
-    */
-
-    function winex_install(){
-
-    	$page                   = array();
-    	$page['post_type']      = 'page';
-    	$page['post_title']     = 'Wine Cellar';
-    	$page['post_name']      = 'winecellar';
-    	$page['post_status']    = 'publish';
-    	$page['comment_status'] = 'closed';
-    	$page['post_content']   = 'This page is used to display your CellarTracker wine cellar via WineX.<br /><br /><!--WINEX-->';
-
-    	$page_id = wp_insert_post($page);
-    	$wArray['page_id'] = $page_id;
-    	$wArray['user_id'] = '';
-    	$wArray['date']    = '';
-
-    	update_option('winex_options', $wArray);
-
-    }
-
-    /**
-    * Uninstalls the plugin by deleting the options and page
-    *
-    * @param NULL
-    * @return NULL
-    */
-
-    function winex_uninstall(){
-        $wArray = get_option('winex_options');
-
         global $wpdb;
-        $sql = "delete from `" . $wpdb->prefix . "posts` where `ID` = '" . $wArray['page_id'] . "' limit 1";
-		$wpdb->query($sql);
-    	delete_option('winex_options');
-
+        $this->wpdb = $wpdb;
+     
     }
-
+    
     /**
-    * The hook for the admin menu
-    *
-    * @param NULL
-    * @return NULL
+    * Currently not used.
+    * 
     */
 
-    function winex_admin_menu(){
-        add_management_page('WineX', 'WineX', 1, __FILE__, array($this, 'winex_admin_page'));
+    function bookx_search(){
+        
+        
+        
     }
-
+    
     /**
-    * The administration page for updating options
-    *
-    * @param NULL
-    * @return NULL
+    * Shows a single book
+    * 
     */
 
-    function winex_admin_page(){
-        $wArray = get_option('winex_options');
-		if ($_POST['action'] == "update"){
-            $user_id = trim(rtrim($_POST['user_id']));
+    
+    function bookx_showItem(){
+        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1");
+        
+        $text = "<div id=\"bookx_content\">";
+       
+        $sql = "select bx_item_publisher, bx_item_price, bx_item_date, bx_item_summary, bx_item_comments, bx_item_link, ";
+        $sql .= "bx_item_id, bx_item_name, bx_item_isbn, bx_item_format, bx_item_pages, bx_item_author, bx_item_image";
+        $sql .= " from " . $this->wpdb->prefix . "bx_item where bx_item_id = %d limit 1";
 
-            if (!is_numeric($user_id)){
-                $message = "Invalid Member ID";
+        $row = $this->wpdb->get_row($this->wpdb->prepare($sql, $_GET["book_id"]));
+        
+        
+        if (substr_count($this->options["detailTemplate"], "::IMAGE::")){
+            $doImage = true;            
+        }
+        
+        
+        if ($doImage){
+            $image = $row->bx_item_image;
+            
+            $sourceWidth = substr($image, strpos($image, "width=\"") + 7);
+            $sourceWidth = substr($sourceWidth, 0, strpos($sourceWidth, "\""));
+
+            $sourceHeight = substr($image, strpos($image, "height=\"") + 8);
+            $sourceHeight = substr($sourceHeight, 0, strpos($sourceHeight, "\""));            
+            
+            if ($sourceWidth > $this->options["detail_image_width"]) {
+                $newWidth  = $this->options["detail_image_width"];
+                $newHeight = (INTEGER) ($sourceHeight * ($this->options["detail_image_width"] / $sourceWidth));
+            } 
+            else if ($sourceHeight > $this->options["detail_image_height"]) {
+                $newWidth  = (INTEGER) ($sourceWidth * ($this->options["detail_image_height"] / $sourceHeight));
+                $newHeight = $this->options["detail_image_height"];
+            } 
+            else {
+                $newWidth  = $sourceWidth;
+                $newHeight = $sourceHeight;
             }
-
-
-            if (!$message){
-                if ($user_id != $wArray['user_id']){
-                    $wArray['user_id'] = $user_id;
-                    $wArray['date'] = 0;
-                }
-
-                if ($_POST['winex_date'] == 0){
-                    $wArray['date'] = 0;
-                }
-                update_option('winex_options', $wArray);
-				$message = 'Options Updated';
+            $image = str_replace('width="' . $sourceWidth . '"', 'width="' . $newWidth . '"', $image);
+            $image = str_replace('height="' .$sourceHeight . '"', 'height="' . $newHeight . '"', $image);
+            if ($this->options["detail_image_align"] != ''){
+                $image = str_replace("src", "align=\"" . $this->options['list_image_align'] . "\" src", $image);       
             }
+                
 
-
-
-
-		}
-
-
-        $text .= "<div class=\"wrap\"><h2>WineX</h2>";
-        $text .= "WineX enables you to import your <a href=\"http://www.cellartracker.com\" target=\"_new\">CellarTracker</a>";
-        $text .= " into your WP installation.  <br /><br />WineX downloads your cellar";
-        $text .= " once a day and saves it.  This keeps it running fast for both your users and your server.";
-        //$text .= "  If you would like WineX to reset the cache contents, use the check box below.";
-        $text .= "<form method=\"post\" action=\"\">";
-        $text .= "<input type=\"hidden\" name=\"action\" value=\"update\" />";
-        if ($message){ $text .= "<br /><b><span style=\"color:#FF0000;\">$message</span></b>"; }
-        $text .= "<table class=\"form-table\">";
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"member_number\">CellarTracker Member #:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"user_id\" value=\"" . $wArray['user_id'] . "\" />";
-        $text .= "</td></th></tr>";
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"reset_cache\">Reset Cache:</label></th>";
-        $text .= "<td><input type=\"checkbox\" name=\"winex_date\" value=\"0\" />";
-        $text .= "</td></th></tr>";
-        $text .= "</table>";
-
-
-
-        $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
-        $text .= "</p></form></div>";
-        print($text);
+            
+            
+            
+            $trans["::ELINK::"]     = $row->bx_item_link;
+            $trans["::TITLE::"]     = $row->bx_item_name;
+            $trans["::AUTHOR::"]    = $row->bx_item_author;            
+            $trans["::ISBN::"]      = $row->bx_item_isbn;             
+            $trans["::PUBLISHER::"] = $row->bx_item_publisher;             
+            $trans["::DATE::"]      = date(get_option("date_format"), $row->bx_item_date);             
+            $trans["::PAGES::"]     = $row->bx_item_pages;             
+            $trans["::FORMAT::"]    = $row->bx_item_format;             
+            $trans["::IMAGE::"]     = $image;            
+            $trans["::PRICE::"]     = $row->bx_item_price;            
+            $trans["::SUMMARY::"]   = $row->bx_item_summary;            
+            $trans["::COMMENTS::"]  = $row->bx_item_comments;
+             
+            $text .= "<div class=\"bookx_detail_entry\">" . strtr(stripslashes($this->options["detailTemplate"]), $trans) . "</div>";
+            
+            
+  
+            
+        }
+        
+        $text .= "</div>"; 
+        $this->text = $text;        
+        
     }
+    
+    /**
+    * Shows a list of books
+    * 
+    */
 
+    function bookx_listItems(){
+        
+        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1");
+        
+        if ($_POST["order"]){ $order = $_POST["order"]; }
+        else if ($_GET["order"]){ $order = $_GET["order"]; }
+        else { $order = $this->options['list_order_default']; }
+        
+        if ($_POST["sort"]){ $sort = $_POST["sort"]; }
+        else if ($_GET["sort"]){ $sort = $_GET["sort"]; }
+        else { $sort = $this->options['list_sort_default']; }
+        
+        $text = "<div id=\"bookx_content\">";
+        
+        if ($this->options["list_filter"] == 1){
+            $text .= "<div id=\"bookx_filter\">";
+            $text .= "<form id=\"bookx_filter\" action=\"$link\" method=\"post\">";
+            $text .= "Field: <select name=\"order\">";
+            foreach(array_keys($this->fieldArray) as $f){
+                if ($f == $order){ $s = "selected"; }
+                else { $s = ''; }
+                $text .= "<option value=\"$f\" $s>" . $this->fieldArray[$f] . "</option>";
+            }
+            $text .= "</select>";
+            
+            $text .= "&nbsp;&nbsp;Order: <select name=\"sort\">";
+            foreach(array_keys($this->sortArray) as $f){
+                if ($f == $sort){ $s = "selected"; }
+                else { $s = ''; }
+                $text .= "<option value=\"$f\" $s>" . $this->sortArray[$f] . "</option>";
+            }            
+            $text .= "</select>";
+            $text .= "<input type=\"submit\" value=\"Set\" />";
+            $text .= "</form>";
+            $text .= "</div>";
+        }
+        
+        $count = $this->wpdb->get_var("select count(bx_item_id) from " . $this->wpdb->prefix . "bx_item");  
+        $setnum = $this->options["per_page"];   
+        if ($this->options["per_page"] != 0 && $count > $setnum){
+            $paging = true;
+            
+            if ($_GET["limit"]){ $limit = $_GET["limit"]; }
+            else { $limit = 0; }
+            
+            require_once(ABSPATH . $this->pluginBase . DIRECTORY_SEPARATOR . 'suitex_list.php'); 
+            $listObj = new suitex_list();
+            $listObj->setNum = $setnum;
+            $url = $link . "?&order=$order&sort=$sort";
+            
+            
+            $pager = $listObj->paging($limit, $count, $url);
+            $text .= "<div id=\"bookx_pager\">$pager</div>";
+        }
+        
+        
+        
+       
+        $sql = "select bx_item_publisher, bx_item_price, bx_item_date, bx_item_summary, bx_item_comments, ";
+        $sql .= "bx_item_id, bx_item_name, bx_item_isbn, bx_item_format, bx_item_pages, bx_item_author, bx_item_image";
+        $sql .= " from " . $this->wpdb->prefix . "bx_item ";
+        $sql .= "order by $order $sort";
+        $sql .= " limit $limit, $setnum";
+        $results = $this->wpdb->get_results($sql);
+        
+        
+        if (substr_count($this->options["listTemplate"], "::IMAGE::")){
+            $doImage = true;            
+        }
+        
+        foreach($results as $row){
+            if ($doImage){
+                $image = $row->bx_item_image;
+            
+                $sourceWidth = substr($image, strpos($image, "width=\"") + 7);
+                $sourceWidth = substr($sourceWidth, 0, strpos($sourceWidth, "\""));
 
+                $sourceHeight = substr($image, strpos($image, "height=\"") + 8);
+                $sourceHeight = substr($sourceHeight, 0, strpos($sourceHeight, "\""));            
+            
+                if ($sourceWidth > $this->options["list_image_width"]) {
+                    $newWidth  = $this->options["list_image_width"];
+                    $newHeight = (INTEGER) ($sourceHeight * ($this->options["list_image_width"] / $sourceWidth));
+                } 
+                else if ($sourceHeight > $this->options["list_image_height"]) {
+                    $newWidth  = (INTEGER) ($sourceWidth * ($this->options["list_image_height"] / $sourceHeight));
+                    $newHeight = $this->options["list_image_height"];
+                } 
+                else {
+                    $newWidth  = $sourceWidth;
+                    $newHeight = $sourceHeight;
+                }
+                $image = str_replace('width="' . $sourceWidth . '"', 'width="' . $newWidth . '"', $image);
+                $image = str_replace('height="' .$sourceHeight . '"', 'height="' . $newHeight . '"', $image);
+                if ($this->options["list_image_align"] != ''){
+                    $image = str_replace("src", "align=\"" . $this->options['list_image_align'] . "\" src", $image);       
+                }
+                
+            }
+            
+            
+            
+            $trans["::ELINK::"]     = $row->bx_item_link;
+            $trans["::TITLE::"]     = $row->bx_item_name;
+            $trans["::AUTHOR::"]    = $row->bx_item_author;            
+            $trans["::ISBN::"]      = $row->bx_item_isbn;             
+            $trans["::PUBLISHER::"] = $row->bx_item_publisher;             
+            $trans["::DATE::"]      = $row->bx_item_date;             
+            $trans["::PAGES::"]     = $row->bx_item_pages;             
+            $trans["::FORMAT::"]    = $row->bx_item_format;             
+            $trans["::LINK::"]      = $link . "?&book_id=" . $row->bx_item_id;            
+            $trans["::IMAGE::"]     = $image;            
+            $trans["::PRICE::"]     = $row->bx_item_price;            
+            $trans["::SUMMARY::"]   = substr(strip_tags($row->bx_item_summary), 0, $this->options["list_characters"]) . "...";            
+            $trans["::COMMENTS::"]  = substr(strip_tags($row->bx_item_comments), 0, $this->options["list_characters"]) . "...";
+            $trans["::MORE::"]      = " <a href=\"" . $link . "?&book_id=" . $row->bx_item_id . "\">More</a>";
+            
+             
+            $text .= "<div class=\"bookx_list_entry\">" . strtr(stripslashes($this->options["listTemplate"]), $trans) . "</div>";
+            
+            
+  
+            
+        }
+        if ($pager){ $text .= "<div id=\"bookx_pager\">$pager</div>"; }
+        $text .= "</div>"; 
+        $this->text = $text;
+    }
+    
+    /** 
+    * Starts the execution of the class
+    * 
+    */
+   
+    function bookx_init(){
+        global $post;
+        if ($post->ID == $this->options["page_id"]){
+            if ($_GET["book_id"]){
+                $this->bookx_showItem();
+            }
+            //else if ($_GET["search"]){
+            //    $this->bookx_search();
+            //}
+            else {
+                $this->bookx_listItems();
+            }
+            if ($this->text){
+                add_filter('the_content', array($this, 'bookx_stroke'));   
+            }            
+        }
+    }
+    
+    /**
+    * returns the page after prepending the CSS
+    * 
+    */
+    
+    function bookx_stroke(){
+        $this->text = "<style type=\"text/css\">" . $this->options["css"] . "</style>"  . $this->text;
+        return $this->text;
+    }
 }
 
 ?>
