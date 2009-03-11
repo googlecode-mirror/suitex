@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com/scripts/themex
 Tags: theme, plugin, admin
 Requires at least: 2.6
 Tested up to: 2.7.1
-Stable Tag: 0.4
+Stable Tag: 0.5
 
 A lightweight plugin that will allow the automatic rotation of a pair of themes based on the time of day.
 
