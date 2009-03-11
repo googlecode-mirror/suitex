@@ -1,15 +1,15 @@
 <?php
 /*
-Plugin Name: wineX
-Plugin URI: http://www.thisrand.com/scripts/winex
-Description: A lightwieght script used to display the contents of your CellarTracker cellar on your website.
+Plugin Name: bookX
+Plugin URI: http://www.thisrand.com/scripts/bookx
+Description: Creates a recommended book list for both a sidebar widget and page based solely on ISBN numbers.
 Version: 0.1
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
 */
 
-/*  Copyright 2006  Xnuiem  (email : scripts @T thisrand D07 com)
+/*  Copyright 2009 Xnuiem  (email : scripts @T thisrand D07 com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,27 +27,57 @@ Author URI: http://www.thisrand.com
 */
 
 /**
- * A lightwieght script used to display the contents of your CellarTracker cellar on your website.
- * @package WordPress
+ * A recommended book plugin
  * @since 2.6
  */
+ 
+ 
+$sortArray  = array("asc" => "Ascending", "desc" => "Descending");
 
-ini_set('allow_url_fopen', "1");
+$fieldArray["bx_item_id"]           = "ID";
+$fieldArray["bx_item_name"]         = "Title";
+$fieldArray["bx_item_isbn"]         = "ISBN";
+$fieldArray["bx_item_author"]       = "Author";
+$fieldArray["bx_item_publisher"]    = "Publisher";
+$fieldArray["bx_item_date"]         = "Publish Date";
+$fieldArray["bx_item_pages"]        = "Pages";
+$fieldArray["bx_item_format"]       = "Format";
+$fieldArray["bx_item_price"]        = "Price";
 
-$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'winex';
-require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'winex_functions.php');
+$filter     = array("No", "Yes");  
+$options    = get_option('bookx_options');
 
-$wObj = new wineX();
+$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'bookx';      
 
-add_filter('the_content', array($wObj, 'winex_showWineList'));
+require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_functions.php');  
+require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_admin.php');
+require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_widget.php');   
 
-register_activation_hook(__FILE__, array($wObj, 'winex_install'));
-register_deactivation_hook(__FILE__, array($wObj, 'winex_uninstall'));
+$obj                    = new bookx_functions();
+$obj->options           = $options;
+$obj->filter            = $filter;
+$obj->fieldArray        = $fieldArray;
+$obj->sortArray         = $sortArray;
+$obj->pluginBase        = $pluginBase;
 
-add_action('admin_menu', array($wObj, 'winex_admin_menu'));
+$adminObj               = new bookx_admin();
+$adminObj->pluginBase   = $pluginBase;
+$adminObj->options      = $options;
+$adminObj->sortArray    = $sortArray;
+$adminObj->fieldArray   = $fieldArray;
+$adminObj->filter       = $filter;
 
+$widgetObj              = new bookx_widget();
+$widgetObj->options     = $options;
+$widgetObj->sortArray   = $sortArray;
+$widgetObj->fieldArray  = $fieldArray;
+ 
 
+add_action('admin_menu', array($adminObj, 'bookx_adminMenu')); 
+add_action('widgets_init', array($widgetObj, 'bookx_widget_init'));   
+add_action('wp', array($obj, 'bookx_init'));
 
-
+register_activation_hook(__FILE__, array($adminObj, 'bookx_install'));
+register_deactivation_hook(__FILE__, array($adminObj, 'bookx_uninstall'));
 
 ?>
