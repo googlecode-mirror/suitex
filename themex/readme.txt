@@ -27,6 +27,9 @@ None Yet
 
 
 == Change Log ==
+<b>0.5</b><br />
+Fixed bug <a href="http://code.google.com/p/suitex/issues/detail?id=27" target="_new">#27</a> 
+
 <b>0.4</b><br />
 Fixed bug <a href="http://code.google.com/p/suitex/issues/detail?id=26" target="_new">#26</a>
 
@@ -54,8 +57,6 @@ None Yet
 
 
 
-== To Do ==
-Nothing at this point.
 
 
 

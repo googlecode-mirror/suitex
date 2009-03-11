@@ -5,8 +5,11 @@ class themex_functions {
 	* The front-end methods for themeX.
  	* @package  WordPress
     * @author   Xnuiem
+    * @param    bool    $debug  Set to true to print debugging statements.  Remove for version 1.1--REVIEW.
  	*/          
 
+    var $debug = false;
+    
 	function checkTheme(){
         global $wpdb;
 		/**
@@ -21,7 +24,7 @@ class themex_functions {
 		$offset = 0;
         $current = $themes[$current]["Template"];
         
-        
+        if ($this->debug == true){ print($current); }
 
 		if (count($options) > 3){
 			//Ok, module is active, let's see what to do.
@@ -46,26 +49,29 @@ class themex_functions {
         			}
 				}
                 
-				if (($time) >= $options['dayStart'] && $current != $options['dayTheme'] && ($time) <= $options['nightStart']){
+				if (($time) >= $options['dayStart']){
 					//Time is past or equal to day start and current theme is night.
-					//print("Inside 1");
-					switch_theme($options['dayTheme'], $options['dayTheme']);
-					$current = $options['dayTheme'];
+					if ($this->debug == true){ print("Inside 1"); }
+					$newTheme = 'dayTheme';
 				}
 
-				if (($time) < $options['dayStart'] && $current != $options['nightTheme']){
+				if (($time) < $options['dayStart']){
 					//Time is prior to day start and current theme is day
-					//print("Inside 2");
-					switch_theme($options['nightTheme'], $options['nightTheme']);
-					$current = $options['nightTheme'];
+					if ($this->debug == true){ print("Inside 2"); }
+                    $newTheme = 'nightTheme';
 				}
 
-            	if (($time) >= $options['nightStart'] && $current != $options['nightTheme'] && $options['dayStart'] < $options['nightStart']){
+            	if (($time) >= $options['nightStart'] && $options['dayStart'] < $options['nightStart']){
 	            	//Time is after or equal to night start and current theme is day and day start is less than night start
-            		//print("Inside 3");
-            		switch_theme($options['nightTheme'], $options['nightTheme']);
-            		$current = $options['nightTheme'];
+            		if ($this->debug == true){ print("Inside 3"); }
+                    $newTheme = 'nightTheme';
             	}
+                
+                if ($newTheme && $current != $options[$newTheme]){
+                    if ($this->debug == true){ print("CHANGED to $newTheme"); }
+                    switch_theme($options[$newTheme], $options[$newTheme]);
+                    $current = $options[$newTheme];
+                }
             }
             else if ($options["type"] == "date"){
             	for($m=1;$m<13;$m++){
