@@ -123,7 +123,7 @@ class bookx_functions {
     */
 
     function bookx_listItems(){
-        
+    
         $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1");
         
         if ($_POST["order"]){ $order = $_POST["order"]; }
@@ -158,14 +158,12 @@ class bookx_functions {
             $text .= "</form>";
             $text .= "</div>";
         }
-        
+        if ($_GET["limit"]){ $limit = $_GET["limit"]; }
+        else { $limit = 0; }        
         $count = $this->wpdb->get_var("select count(bx_item_id) from " . $this->wpdb->prefix . "bx_item");  
         $setnum = $this->options["per_page"];   
         if ($this->options["per_page"] != 0 && $count > $setnum){
             $paging = true;
-            
-            if ($_GET["limit"]){ $limit = $_GET["limit"]; }
-            else { $limit = 0; }
             
             require_once(ABSPATH . $this->pluginBase . DIRECTORY_SEPARATOR . 'suitex_list.php'); 
             $listObj = new suitex_list();
@@ -185,6 +183,8 @@ class bookx_functions {
         $sql .= " from " . $this->wpdb->prefix . "bx_item ";
         $sql .= "order by $order $sort";
         $sql .= " limit $limit, $setnum";
+        
+        
         $results = $this->wpdb->get_results($sql);
         
         
