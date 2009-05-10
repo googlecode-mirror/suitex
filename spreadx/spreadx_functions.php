@@ -10,29 +10,6 @@ class spreadX {
         $this->options = get_option('spreadx_options');
     }
     
-    function spreadx_insert_buttons($content){
-		/**
-    	* inserts the buttons
-    	*
-    	* @param NULL
-    	* @return string $text page content
-    	*/
-        global $id;
-        //print($id);
-        
-        $type = get_post_type($id);
-        
-        if (in_array($type, $this->options["scope"])){
-            $trans["::TITLE::"] = urlencode(the_title('', '', false));
-            $trans["::URL::"]   = get_permalink();
-        
-            $buttons = strtr($this->options["buttons"], $trans); 
-        }
-        else { $buttons = ''; }
-        
-        return $content.$buttons;    
-    }
-
     function spreadx_install(){
 	    /**
 	    * Installs the plugin by creating the options
@@ -116,6 +93,7 @@ class spreadX {
             $this->options["sites"]     = $sites;
             $this->options["buttons"]   = $buttons;
             $this->options["scope"]     = $scope;
+            //$this->options["twitter_username"] = $_POST["twitter_username"];
             update_option("spreadx_options", $this->options);
         }
         
@@ -162,7 +140,12 @@ class spreadX {
         $text .= "<input type=\"checkbox\" name=\"scope[]\" value=\"page\" $c />";
         $text .= "</td></th></tr>";
 
-        
+
+        //$text .= "<tr class=\"form-field form-required\">";
+        //$text .= "<th scope=\"row\" valign=\"top\"><label>Twitter Username:</label></th>";
+        //$text .= "<td>";
+        //$text .= "<input type=\"text\" name=\"twitter_username\" value=\"" . $this->options["twitter_username"] . "\" />";
+        //$text .= "</td></th></tr>";        
         
         
         $text .= "</table>";

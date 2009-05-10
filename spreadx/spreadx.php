@@ -2,8 +2,8 @@
 /*
 Plugin Name: SpreadX
 Plugin URI: http://www.thisrand.com/scripts/spreadx
-Description: A very easy way to get your site onto Digg, Sumble, Deli.cous, and Technocrati.
-Version: 0.1
+Description: A very easy way to get your site onto Digg, Stumble, Del.icio.us, Slashdot, Twitter, Mixx, Dzone, Sphinn, Google, and Technorati.
+Version: 1.0
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
@@ -27,33 +27,41 @@ Author URI: http://www.thisrand.com
 */
 
 /**
- * A very easy way to get your site onto Digg, Stumble, Del.icio.us, Slashdot, and Technorati.
+ * A very easy way to get your site onto Digg, Stumble, Del.icio.us, Slashdot, Twitter, Mixx, Dzone, Sphinn, Google, and Technorati.
  * @package WordPress
  * @since 2.6
  */
 
-$pages["digg"] = array("Digg", "http://digg.com/", "http://digg.com/submit?phase=2&url=::URL::");
-$pages["facebook"] = array("Facebook", "http://www.facebook.com", "http://www.facebook.com/share.php?u=::URL::");
-$pages["stumble"] = array("StumbleUpon", "http://www.stumbleupon.com", "http://www.stumbleupon.com/submit?url=::URL::&title=::TITLE::");
-$pages["technorati"] = array("Technorati", "http://www.technorati.com", "http://technorati.com/faves?add=::URL::");
-$pages["delicious"] = array("Deli.cio.us", "http://www.delicious.com", "http://del.icio.us/post?url=::URL::&title=::TITLE::"); 
-$pages["slashdot"] = array("Slashdot", "http://www.slashdot.org", "http://slashdot.org/submit.pl?url=::URL::");
  
 $pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'spreadx';
-require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'spreadx_functions.php');
+if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){   
+    $pages["digg"] = array("Digg", "http://digg.com/", "http://digg.com/submit?phase=2&url=::URL::");
+    $pages["facebook"] = array("Facebook", "http://www.facebook.com", "http://www.facebook.com/share.php?u=::URL::");
+    $pages["stumble"] = array("StumbleUpon", "http://www.stumbleupon.com", "http://www.stumbleupon.com/submit?url=::URL::&title=::TITLE::");
+    $pages["technorati"] = array("Technorati", "http://www.technorati.com", "http://technorati.com/faves?add=::URL::");
+    $pages["delicious"] = array("Deli.cio.us", "http://www.delicious.com", "http://del.icio.us/post?url=::URL::&title=::TITLE::"); 
+    $pages["slashdot"] = array("Slashdot", "http://www.slashdot.org", "http://slashdot.org/submit.pl?url=::URL::");
+    $pages["twitter"] = array("Twitter", "http://www.twitter.com", "http://www.twitter.com/home?status=::URL::");
+    $pages["sphinn"] = array("Sphinn", "http://www.sphinn.com", "http://www.sphinn.com/submit.php?url=::URL::");
+    $pages["mixx"] = array("Mixx", "http://www.mixx.com", "http://www.mixx.com/submit?page_url=::URL::");
+    $pages["google"] = array("Google", "http://www.google.com", "http://www.google.com/bookmarks/mark?op=edit&bkmk=::URL::&title=::TITLE::");
+    $pages["dzone"] = array("DZone", "http://www.dzone.com", "http://www.dzone.com/links/add.html?url=::URL::&title=::TITLE::");
+    
+    require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'spreadx_functions.php');
+    $obj = new spreadX();
+    $obj->pages = $pages;
+    $obj->pluginBase = $pluginBase;
 
-$obj = new spreadX();
-$obj->pages = $pages;
-$obj->pluginBase = $pluginBase;
+    register_activation_hook(__FILE__, array($obj, 'spreadx_install'));
+    register_deactivation_hook(__FILE__, array($obj, 'spreadx_uninstall'));
 
-add_filter('the_content', array($obj, 'spreadx_insert_buttons'));
-
-register_activation_hook(__FILE__, array($obj, 'spreadx_install'));
-register_deactivation_hook(__FILE__, array($obj, 'spreadx_uninstall'));
-
-add_action('admin_menu', array($obj, 'spreadx_admin_menu'));
-
-
+    add_action('admin_menu', array($obj, 'spreadx_admin_menu'));
+}
+else{
+    require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'spreadx_front.php');  
+    $obj = new spreadX_front();
+    add_filter('the_content', array($obj, 'spreadx_insert_buttons'));
+}
 
 
 
