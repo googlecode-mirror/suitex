@@ -3,7 +3,7 @@
 Plugin Name: bookX
 Plugin URI: http://www.thisrand.com/scripts/bookx
 Description: Creates a recommended book list for both a sidebar widget and page based solely on ISBN numbers.
-Version: 0.1
+Version: 0.2
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
@@ -50,8 +50,9 @@ $options    = get_option('bookx_options');
 $pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'bookx';      
 
 require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_functions.php');  
-require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_admin.php');
+
 require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_widget.php');   
+
 
 $obj                    = new bookx_functions();
 $obj->options           = $options;
@@ -60,24 +61,28 @@ $obj->fieldArray        = $fieldArray;
 $obj->sortArray         = $sortArray;
 $obj->pluginBase        = $pluginBase;
 
-$adminObj               = new bookx_admin();
-$adminObj->pluginBase   = $pluginBase;
-$adminObj->options      = $options;
-$adminObj->sortArray    = $sortArray;
-$adminObj->fieldArray   = $fieldArray;
-$adminObj->filter       = $filter;
+if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){  
+    require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_admin.php');
+    $adminObj               = new bookx_admin();
+    $adminObj->pluginBase   = $pluginBase;
+    $adminObj->options      = $options;
+    $adminObj->sortArray    = $sortArray;
+    $adminObj->fieldArray   = $fieldArray;
+    $adminObj->filter       = $filter;
+    add_action('admin_menu', array($adminObj, 'bookx_adminMenu')); 
+    register_activation_hook(__FILE__, array($adminObj, 'bookx_install'));
+    register_deactivation_hook(__FILE__, array($adminObj, 'bookx_uninstall'));
 
+}
 $widgetObj              = new bookx_widget();
 $widgetObj->options     = $options;
 $widgetObj->sortArray   = $sortArray;
 $widgetObj->fieldArray  = $fieldArray;
  
 
-add_action('admin_menu', array($adminObj, 'bookx_adminMenu')); 
+
 add_action('widgets_init', array($widgetObj, 'bookx_widget_init'));   
 add_action('wp', array($obj, 'bookx_init'));
 
-register_activation_hook(__FILE__, array($adminObj, 'bookx_install'));
-register_deactivation_hook(__FILE__, array($adminObj, 'bookx_uninstall'));
 
 ?>

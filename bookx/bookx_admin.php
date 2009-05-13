@@ -179,19 +179,23 @@ class bookx_admin {
         }
 
         $start = "<div id=\"product-top\">";
-        //$end = "<strong style=\"display: block;\"><a onclick=\"javascript:openTab";
-        $lines = substr($lines, strpos($lines, $start));
-        
-        //if (substr_count($lines, $end)){
-        //    print("END 1");
-        //    $lines = substr($lines, 0, strpos($lines, $end));
-        //}
-        //else {
-        //    print("END 2");
-        $end = "<ul class=\"reviewBox\">"; 
-        $lines = substr($lines, 0, strpos($lines, $end));
-        //}
 
+        $lines = substr($lines, strpos($lines, $start));
+        //print($lines); 
+
+        if (substr_count($lines, "<ul class=\"reviewBox\">")){
+            $end = "<ul class=\"reviewBox\">";
+        }        
+        else if (substr_count($lines, "<h3 class=\"pr-selected\">")){
+            $end = "<h3 class=\"pr-selected\">";
+        }
+        
+        
+        
+        
+        $lines = substr($lines, 0, strpos($lines, $end));
+        //print($lines);
+        
         $titleLine = substr($lines, strpos($lines, "<div id=\"product-info\">"));
         $titleLine = substr($titleLine, 0, strpos($titleLine, "<div class=\"pb\">"));
         $titleLine = strip_tags($titleLine);
@@ -558,10 +562,32 @@ class bookx_admin {
     * 
     */
     
-    function bookx_form(){
+    function bookx_form($code=''){
         
-        
-        if ($_GET["id"]){
+        if ($code != ''){
+
+            
+            if ($_POST["id"]){
+                $query = "select bx_item_name as name from " . $this->wpdb->prefix . "bx_item where bx_item_id = %d limit 1";
+                $row = $this->wpdb->get_row($this->wpdb->prepare($query, $_POST["id"]));
+                $row->isbn = $_POST["isbn"];
+                $row->sidebar = $_POST["sidebar"];
+                $row->comments = $_POST["comments"];
+                $_GET["id"] = $_POST["id"];
+                $label = "Modify Book : " . $row->name; 
+                $action = "modify";
+            }
+            else {
+                $row->isbn = $_POST["isbn"];
+                $row->sidebar = $_POST["sidebar"];
+                $row->comments = $_POST["comments"];
+                $label = "Add Book";
+                $action = "add";                 
+            }
+
+            $status = "<span style=\"font-weight: bold; color: #FF0000;\">Import Failed</span><br />";            
+        }
+        else if ($_GET["id"]){
             $query = "select bx_item_name as name, bx_item_isbn as isbn, bx_item_comments as comments, bx_item_sidebar as sidebar from " . $this->wpdb->prefix . "bx_item where bx_item_id = %d limit 1";
             $row = $this->wpdb->get_row($this->wpdb->prepare($query, $_GET["id"]));
             
@@ -590,6 +616,8 @@ class bookx_admin {
         $text .= "<div id=\"post-body-content\" class=\"has-sidebar-content\">";
         $text .= "<div class=\"postbox\">";
         $text .= "<h3><label>$label</label></h3>";
+        $text .= $status;
+        
         $text .= "<div class=\"inside\">";
         $text .= "<form method=\"post\" action=\"" . $this->baseURL . "&sub=submit\">";
         $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . $this->nonce . "\" />";
@@ -621,7 +649,7 @@ class bookx_admin {
         $text .= "</table>";
         $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
         if ($action == "modify"){
-            $deleteURL = $this->baseURL . "&sub=delete&id=" . $_GET["id"] . "&_wpnonce=" . $this->nonce;
+            $deleteURL = $this->baseURL . "&sub=submit&id=" . $_GET["id"] . "&_wpnonce=" . $this->nonce;
             $text .= "&nbsp;<input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you sure you want to delete this book?', '$deleteURL');\" />";
         }
         $text .= "</p></form>";
@@ -644,7 +672,12 @@ class bookx_admin {
         $comments = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["comments"])));
         $this->bookx_fetchItem(strip_tags($_POST["isbn"]));        
         
+
         if ($_POST["action"] == "add"){
+            if ($this->bookArray["name"] == ''){
+                $this->bookx_form("Import Failed");
+                return false;
+            }            
             $sql = "insert into " . $this->wpdb->prefix . "bx_item ";
             foreach(array_keys($this->bookArray) as $key){
                 $fields .= "bx_item_" . $key . ", ";
@@ -656,6 +689,10 @@ class bookx_admin {
             $code = "a";
         }
         else if ($_POST["action"] == "modify"){
+            if ($this->bookArray["name"] == ''){
+                $this->bookx_form("Import Failed");
+                return false;
+            }   
             $sql = "update " . $this->wpdb->prefix . "bx_item set ";
             foreach(array_keys($this->bookArray) as $key){     
                 $sql .= "bx_item_" . $key . " = '" . addslashes($this->bookArray[$key]) . "', ";
@@ -666,15 +703,15 @@ class bookx_admin {
             $code = "m";
                         
         }
-        else if ($_GET["action"] == "delete"){
+        else {
             $sql = "delete from " . $this->wpdb->prefix . "bx_item where bx_item_id = %d limit 1";
-            $query = $this->wpdb->prepare($sql, $_GET["id"]);        
+            $sql = $this->wpdb->prepare($sql, $_GET["id"]);        
             $code = "d";    
         }
         //print_r($this->bookArray);
         //die();
-        
-        $this->wpdb->query($sql) or die("$sql");
+
+        $this->wpdb->query($sql);
         
         $url = $this->baseURL . "&code=$code";
         $text = "<script language=\"javascript\">";
@@ -730,7 +767,9 @@ class bookx_admin {
         foreach($result as $row){
             $sidebar = $this->filter[$row->sidebar];
             
-            $rows[$row->id] = array($row->item, $row->author, $row->isbn, $sidebar);
+            if ($row->item){ $itemName = $row->item; }
+            else { $itemName = "Import Failed"; }
+            $rows[$row->id] = array($itemName, $row->author, $row->isbn, $sidebar);
         }
         $url = $this->baseURL . "&sub=form&id=";
         

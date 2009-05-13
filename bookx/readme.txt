@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
 Tested up to: 2.7.1
-Stable tag: 0.1
+Stable tag: 0.2
 
 A simple but powerful recommended book plugin.
 
@@ -27,6 +27,10 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>0.2</b><br />
+Fixed Delete Book<br />
+Added error handling for when the ISBN fails to return an object.  Thanks garron.rose<br />
+
 <b>0.1</b><br />
 Initial Release
 
@@ -36,5 +40,5 @@ None Yet
 
 
 == Demos ==
-[this.rand()](http://www.thisrand.com) <br />
+[this.rand()](http://www.thisrand.com/booklist) <br />
 
