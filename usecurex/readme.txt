@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com/scripts/usecurex
 Tags: plugin, page, pages, post, posts
 Requires at least: 2.6
 Tested up to: 2.7
-Stable tag: 0.1
+Stable tag: 0.2
 
 An easy to use script that allows you to create user groups and then manage their acess to specific pages within your website.
 
@@ -25,6 +25,9 @@ None Yet
 
 
 == Change Log ==
+<b>0.2</b><br />
+Fixed a couple of minor bugs.<br />
+Verified ready for 2.8<br />
 
 <b>0.1</b><br />
 Initial Version

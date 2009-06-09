@@ -3,7 +3,7 @@
 Plugin Name: USecureX
 Plugin URI: http://www.thisrand.com/scripts/usecurex
 Description: An easy to use script that allows you to create user groups and then manage their acess to specific pages within your website.     
-Version: 0.1
+Version: 0.2
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 

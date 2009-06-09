@@ -403,7 +403,7 @@ class usecurex {
         foreach(array_keys($members) as $m){
             $text .= "<option value=\"$m\">" . $members[$m] . "</option>";
         }
-        
+        $text .= "</select>";
         
         $text .= "<script language=\"javascript\">selectAllOptions(document.myForm.memberList); document.myForm.members.value = getSelectedValues(document.myForm.memberList); </script>";
         $text .= "</td></tr>";         
