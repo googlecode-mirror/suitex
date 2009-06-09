@@ -28,7 +28,9 @@ None Yet
 
 == Change Log ==
 <b>0.3</b><br />
-Fixed minor bug with naming.  Verified ready for 2.8<br />
+Fixed minor bug with naming.<br />
+Cleaned up path and url references<br />
+Verified ready for 2.8<br />
 
 <b>0.2</b><br />
 Fixed Delete Book<br />

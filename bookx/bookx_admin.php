@@ -18,7 +18,6 @@ class bookx_admin {
     var $wpdb;
     var $options        = array();
     var $baseURL        = "tools.php?page=bookx/bookx_admin.php";
-    var $pluginURL      = "../wp-content/plugins/bookx/";
     var $numberPerPage  = "50";
     var $bookArray      = array();
     var $status         = '';
@@ -115,7 +114,7 @@ class bookx_admin {
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=list\">View Books</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=form\">Add New Book</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=refresh&_wpnonce=" . $this->nonce . "\">Refresh Book List</a>";
-        $text .= "<script type='text/javascript' src='" . $this->pluginURL . "suitex.js'></script>"; 
+        $text .= "<script type='text/javascript' src='" . BOOKX_URL. "suitex.js'></script>"; 
         return $text;
     }
     
@@ -730,7 +729,7 @@ class bookx_admin {
     function bookx_list(){
         
         
-        require_once(ABSPATH . $this->pluginBase . DIRECTORY_SEPARATOR . 'suitex_list.php'); 
+        require_once(BOOKX_DIR . 'suitex_list.php'); 
         
 
 
@@ -782,7 +781,7 @@ class bookx_admin {
         $list->filters      = false;
         $list->omit         = array("cb");
         $this->paging       = true;
-        $this->pluginPath   = $this->pluginBase;
+        $this->pluginPath   = BOOKX_URL;
         
         
         

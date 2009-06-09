@@ -30,7 +30,17 @@ Author URI: http://www.thisrand.com
  * A recommended book plugin
  * @since 2.6
  */
- 
+if ( ! defined( 'WP_CONTENT_URL' ) )
+      define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' );
+if ( ! defined( 'WP_CONTENT_DIR' ) )
+      define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+if ( ! defined( 'WP_PLUGIN_URL' ) )
+      define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
+if ( ! defined( 'WP_PLUGIN_DIR' ) )
+      define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+
+define(BOOKX_DIR, WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'bookx' . DIRECTORY_SEPARATOR);  
+define(BOOKX_URL, WP_PLUGIN_URL . '/bookx/'); 
  
 $sortArray  = array("asc" => "Ascending", "desc" => "Descending");
 
@@ -47,10 +57,10 @@ $fieldArray["bx_item_price"]        = "Price";
 $filter     = array("No", "Yes");  
 $options    = get_option('bookx_options');
 
-$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'bookx';      
-require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_functions.php');  
-require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_widget.php');   
 
+
+require_once(BOOKX_DIR . 'bookx_functions.php');  
+require_once(BOOKX_DIR . 'bookx_widget.php');   
 
 $obj                    = new bookx_functions();
 $obj->options           = $options;
@@ -60,9 +70,8 @@ $obj->sortArray         = $sortArray;
 $obj->pluginBase        = $pluginBase;
 
 if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){  
-    require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_admin.php');
+    require_once(BOOKX_DIR . 'bookx_admin.php');
     $adminObj               = new bookx_admin();
-    $adminObj->pluginBase   = $pluginBase;
     $adminObj->options      = $options;
     $adminObj->sortArray    = $sortArray;
     $adminObj->fieldArray   = $fieldArray;
