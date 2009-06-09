@@ -37,8 +37,8 @@ class emailuserx {
             require_once(ABSPATH . $this->pluginBase . DIRECTORY_SEPARATOR . 'class.phpmailer.php');  
             $mail = new PHPMailer();  
             $mail->From = get_option('admin_email');
-            $mail->FromName = get_option('name') . " Mailer"; 
-            $mail->AddReplyTo(get_option('admin_email'), get_option('name') . " Mailer"); 
+            $mail->FromName = get_option('blogname') . " Mailer"; 
+            $mail->AddReplyTo(get_option('admin_email'), get_option('blogname') . " Mailer"); 
             $mail->IsHTML(true);  
             
             $mail->Subject = $_POST["subject"];
