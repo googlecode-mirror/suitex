@@ -34,11 +34,11 @@ class emailuserx {
         if ($_POST["confirm"] == 1){
             if (!wp_verify_nonce($_POST["_wpnonce"])){ die('Security check'); }            
 
-            require_once(ABSPATH . $this->pluginBase . DIRECTORY_SEPARATOR . 'includes/class.phpmailer.php');  
+            require_once(ABSPATH . $this->pluginBase . DIRECTORY_SEPARATOR . 'class.phpmailer.php');  
             $mail = new PHPMailer();  
-            $mail->From = bloginfo('admin_email');
-            $mail->FromName = bloginfo('name') . " Mailer";            
-            $mail->AddReplyTo(bloginfo('admin_email'), bloginfo('name') . " Mailer"); 
+            $mail->From = get_option('admin_email');
+            $mail->FromName = get_option('name') . " Mailer"; 
+            $mail->AddReplyTo(get_option('admin_email'), get_option('name') . " Mailer"); 
             $mail->IsHTML(true);  
             
             $mail->Subject = $_POST["subject"];
