@@ -33,7 +33,7 @@ class bookx_widget {
     function bookx_widget_init(){
         if (!function_exists("register_sidebar_widget")){ return; }
     
-        register_sidebar_widget('BookX', array($this, 'bookx_widget'));
+        register_sidebar_widget('BookX', array($this, 'bookx_widget_sidebar'));
         register_widget_control('BookX', array($this, 'bookx_widget_admin'));        
         
     }
@@ -45,7 +45,7 @@ class bookx_widget {
     * @return   string  $bookx_widget
     */
     
-    function bookx_widget($args){
+    function bookx_widget_sidebar($args){
         extract($args);
         $text = $before_widget . $before_title;
         $text .= $this->options["widget_title"] . $after_title . "<ul>";

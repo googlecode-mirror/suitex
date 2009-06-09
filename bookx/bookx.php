@@ -3,7 +3,7 @@
 Plugin Name: bookX
 Plugin URI: http://www.thisrand.com/scripts/bookx
 Description: Creates a recommended book list for both a sidebar widget and page based solely on ISBN numbers.
-Version: 0.2
+Version: 0.3
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
@@ -48,9 +48,7 @@ $filter     = array("No", "Yes");
 $options    = get_option('bookx_options');
 
 $pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'bookx';      
-
 require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_functions.php');  
-
 require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'bookx_widget.php');   
 
 

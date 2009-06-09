@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
 Tested up to: 2.7.1
-Stable tag: 0.2
+Stable tag: 0.3
 
 A simple but powerful recommended book plugin.
 
@@ -27,6 +27,9 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>0.3</b><br />
+Fixed minor bug with naming.  Verified ready for 2.8<br />
+
 <b>0.2</b><br />
 Fixed Delete Book<br />
 Added error handling for when the ISBN fails to return an object.  Thanks garron.rose<br />
