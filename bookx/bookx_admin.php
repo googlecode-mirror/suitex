@@ -35,6 +35,7 @@ class bookx_admin {
         ini_set('allow_url_fopen', "1");
         $this->wpdb    = $wpdb;
         $this->bookx_checkCode();
+        //$this->wpdb->show_errors(); 
     }
     
     /**
@@ -45,11 +46,12 @@ class bookx_admin {
     */
 
     function bookx_checkCode(){
-        $codeArray["a"] = "Book Added";
-        $codeArray["m"] = "Book Modified";
-        $codeArray["d"] = "Book Deleted";
-        $codeArray["c"] = "Configuration Saved";
-        $codeArray["b"] = "Book List Refreshed";
+        $codeArray["a"]  = "Book Added";
+        $codeArray["m"]  = "Book Modified";
+        $codeArray["d"]  = "Book Deleted";
+        $codeArray["c"]  = "Configuration Saved";
+        $codeArray["b"]  = "Book List Refreshed";
+        $codeArray["as"] = "Books Added";
         
         if ($_GET["code"]){
             $this->status = "<br /><b><span style=\"color:#FF0000;\">" . $codeArray[$_GET["code"]] . "</span></b>";   
@@ -323,45 +325,59 @@ class bookx_admin {
     */
 
     function bookx_install(){
-
-        $sql = "CREATE TABLE `" . $this->wpdb->prefix . "bx_item` (`bx_item_id` int(10) NOT NULL AUTO_INCREMENT,`bx_item_name` varchar(255) NOT NULL,`bx_item_author` varchar(255) NOT NULL,`bx_item_comments` text,`bx_item_date` int(10) NOT NULL,`bx_item_date_added` int(10) NOT NULL,`bx_item_format` varchar(255) NOT NULL,`bx_item_image` text NOT NULL,`bx_item_isbn` varchar(15) DEFAULT NULL, `bx_item_link` text NOT NULL, `bx_item_pages` int(10) NOT NULL DEFAULT '0', `bx_item_price` float(4,2) NOT NULL DEFAULT '0.00',`bx_item_sidebar` tinyint(1) NOT NULL DEFAULT '0',`bx_item_summary` text,`bx_item_publisher` varchar(255) NOT NULL,PRIMARY KEY (`bx_item_id`),UNIQUE KEY `bx_item_isbn` (`bx_item_isbn`), KEY `bx_item_sidebar` (`bx_item_sidebar`));";
-        $this->wpdb->query($sql);
+        if (!get_option('bookx_options')){
+            $sql = "CREATE TABLE `" . $this->wpdb->prefix . "bx_item` (`bx_item_id` int(10) NOT NULL AUTO_INCREMENT,`bx_item_name` varchar(255) NOT NULL,`bx_item_author` varchar(255) NOT NULL,`bx_item_comments` text,`bx_item_date` int(10) NOT NULL,`bx_item_date_added` int(10) NOT NULL,`bx_item_format` varchar(255) NOT NULL,`bx_item_image` text NOT NULL,`bx_item_isbn` varchar(15) DEFAULT NULL, `bx_item_link` text NOT NULL, `bx_item_pages` int(10) NOT NULL DEFAULT '0', `bx_item_price` float(4,2) NOT NULL DEFAULT '0.00',`bx_item_sidebar` tinyint(1) NOT NULL DEFAULT '0',`bx_item_summary` text,`bx_item_publisher` varchar(255) NOT NULL,PRIMARY KEY (`bx_item_id`),UNIQUE KEY `bx_item_isbn` (`bx_item_isbn`), KEY `bx_item_sidebar` (`bx_item_sidebar`));";
+            $this->wpdb->query($sql);
         
-        $page                   = array();
-        $page['post_type']      = 'page';
-        $page['post_title']     = 'Recommended Books';
-        $page['post_name']      = 'booklist';
-        $page['post_status']    = 'publish';
-        $page['comment_status'] = 'closed';
-        $page['post_content']   = 'This page displays your BookX front end.';
+            $page                   = array();
+            $page['post_type']      = 'page';                                       
+            $page['post_title']     = 'Recommended Books';
+            $page['post_name']      = 'booklist';
+            $page['post_status']    = 'publish';
+            $page['comment_status'] = 'closed';
+            $page['post_content']   = 'This page displays your BookX front end.';
 
-        $page_id = wp_insert_post($page);
-        $options = array();
-        $options['page_id']                 = $page_id;
-        $options['widget_title']            = "Recommended Books";
-        $options['per_page']                = "10";         
-        $options['widget_image_height']     = "45"; 
-        $options['widget_image_width']      = "45";
-        $options['list_image_height']       = "100";
-        $options['list_image_width']        = "100";
-        $options['detail_image_height']     = "250";
-        $options['detail_image_width']      = "250";
-        $options['listTemplate']            = "<a href=\"::LINK::\">::IMAGE::</a> <h2><a href=\"::LINK::\">::TITLE::</a></h2> by ::AUTHOR:: <br />\r\n::SUMMARY::::MORE::";
-        $options['detailTemplate']          = "<a href=\"::ELINK::\">::IMAGE::</a> <strong><a href=\"::ELINK::\">::TITLE::</a></strong> by ::AUTHOR:: <br />\r\n(::FORMAT::)<br />\r\n<strong>Price: </strong>\$::PRICE::<br />\r\n<strong>Pages: </strong>::PAGES::<br />\r\n<br />::SUMMARY::<br /><br />::COMMENTS::\r\n<br />";
-        $options['widgetTemplate']          = "<a href=\"::LINK::\">::IMAGE::</a> <strong><a href=\"::LINK::\">::TITLE::</a></strong> by ::AUTHOR::";
-        $options['widget_sort']             = "desc";
-        $options['widget_order']            = "bx_item_name";
-        $options['list_characters']         = "250";
-        $options['css']                     = ".bookx_list_entry img,\r\n.bookx_detail_entry img {\r\n padding: 5px;\r\n }\r\n.bookx_detail_entry {\r\n height: 100%;\r\n }\r\n.bookx_list_entry {\r\nheight: 250px;\r\nborder-bottom: 1px solid #000000;\r\nmargin-bottom: 10px;\r\n}\r\n"; 
-        $options['list_image_align']        = "left";
-        $options['detail_image_align']      = "left";
-        $options['list_search']             = "0";
-        $options['list_filter']             = "1";
-        $options['list_order_default']      = "bx_item_name";
-        $options['list_sort_default']       = "asc";  
+            $page_id = wp_insert_post($page);
+            $options = array();
+            $options['page_id']                 = $page_id;
+            $options['widget_title']            = "Recommended Books";
+            $options['per_page']                = "10";         
+            $options['widget_image_height']     = "45"; 
+            $options['widget_image_width']      = "45";
+            $options['list_image_height']       = "100";
+            $options['list_image_width']        = "100";
+            $options['detail_image_height']     = "250";
+            $options['detail_image_width']      = "250";
+            $options['listTemplate']            = "<a href=\"::LINK::\">::IMAGE::</a> <h2><a href=\"::LINK::\">::TITLE::</a></h2> by ::AUTHOR:: <br />\r\n::SUMMARY::::MORE::";
+            $options['detailTemplate']          = "<a href=\"::ELINK::\">::IMAGE::</a> <strong><a href=\"::ELINK::\">::TITLE::</a></strong> by ::AUTHOR:: <br />\r\n(::FORMAT::)<br />\r\n<strong>Price: </strong>\$::PRICE::<br />\r\n<strong>Pages: </strong>::PAGES::<br />\r\n<br />::SUMMARY::<br /><br />::COMMENTS::\r\n<br />";
+            $options['widgetTemplate']          = "<a href=\"::LINK::\">::IMAGE::</a> <strong><a href=\"::LINK::\">::TITLE::</a></strong> by ::AUTHOR::";
+            $options['widget_sort']             = "desc";
+            $options['widget_order']            = "bx_item_name";
+            $options['list_characters']         = "250";
+            $options['css']                     = ".bookx_list_entry img,\r\n.bookx_detail_entry img {\r\n padding: 5px;\r\n }\r\n.bookx_detail_entry {\r\n height: 100%;\r\n }\r\n.bookx_list_entry {\r\nheight: 250px;\r\nborder-bottom: 1px solid #000000;\r\nmargin-bottom: 10px;\r\n}\r\n"; 
+            $options['list_image_align']        = "left";
+            $options['detail_image_align']      = "left";
+            $options['list_search']             = "0";
+            $options['list_filter']             = "1";
+            $options['list_order_default']      = "bx_item_name";
+            $options['list_sort_default']       = "asc";  
+        }
+        else {
+            $sql = "SHOW INDEXES IN " . $this->wpdb->prefix . "bx_item";
 
+            $indexes = $this->wpdb->get_results($sql);
+            foreach($indexes as $ind){
+                if ($ind->Key_name == "bx_item_name"){
+                    $gt04 = true;
+                    break;
+                }
+            }
+            if (!$gt04){
+                $sql = "ALTER TABLE `" . $this->wpdb->prefix . "bx_item` ADD INDEX ( `bx_item_name` , `bx_item_author` , `bx_item_publisher` );";
+                $this->wpdb->query($sql);
+            }
+        }
         update_option('bookx_options', $options);
-
     }
 
     /**
@@ -584,7 +600,7 @@ class bookx_admin {
                 $action = "add";                 
             }
 
-            $status = "<span style=\"font-weight: bold; color: #FF0000;\">Import Failed</span><br />";            
+            $status = "<span style=\"font-weight: bold; color: #FF0000;\">" . $code . "</span><br />";            
         }
         else if ($_GET["id"]){
             $query = "select bx_item_name as name, bx_item_isbn as isbn, bx_item_comments as comments, bx_item_sidebar as sidebar from " . $this->wpdb->prefix . "bx_item where bx_item_id = %d limit 1";
@@ -652,7 +668,29 @@ class bookx_admin {
             $text .= "&nbsp;<input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you sure you want to delete this book?', '$deleteURL');\" />";
         }
         $text .= "</p></form>";
-        $text .= "</div></div></div></div>";
+        $text .= "</div></div>";
+        
+        
+        if ($action == "add"){
+            $text .= "<div class=\"postbox\">";
+            $text .= "<h3><label>Add Books</label></h3>";
+        
+            $text .= "<div class=\"inside\">";
+            $text .= "<form method=\"post\" action=\"" . $this->baseURL . "&sub=submit\">";
+            $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . $this->nonce . "\" />";
+            $text .= "<input type=\"hidden\" name=\"action\" value=\"adds\" />";
+            $text .= "<table class=\"form-table\">";
+      
+            $text .= "<tr class=\"form-field\">";
+            $text .= "<td><strong>Multiple ISBNs (one per line):</strong></td>";
+            $text .= "<td><textarea name=\"books\" rows=\"20\"></textarea>";
+            $text .= "</td></tr>";
+            $text .= "</table>";
+            $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
+            $text .= "</p></form>";
+            $text .= "</div></div>";        
+        }    
+        $text .= "</div></div>";
         $text .= "</div></div>";
         $this->bookx_stroke($text);
     }
@@ -669,12 +707,39 @@ class bookx_admin {
         if (!wp_verify_nonce($nonce)){ die('Security check'); }
         
         $comments = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["comments"])));
-        $this->bookx_fetchItem(strip_tags($_POST["isbn"]));        
+        if ($_POST["action"] != "adds"){ $this->bookx_fetchItem(strip_tags($_POST["isbn"])); }        
         
+        if ($_POST["action"] == "adds"){
+            $books = explode("\r\n", $_POST["books"]);
+            foreach($books as $b){
+                $this->bookx_fetchItem(strip_tags($b));
+                $sql = "insert into " . $this->wpdb->prefix . "bx_item ";
+                $fields = '';
+                $values = '';
+                foreach(array_keys($this->bookArray) as $key){
+                    $fields .= "bx_item_" . $key . ", ";
+                    $values .= "'" . addslashes($this->bookArray[$key]) . "', ";
+                }
+                $fields .= "bx_item_comments, bx_item_sidebar, bx_item_date_added";
+                $values .= "'$comments', 0, " . time();
+                $sql .= "($fields) values ($values)";
+                $this->wpdb->query($sql);
+                //$this->wpdb->print_error();
+                $code = "as";                
+                
+                
+                
+                
+                
+            }    
 
-        if ($_POST["action"] == "add"){
+        
+        
+        }
+        else if ($_POST["action"] == "add"){
+            
             if ($this->bookArray["name"] == ''){
-                $this->bookx_form("Import Failed");
+                $this->bookx_form("ISBN Number Not Found.");
                 return false;
             }            
             $sql = "insert into " . $this->wpdb->prefix . "bx_item ";
@@ -685,11 +750,12 @@ class bookx_admin {
             $fields .= "bx_item_comments, bx_item_sidebar, bx_item_date_added";
             $values .= "'$comments', " . $_POST["sidebar"] . ", " . time();
             $sql .= "($fields) values ($values)";
+
             $code = "a";
         }
         else if ($_POST["action"] == "modify"){
             if ($this->bookArray["name"] == ''){
-                $this->bookx_form("Import Failed");
+                $this->bookx_form("ISBN Number Not Found.");
                 return false;
             }   
             $sql = "update " . $this->wpdb->prefix . "bx_item set ";
@@ -709,8 +775,14 @@ class bookx_admin {
         }
         //print_r($this->bookArray);
         //die();
-
-        $this->wpdb->query($sql);
+        if ($code != "as"){
+            if (!$this->wpdb->query($sql)){
+                $this->bookx_form("SQL Query Failed"); 
+                return false;    
+            }
+            //$this->wpdb->print_error(); 
+            //die("HERE");
+        }
         
         $url = $this->baseURL . "&code=$code";
         $text = "<script language=\"javascript\">";

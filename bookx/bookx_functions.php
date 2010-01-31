@@ -24,7 +24,7 @@ class bookx_functions {
     function __construct(){
         global $wpdb;
         $this->wpdb = $wpdb;
-     
+        
     }
     
     /**
@@ -33,8 +33,134 @@ class bookx_functions {
     */
 
     function bookx_search(){
+ 
+        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1");
+        
+        /*if ($_POST["order"]){ $order = $_POST["order"]; }
+        else if ($_GET["order"]){ $order = $_GET["order"]; }
+        else { $order = $this->options['list_order_default']; }
+        
+        if ($_POST["sort"]){ $sort = $_POST["sort"]; }
+        else if ($_GET["sort"]){ $sort = $_GET["sort"]; }
+        else { $sort = $this->options['list_sort_default']; }
+        */
+        $search = "%" . addslashes(strtolower($_POST["bookxsearch"])) . "%";
+        
+        $text = "<div id=\"bookx_content\">";
+        
+        /*if ($this->options["list_filter"] == 1){
+            $text .= "<div id=\"bookx_filter\">";
+            $text .= "<form id=\"bookx_filter\" action=\"$link\" method=\"post\">";
+            $text .= "Field: <select name=\"order\">";
+            foreach(array_keys($this->fieldArray) as $f){
+                if ($f == $order){ $s = "selected"; }
+                else { $s = ''; }
+                $text .= "<option value=\"$f\" $s>" . $this->fieldArray[$f] . "</option>";
+            }
+            $text .= "</select>";
+            
+            $text .= "&nbsp;&nbsp;Order: <select name=\"sort\">";
+            foreach(array_keys($this->sortArray) as $f){
+                if ($f == $sort){ $s = "selected"; }
+                else { $s = ''; }
+                $text .= "<option value=\"$f\" $s>" . $this->sortArray[$f] . "</option>";
+            }            
+            $text .= "</select>";
+            $text .= "<input type=\"submit\" value=\"Set\" />";
+            $text .= "</form>";
+            $text .= "</div>";
+        }
+        if ($_GET["limit"]){ $limit = $_GET["limit"]; }
+        else { $limit = 0; }        
+        $count = $this->wpdb->get_var("select count(bx_item_id) from " . $this->wpdb->prefix . "bx_item where lower(bx_item_name) like '$search' or lower(bx_item_author) like '$search' or lower(bx_item_publisher) like '$search'");  
+        $setnum = $this->options["per_page"];   
+        if ($this->options["per_page"] != 0 && $count > $setnum){
+            $paging = true;
+            
+            require_once(BOOKX_DIR . 'suitex_list.php'); 
+            $listObj = new suitex_list();
+            $listObj->setNum = $setnum;
+            $url = $link . "?&order=$order&sort=$sort";
+            
+            
+            $pager = $listObj->paging($limit, $count, $url);
+            $text .= "<div id=\"bookx_pager\">$pager</div>";
+        }
+        */
         
         
+       
+        $sql = "select bx_item_publisher, bx_item_price, bx_item_date, bx_item_summary, bx_item_comments, ";
+        $sql .= "bx_item_id, bx_item_name, bx_item_isbn, bx_item_format, bx_item_pages, bx_item_author, bx_item_image";
+        $sql .= " from " . $this->wpdb->prefix . "bx_item where lower(bx_item_name) like '$search' or lower(bx_item_author) like '$search'";
+        $sql .= " or lower(bx_item_publisher) like '$search'";
+        $sql .= " order by bx_item_name";
+
+        
+        $results = $this->wpdb->get_results($sql);
+        
+        
+        if (substr_count($this->options["listTemplate"], "::IMAGE::")){
+            $doImage = true;            
+        }
+        
+        foreach($results as $row){
+            if ($doImage){
+                $image = $row->bx_item_image;
+            
+                $sourceWidth = substr($image, strpos($image, "width=\"") + 7);
+                $sourceWidth = substr($sourceWidth, 0, strpos($sourceWidth, "\""));
+
+                $sourceHeight = substr($image, strpos($image, "height=\"") + 8);
+                $sourceHeight = substr($sourceHeight, 0, strpos($sourceHeight, "\""));            
+            
+                if ($sourceWidth > $this->options["list_image_width"]) {
+                    $newWidth  = $this->options["list_image_width"];
+                    $newHeight = (INTEGER) ($sourceHeight * ($this->options["list_image_width"] / $sourceWidth));
+                } 
+                else if ($sourceHeight > $this->options["list_image_height"]) {
+                    $newWidth  = (INTEGER) ($sourceWidth * ($this->options["list_image_height"] / $sourceHeight));
+                    $newHeight = $this->options["list_image_height"];
+                } 
+                else {
+                    $newWidth  = $sourceWidth;
+                    $newHeight = $sourceHeight;
+                }
+                $image = str_replace('width="' . $sourceWidth . '"', 'width="' . $newWidth . '"', $image);
+                $image = str_replace('height="' .$sourceHeight . '"', 'height="' . $newHeight . '"', $image);
+                if ($this->options["list_image_align"] != ''){
+                    $image = str_replace("src", "align=\"" . $this->options['list_image_align'] . "\" src", $image);       
+                }
+                
+            }
+            
+            
+            
+            $trans["::ELINK::"]     = $row->bx_item_link;
+            $trans["::TITLE::"]     = $row->bx_item_name;
+            $trans["::AUTHOR::"]    = $row->bx_item_author;            
+            $trans["::ISBN::"]      = $row->bx_item_isbn;             
+            $trans["::PUBLISHER::"] = $row->bx_item_publisher;             
+            $trans["::DATE::"]      = $row->bx_item_date;             
+            $trans["::PAGES::"]     = $row->bx_item_pages;             
+            $trans["::FORMAT::"]    = $row->bx_item_format;             
+            $trans["::LINK::"]      = $link . "?&book_id=" . $row->bx_item_id;            
+            $trans["::IMAGE::"]     = $image;            
+            $trans["::PRICE::"]     = $row->bx_item_price;            
+            $trans["::SUMMARY::"]   = substr(strip_tags($row->bx_item_summary), 0, $this->options["list_characters"]) . "...";            
+            $trans["::COMMENTS::"]  = substr(strip_tags($row->bx_item_comments), 0, $this->options["list_characters"]) . "...";
+            $trans["::MORE::"]      = " <a href=\"" . $link . "?&book_id=" . $row->bx_item_id . "\">More</a>";
+            
+             
+            $text .= "<div class=\"bookx_list_entry\">" . strtr(stripslashes($this->options["listTemplate"]), $trans) . "</div>";
+            
+            
+  
+            
+        }
+        if ($pager){ $text .= "<div id=\"bookx_pager\">$pager</div>"; }
+        $text .= "</div>"; 
+        $this->text = $text;
         
     }
     
@@ -165,7 +291,7 @@ class bookx_functions {
         if ($this->options["per_page"] != 0 && $count > $setnum){
             $paging = true;
             
-            require_once(ABSPATH . $this->pluginBase . DIRECTORY_SEPARATOR . 'suitex_list.php'); 
+            require_once(BOOKX_DIR . 'suitex_list.php'); 
             $listObj = new suitex_list();
             $listObj->setNum = $setnum;
             $url = $link . "?&order=$order&sort=$sort";
@@ -262,9 +388,9 @@ class bookx_functions {
             if ($_GET["book_id"]){
                 $this->bookx_showItem();
             }
-            //else if ($_GET["search"]){
-            //    $this->bookx_search();
-            //}
+            else if ($_POST["bookxsearch"]){
+                $this->bookx_search();
+            }
             else {
                 $this->bookx_listItems();
             }

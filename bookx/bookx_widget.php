@@ -34,7 +34,41 @@ class bookx_widget {
         if (!function_exists("register_sidebar_widget")){ return; }
     
         register_sidebar_widget('BookX', array($this, 'bookx_widget_sidebar'));
-        register_widget_control('BookX', array($this, 'bookx_widget_admin'));        
+        register_sidebar_widget('BookX Search', array($this, 'bookx_search_widget_sidebar'));
+        register_widget_control('BookX', array($this, 'bookx_widget_admin')); 
+        register_widget_control('BookX Search', array($this, 'bookx_search_widget_admin'));       
+        
+    }
+    
+    function bookx_search_widget_sidebar($args){
+        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1"); 
+        extract($args);
+        $text = $before_widget . $before_title;
+        $text .= $this->options["search_widget_title"] . $after_title . "<ul>";  
+        $text .= "<li>";
+        $text .= "<form method=\"post\" name=\"bookxSearch\" action=\"$link\">";
+        $text .= "<input id=\"bookxSearchField\" type=\"text\" name=\"bookxsearch\" value=\"" . $_POST["bookxsearch"] . "\" />";
+        $text .= "<input type=\"submit\" value=\"Search\" id=\"bookxSearchButton\" />";    
+        $text .= "</form>";    
+            
+        $text .= "</li>";          
+        $text .= "</ul>" . $after_widget; 
+        print($text);              
+    }
+    
+    function bookx_search_widget_admin(){
+        if ($_POST["bookx_search_submit"]){
+            $this->options["search_widget_title"] = $_POST["search_widget_title"];
+            update_option('bookx_options', $this->options);  
+        }
+        
+        if (!$this->options["search_widget_title"]){
+            $this->options["search_widget_title"] = "BookX Search";
+        }
+        
+        $text  = "<strong>Title:</strong> <input type=\"text\" name=\"search_widget_title\" value=\"" . $this->options["search_widget_title"] . "\" /><br />";                                     
+        $text .= "<input type=\"hidden\" name=\"bookx_search_submit\" value=\"1\" />";
+        print($text);
         
     }
     
