@@ -41,7 +41,7 @@ class bookx_widget {
     }
     
     function bookx_search_widget_sidebar($args){
-        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1"); 
+        $link = get_page_link($this->options["page_id"]);
         extract($args);
         $text = $before_widget . $before_title;
         $text .= $this->options["search_widget_title"] . $after_title . "<ul>";  
@@ -123,8 +123,7 @@ class bookx_widget {
                 $image = str_replace('width="' . $sourceWidth . '"', 'width="' . $newWidth . '"', $image);
                 $image = str_replace('height="' .$sourceHeight . '"', 'height="' . $newHeight . '"', $image);
             }
-            $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1");
-            
+            $link = get_page_link($this->options["page_id"]);
             
             $trans["::ELINK::"]     = $row->bx_item_link;
             $trans["::TITLE::"]     = $row->bx_item_name;

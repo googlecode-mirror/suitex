@@ -34,7 +34,7 @@ class bookx_functions {
 
     function bookx_search(){
  
-        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1");
+        $link = get_page_link($this->options["page_id"]);
         
         /*if ($_POST["order"]){ $order = $_POST["order"]; }
         else if ($_GET["order"]){ $order = $_GET["order"]; }
@@ -171,8 +171,8 @@ class bookx_functions {
 
     
     function bookx_showItem(){
-        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1");
         
+        $link = get_page_link($this->options["page_id"]);
         $text = "<div id=\"bookx_content\">";
        
         $sql = "select bx_item_publisher, bx_item_price, bx_item_date, bx_item_summary, bx_item_comments, bx_item_link, ";
@@ -250,8 +250,8 @@ class bookx_functions {
 
     function bookx_listItems(){
     
-        $link = $this->wpdb->get_var("select guid from " . $this->wpdb->prefix . "posts where ID = '" . $this->options["page_id"] . "' limit 1");
         
+        $link = get_page_link($this->options["page_id"]);
         if ($_POST["order"]){ $order = $_POST["order"]; }
         else if ($_GET["order"]){ $order = $_GET["order"]; }
         else { $order = $this->options['list_order_default']; }

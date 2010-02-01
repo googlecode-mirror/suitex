@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
 Tested up to: 2.9.1
-Stable tag: 0.4
+Stable tag: 0.5
 
 A simple but powerful recommended book plugin.
 
@@ -27,9 +27,12 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>0.5</b><br />
+Fixed bug when changing page slug (<a href="http://code.google.com/p/suitex/issues/detail?id=45">Issue #45</a>)<br />
+
 <b>0.4</b><br />
-Added search widget<br />
-Added multiple book addition<br />
+Added search widget (<a href="http://code.google.com/p/suitex/issues/detail?id=30">Issue 30</a>)<br />
+Multiple Book Add (<a href="http://code.google.com/p/suitex/issues/detail?id=39">#39</a>)<br />
 Added better error handling<br />
 
 <b>0.3</b><br />
