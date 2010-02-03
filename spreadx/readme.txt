@@ -3,8 +3,8 @@ Contributors: Xnuiem
 Donate link: http://www.thisrand.com/scripts/spreadx
 Tags: automatic, content, embed, feed, integration, plugin, page, pages, post, posts, seo
 Requires at least: 2.6
-Tested up to: 2.7.1
-Stable tag: 1.0
+Tested up to: 2.9.1
+Stable tag: 1.1
 
 A very easy way to get your site onto Digg, Stumble, Del.icio.us, Slashdot, Twitter, Mixx, Dzone, Sphinn, Google, and Technorati.  It is a very easy way to increase traffic and make your site even more SEO.
 
@@ -25,6 +25,8 @@ A lightweight plugin that will add the submit buttons for Digg, Stumble, Del.ici
 
 
 == Change Log ==
+<b>1.1</b><br />
+Enabled support for WP_PLUGIN_DIR (<a href="http://code.google.com/p/suitex/issues/detail?id=42" target="_top">Issue #42</a>)
 <b>1.0</b><br />
 Added Twitter<br />
 Added Sphinn<br />

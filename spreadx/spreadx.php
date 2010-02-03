@@ -3,7 +3,7 @@
 Plugin Name: SpreadX
 Plugin URI: http://www.thisrand.com/scripts/spreadx
 Description: A very easy way to get your site onto Digg, Stumble, Del.icio.us, Slashdot, Twitter, Mixx, Dzone, Sphinn, Google, and Technorati.
-Version: 1.0
+Version: 1.1
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
@@ -32,8 +32,20 @@ Author URI: http://www.thisrand.com
  * @since 2.6
  */
 
+if (!defined( 'WP_CONTENT_URL'))
+      define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' );
+if (!defined( 'WP_CONTENT_DIR'))
+      define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+if (!defined( 'WP_PLUGIN_URL'))
+      define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
+if (!defined( 'WP_PLUGIN_DIR'))
+      define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+
+define(SPREADX_DIR, WP_PLUGIN_DIR . '/spreadx/');  
+define(SPREADX_URL, WP_PLUGIN_URL . '/spreadx/');  
  
-$pluginBase = 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . 'spreadx';
+ 
+
 if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){   
     $pages["digg"] = array("Digg", "http://digg.com/", "http://digg.com/submit?phase=2&url=::URL::");
     $pages["facebook"] = array("Facebook", "http://www.facebook.com", "http://www.facebook.com/share.php?u=::URL::");
@@ -47,7 +59,7 @@ if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){
     $pages["google"] = array("Google", "http://www.google.com", "http://www.google.com/bookmarks/mark?op=edit&bkmk=::URL::&title=::TITLE::");
     $pages["dzone"] = array("DZone", "http://www.dzone.com", "http://www.dzone.com/links/add.html?url=::URL::&title=::TITLE::");
     
-    require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'spreadx_functions.php');
+    require_once(SPREADX_DIR . '/spreadx_functions.php');
     $obj = new spreadX();
     $obj->pages = $pages;
     $obj->pluginBase = $pluginBase;
@@ -58,7 +70,7 @@ if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){
     add_action('admin_menu', array($obj, 'spreadx_admin_menu'));
 }
 else{
-    require_once(ABSPATH . $pluginBase . DIRECTORY_SEPARATOR . 'spreadx_front.php');  
+    require_once(SPREADX_DIR . '/spreadx_front.php');  
     $obj = new spreadX_front();
     add_filter('the_content', array($obj, 'spreadx_insert_buttons'));
 }
