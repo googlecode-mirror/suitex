@@ -5,9 +5,10 @@ $dirPath = str_replace("websvn\include\config.php", "config", __FILE__);
 if (!is_dir($dirPath)){
     $dirPath = str_replace("websvn/include/config.php", "config", __FILE__);
 }
+
 $handle = opendir($dirPath);
 while (($file = readdir($handle)) !== false) {
-    if ($file != '.' && $file != '..'){
+    if ($file != '.' && $file != '..' && substr($file, 0, 1) != '.'){
         //print($file . "<br>");    
         require_once($dirPath . "/" . $file);
     }
