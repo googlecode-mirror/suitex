@@ -58,6 +58,7 @@ class svnx_functions {
             
             //print_r($opt);  
             //print_r($_GET);
+
             if (!$_GET["svn"]){
                 $url = SVNX_URL . "websvn/listing.php";
             }
@@ -99,6 +100,7 @@ class svnx_functions {
             else {
                 $lines = file_get_contents($url);
             }
+
             $this->svnx_prepLines($lines, $page, $repname);
             $css = str_replace("url(images", "url(" . SVNX_URL . "templates", $this->options["css"]);
 
