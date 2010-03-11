@@ -52,6 +52,14 @@ class svnx_admin {
         if ($_GET["code"]){
             $this->status = "<br /><b><span style=\"color:#FF0000;\">" . $codeArray[$_GET["code"]] . "</span></b>";   
         }
+        
+        if (!is_writable(SVNX_DIR . '/config')){
+            $this->fault = "<br />" . SVNX_DIR . 'config' . " needs to be writable by the webserver.";
+        }
+        
+        if (!is_file(SVNX_DIR . '/config/config.php')){
+            $this->fault .= "<br />Update your <a href=\"" . $this->baseURL . "&sub=admin\">Configuration Options</a> (Save them if you haven't already so it can create a config file)";
+        }
     }
 
 
@@ -108,6 +116,9 @@ class svnx_admin {
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=list\">View Repositories</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=form\">Add New Repository</a>"; 
         $text .= "<script type='text/javascript' src='" . SVNX_URL. "includes/suitex.js'></script>"; 
+        if ($this->fault){
+            $text .= "<div style=\"width: 85%; border: 2px solid #FF0000; background-color: #FFFFFF; padding: 5px;\"><b>SVNX needs your Attention</b>" . $this->fault . "</div>";    
+        }
         return $text;
     }
     
