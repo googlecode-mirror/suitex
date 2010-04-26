@@ -84,7 +84,7 @@ class bookx_widget {
         $text = $before_widget . $before_title;
         $text .= $this->options["widget_title"] . $after_title . "<ul>";
        
-        $sql = "select bx_item_publisher, bx_item_price, bx_item_date, ";
+        $sql = "select bx_item_publisher, bx_item_price, bx_item_date, bx_item_link, ";
         $sql .= "bx_item_id, bx_item_name, bx_item_isbn, bx_item_format, bx_item_pages, bx_item_author, bx_item_image";
         $sql .= " from " . $this->wpdb->prefix . "bx_item where bx_item_sidebar = '1' order by " . $this->options["widget_order"];
         $sql .= " " . $this->options["widget_sort"];

@@ -90,7 +90,7 @@ class bookx_functions {
         
         
        
-        $sql = "select bx_item_publisher, bx_item_price, bx_item_date, bx_item_summary, bx_item_comments, ";
+        $sql = "select bx_item_publisher, bx_item_price, bx_item_date, bx_item_summary, bx_item_comments, bx_item_link, ";
         $sql .= "bx_item_id, bx_item_name, bx_item_isbn, bx_item_format, bx_item_pages, bx_item_author, bx_item_image";
         $sql .= " from " . $this->wpdb->prefix . "bx_item where lower(bx_item_name) like '$search' or lower(bx_item_author) like '$search'";
         $sql .= " or lower(bx_item_publisher) like '$search'";

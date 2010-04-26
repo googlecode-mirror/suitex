@@ -27,6 +27,9 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>0.6</b><br />
+Fixed bug for missing external link (<a href="http://code.google.com/p/suitex/issues/detail?id=45">Issue #45</a>)<br />     
+
 <b>0.5</b><br />
 Fixed bug when changing page slug (<a href="http://code.google.com/p/suitex/issues/detail?id=45">Issue #45</a>)<br />
 
