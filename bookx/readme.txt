@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
 Tested up to: 2.9.1
-Stable tag: 0.5
+Stable tag: 0.6
 
 A simple but powerful recommended book plugin.
 
