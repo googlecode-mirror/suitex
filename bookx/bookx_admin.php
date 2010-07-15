@@ -15,13 +15,14 @@
   
 class bookx_admin {
     
+    var $version        = "1.0";
     var $wpdb;
     var $options        = array();
     var $baseURL        = "tools.php?page=bookx/bookx_admin.php";
     var $numberPerPage  = "50";
     var $bookArray      = array();
     var $status         = '';
-    var $filter         = array();
+    var $filter         = array();  
     
     /**
     * The contstruct function.  Does nothing other than set up variables.
@@ -34,10 +35,21 @@ class bookx_admin {
         
         ini_set('allow_url_fopen', "1");
         $this->wpdb    = $wpdb;
+        
         $this->bookx_checkCode($_GET["code"]);
+        
+        
         
         //$this->wpdb->show_errors(); 
     }
+    
+    function bookx_iniForms(){
+        require_once(BOOKX_DIR . "bookx_admin_forms.php");
+        $this->forms = new bookx_admin_forms();
+        $this->forms->parent = $this;
+    }
+    
+    
     
     /**
     * Checks to see if there is a status code.  
@@ -70,18 +82,20 @@ class bookx_admin {
     */
     
     function bookx_run(){
-
+        $this->bookx_upgrade();
         switch($_GET["sub"]){
             case "submit":
                 $this->bookx_submit();
                 break;
                 
             case "form":
-                $this->bookx_form();
+                $this->bookx_iniForms();
+                $this->forms->bookx_form();
                 break;
                 
             case "admin":
-                $this->bookx_adminPage();
+                $this->bookx_iniForms();
+                $this->forms->bookx_adminPage();
                 break;
                 
             case "refresh":
@@ -90,10 +104,6 @@ class bookx_admin {
                 
             case "export": 
                 $this->bookx_export();
-                break;
-                
-            case "import":
-                $this->bookx_import();
                 break;
                 
             case "list":
@@ -150,73 +160,15 @@ class bookx_admin {
             fwrite($fp, $body);
             fclose($fp);
             
-            $text = "<div class=\"wrap\"><h2>BookX</h2>";
-            $text .= "<strong>Your export file has been created.</strong><br /><br /> ";
-            $text .= "<a href=\"" . BOOKX_URL . "bookx_export.php?file=" . $this->options["export"] . "\">Download Book List</a>";
-            $text .= "</div>";
-            $this->bookx_stroke($text);
+            $url = $this->baseURL . "&sub=admin&export=" . $this->options["export"] . "#export";
+            $text = "<script language=\"javascript\">";
+            $text .= "goToURL('$url'); ";
+            $text .= "</script>"; 
+            $this->bookx_stroke($text);       
         }
     }
     
-    /**
-    * Imports the imported file created in bookx_export()
-    * 
-    */
-    
-    function bookx_import(){
-        
-        if ($_POST["action"] == "import" && $_FILES["import"]["tmp_name"] != ''){        
-            $file = file($_FILES["import"]["tmp_name"]);
-            foreach($file as $f){
-                $r = explode("\"|\"", $f);
-                $insertArray = array();
-                foreach($r as $e){
-                    $e = trim(rtrim($e), '"');
-                    $e = trim(rtrim($e));
-                    $insertArray[] = $e;
-                }
-                
-                $count = $this->wpdb->get_var("select count(*) from " . $this->wpdb->prefix . "bx_item where bx_item_isbn = '" . $insertArray[0] . "' limit 1");
-                if ($count == 0){
-                    $sql = $this->wpdb->prepare("insert into " . $this->wpdb->prefix . "bx_item (bx_item_isbn, bx_item_comments, bx_item_sidebar, bx_item_summary, bx_item_no_update_desc) values (%s, %s, %d, %s, %d)", $insertArray);
-
-                    $this->wpdb->query($sql);
-                    
-                }
-            }
-            $this->bookx_refreshAll(true);
-        }
-        else {
-            if ($_POST["action"] == "import"){
-                $this->bookx_checkCode("f");
-            }
-        
-        
-            $text = "<div class=\"wrap\"><h2>BookX</h2>";
-            $text .= "<form method=\"post\" action=\"\" enctype=\"multipart/form-data\">";
-            $text .= "<input type=\"hidden\" name=\"action\" value=\"import\" />";
-        
-            $text .= $this->status;
-            if ($noExport){
-                $text .= "<div id=\"message\" class=\"error\">In order to create an export file, the directory " . BOOKX_DIR . "export/ must be writable by the webserver.</div>";
-            }
-        
-            $text .= "<table class=\"form-table\">";
-            $text .= "<tr class=\"form-field form-required\">";
-            $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Import Book List File:</label></th>";
-            $text .= "<td><input type=\"file\" name=\"import\" class=\"file\" />";
-            $text .= "</td></tr>";     
-            $text .= "</table>";
-            $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Import Booklist\" />";
-        
-            $text .= "</p></form></div>";
-            $this->bookx_stroke($text);
-        }
-            
-        
-        
-                
-    }    
+ 
     
     
     /**
@@ -227,14 +179,10 @@ class bookx_admin {
     
     function adminHeaderMenu(){
         if (!$this->nonce){ $this->nonce = wp_create_nonce(); }
-        $text = "<a href=\"" . $this->baseURL . "&sub=admin\">General Options</a>";
+        $text = "<a href=\"" . $this->baseURL . "&sub=admin\">BookX Options</a>";
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=list\">View Books</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=form\">Add New Book</a>"; 
-        $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=refresh&_wpnonce=" . $this->nonce . "\">Refresh Book List</a>";
-        if (is_writable(BOOKX_DIR . "export/")){
-            $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=export&_wpnonce=" . $this->nonce . "\">Export Book List</a>";
-        }        
-        $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=import\">Import Book List</a>";
+        //$text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=refresh&_wpnonce=" . $this->nonce . "\">Refresh Book List</a>";
         $text .= "<script type='text/javascript' src='" . BOOKX_URL. "suitex.js'></script>"; 
         
         $text .= "<link rel='stylesheet' href='" . BOOKX_URL . "style.css' type='text/css' />";
@@ -452,6 +400,23 @@ class bookx_admin {
         }
         
     }
+    
+    function bookx_upgrade(){
+        if ($this->options["version"] != $this->version){
+            require_once(BOOKX_DIR . "bookx_upgrade.php");           
+            
+            if ($this->options["version"] == '' || !$this->options["version"]){ //Assume version 0.6 
+                $this->options["version"] = "0.6";
+            }
+            
+            foreach($upgradeArray[$this->options["version"]] as $sql){
+                $this->wpdb->query($sql);
+            }
+            
+            $this->options["version"] = $this->version;
+            update_option('bookx_options', $this->options);
+        }
+    }
 
     /**
     * Installs the plugin by creating the page and options
@@ -517,8 +482,18 @@ class bookx_admin {
             $options['list_filter']             = "1";
             $options['list_order_default']      = "bx_item_name";
             $options['list_sort_default']       = "asc";  
+            
+            $chars = array("a","A","b","B","c","C","d","D","e","E","f","F","g","G","h","H","i","I","j","J", "k","K","l","L","m","M","n","N","o","O","p","P","q","Q","r","R","s","S","t","T","u","U","v","V","w","W","x","X","y","Y","z","Z","1","2","3","4","5","6","7","8","9","0");
+            $max_elements = count($chars) - 1;
+            $fileName = srand((double)microtime()*1000000);
+            for($i=0;$i<12;$i++){
+                $fileName .= $chars[rand(0,$max_elements)];
+            }
+            $options["export"] = md5($fileName);             
+            
+            
         }
-        else {
+        /*else {
             $sql = "SHOW INDEXES IN " . $this->wpdb->prefix . "bx_item";
 
             $indexes = $this->wpdb->get_results($sql);
@@ -533,17 +508,8 @@ class bookx_admin {
                 $this->wpdb->query($sql);
             }
         
-            $result = $this->wpdb->get_row("show columns from " . $this->wpdb->prefix . "bx_item where Field = 'bx_item_no_update_desc'");
-            
-            if (!$result){
-                $this->wpdb->query("ALTER TABLE `" . $this->wpdb->prefix . "bx_item` ADD `bx_item_no_update_desc` TINYINT( 1 ) NOT NULL DEFAULT '0', CHANGE `bx_item_name` `bx_item_name` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL, CHANGE `bx_item_author` `bx_item_author` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
-CHANGE `bx_item_format` `bx_item_format` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
-CHANGE `bx_item_publisher` `bx_item_publisher` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL, CHANGE `bx_item_date` `bx_item_date` INT( 10 ) NULL DEFAULT NULL ,
-CHANGE `bx_item_date_added` `bx_item_date_added` INT( 10 ) NULL DEFAULT NULL, CHANGE `bx_item_image` `bx_item_image` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
-CHANGE `bx_item_link` `bx_item_link` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL  ");
-                   
-            }
-        }
+
+        }*/
         update_option('bookx_options', $options);
     }
 
@@ -553,353 +519,17 @@ CHANGE `bx_item_link` `bx_item_link` TEXT CHARACTER SET latin1 COLLATE latin1_sw
 
     function bookx_uninstall(){
         
-        
         $sql = "delete from `" . $this->wpdb->prefix . "posts` where `ID` = '" . $this->options['page_id'] . "' limit 1";
         $this->wpdb->query($sql);
         $sql = "drop table " . $this->wpdb->prefix . "bx_item";
         $this->wpdb->query($sql);
-        delete_option('bookx_options');
+        delete_option('bookx_options');  
 
     }
 
-    /**
-    * The administration page for updating options
-    *
-    * @param NULL
-    * @return NULL
-    */
-
-    function bookx_adminPage(){
-        
-        $alignArray['left']     = "Left";
-        $alignArray['right']    = "Right";
-        $alignArray['']         = '';
-        
-        if ($_POST['action'] == "update"){
-            $this->options['per_page']              = $_POST['per_page'];
-            $this->options['per_widget']            = $_POST['per_widget'];
-            $this->options['listTemplate']          = $_POST['list'];
-            $this->options['widgetTemplate']        = $_POST['widget'];
-            $this->options['list_image_height']     = $_POST['list_image_height'];
-            $this->options['list_image_width']      = $_POST['list_image_width'];
-            $this->options['detail_image_height']   = $_POST['detail_image_height'];
-            $this->options['detail_image_width']    = $_POST['detail_image_width'];
-            $this->options['detailTemplate']        = $_POST['detail'];
-            $this->options['list_characters']       = $_POST['list_characters'];
-            $this->options['css']                   = $_POST['css'];
-            $this->options['list_image_align']      = $_POST['list_image_align'];
-            $this->options['detail_image_align']    = $_POST['detail_image_align'];
-            $this->options['list_search']           = $_POST['list_search'];
-            $this->options['list_filter']           = $_POST['list_filter'];
-            $this->options['list_order_default']   = $_POST['list_order_default'];
-            $this->options['list_sort_default']     = $_POST['list_sort_default'];
-            
-            update_option('bookx_options', $this->options);
-            
-                        
-
-        }
-        
-        if (!is_writable(BOOKX_DIR . "export/")){
-            $noExport = true;
-        }
-        
-        
-        //import and export goes HERE...check directory for export
-        $text = "<div class=\"wrap\"><h2>BookX</h2>";
-        $text .= "<form method=\"post\" action=\"\">";
-        $text .= "<input type=\"hidden\" name=\"action\" value=\"update\" />";
-        
-        $text .= $this->status;
-        if ($noExport){
-            $text .= "<div id=\"message\" class=\"error\">In order to create an export file, the directory " . BOOKX_DIR . "export/ must be writable by the webserver.</div>";
-        }
-        
-        $text .= "<table class=\"form-table\">";
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"per_page\"># per page:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"per_page\" value=\"" . $this->options['per_page'] . "\" />";
-        $text .= "</td></tr>";
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Default Order Field:</label></th>";
-        $text .= "<td><select name=\"list_order_default\">";
-        foreach(array_keys($this->fieldArray) as $f){
-            if ($f == $this->options["list_order_default"]){ $s = "selected"; }
-            else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->fieldArray[$f] . "</option>";
-        }
-        $text .= "</select></td></tr>";  
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Sort Default:</label></th>";
-        $text .= "<td><select name=\"list_sort_default\">";
-        foreach(array_keys($this->sortArray) as $sort){
-            if ($sort == $this->options["list_sort_default"]){ $s = "selected"; }
-            else { $s = ''; }
-            $text .= "<option value=\"$sort\" $s>" . $this->sortArray[$sort] . "</option>";
-        }
-        $text .= "</select></td></tr>";          
-
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Allow Users to Change Order Field:</label></th>";
-        $text .= "<td><select name=\"list_filter\">";
-        foreach(array_keys($this->filter) as $f){
-            if ($f == $this->options['list_filter']){ $s = "selected"; }
-            else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->filter[$f] . "</option>";
-        }
-        $text .= "</select></td></tr>";  
-
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Enable Search:</label></th>";
-        $text .= "<td><select name=\"list_search\">";
-        foreach(array_keys($this->filter) as $f){
-            if ($a == $this->options['list_search']){ $s = "selected"; }
-            else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->filter[$f] . "</option>";
-        }
-        $text .= "</select></td></tr>";          
-        
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Image Width:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"list_image_width\" value=\"" . $this->options['list_image_width'] . "\" />";
-        $text .= "</td></tr>";
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Image Height:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"list_image_height\" value=\"" . $this->options['list_image_height'] . "\" />";
-        $text .= "</td></tr>"; 
-        
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Image Align:</label></th>";
-        $text .= "<td><select name=\"list_image_align\">";
-        foreach(array_keys($alignArray) as $a){
-            if ($a == $this->options['list_image_align']){ $s = "selected"; }
-            else { $s = ''; }
-            $text .= "<option value=\"$a\" $s>" . $alignArray[$a] . "</option>";
-        }
-        $text .= "</select></td></tr>";           
-        
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Detail Image Width:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"detail_image_width\" value=\"" . $this->options['detail_image_width'] . "\" />";
-        $text .= "</td></tr>";
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Detail Image Height:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"detail_image_height\" value=\"" . $this->options['detail_image_height'] . "\" />";
-        $text .= "</td></tr>";         
-
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Detail Image Align:</label></th>";
-        $text .= "<td><select name=\"detail_image_align\">";
-        foreach(array_keys($alignArray) as $a){
-            if ($a == $this->options['detail_image_align']){ $s = "selected"; }
-            else { $s = ''; }
-            $text .= "<option value=\"$a\" $s>" . $alignArray[$a] . "</option>";
-        }
-        
-        $text .= "</select></td></tr>";   
-
-
-        $text .= "<tr class=\"form-field form-required\">";
-        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\"># Characters for Summary & Comments in List View:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"list_characters\" value=\"" . $this->options['list_characters'] . "\" />";
-        $text .= "</td></tr>";                 
-        
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>CSS:</strong></td>";
-        $text .= "<td><textarea name=\"css\">" . stripslashes($this->options['css']) . "</textarea>";
-        $text .= "</td></tr>"; 
-        $text .= "<tr><td colspan=\"2\">";
-        $text .= "The following fields are to create the look & field for three display areas, the Widget, List, and the Detail.<br /><br />";
-        $text .= "</td></tr>";
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>Widget Template:</strong></td>";
-        $text .= "<td><textarea name=\"widget\">" . stripslashes($this->options["widgetTemplate"]) . "</textarea>";
-        $text .= "</td></tr>";
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>List Template:</strong></td>";
-        $text .= "<td><textarea name=\"list\">" . stripslashes($this->options['listTemplate']) . "</textarea>";
-        $text .= "</td></tr>";  
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>Detail Template:</strong></td>";
-        $text .= "<td><textarea name=\"detail\">" . stripslashes($this->options['detailTemplate']) . "</textarea>";
-        $text .= "</td></tr>";         
-        $text .= "<tr><td colspan=\"2\">";  
-        $text .= "In addition to HTML, the three template fields will accept the following field subsitution tags: <ul>";
-        $text .= "<li>::TITLE:: - The title of the book</li>";
-        $text .= "<li>::AUTHOR:: - The author(s)</li>";
-        $text .= "<li>::ISBN:: - The ISBN (13)</li>";
-        $text .= "<li>::PUBLISHER:: - The Publisher</li>";
-        $text .= "<li>::DATE:: - The publish date</li>";
-        $text .= "<li>::PAGES:: - Number of pages</li>";
-        $text .= "<li>::FORMAT:: - Publish Format</li>";
-        $text .= "<li>::ELINK:: - External Link</li>";
-        $text .= "<li>::LINK:: - Link to the Detail view of Book.  Not available in Detail View.</li>";
-        $text .= "<li>::IMAGE:: - Image of Cover (scaled)</li>";
-        $text .= "<li>::PRICE:: - Price</li>";
-        $text .= "<li>::SUMMARY:: - Summary from external source.  Not available in the Widget.</li>";
-        $text .= "<li>::COMMENTS:: - Your comments.  Not available in the Widget.</li>";
-        $text .= "<li>::MORE:: - More link to detail view.  Only available in List View.</li>";
-        $text .= "</ul>";
-        $text .= "</td></tr>";
-              
-  
-
-        
-        $text .= "</table>";
 
 
 
-        $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
-        
-        $text .= "</p></form></div>";
-        $this->bookx_stroke($text);
-    }   
-    
-    /**
-    * The form to add or modify a book.
-    * 
-    */
-    
-    function bookx_form($code=''){
-        
-        if ($code != ''){
-
-            
-            if ($_POST["id"]){
-                $query = "select bx_item_name as name from " . $this->wpdb->prefix . "bx_item where bx_item_id = %d limit 1";
-                $row = $this->wpdb->get_row($this->wpdb->prepare($query, $_POST["id"]));
-                $row->isbn = $_POST["isbn"];
-                $row->sidebar = $_POST["sidebar"];
-                $row->comments = $_POST["comments"];
-                $row->summary  = $_POST["summary"];
-                $row->no_update = $_POST["no_update"];                
-                $_GET["id"] = $_POST["id"];
-                $label = "Modify Book : " . $row->name; 
-                $action = "modify";
-            }
-            else {
-                $row->isbn = $_POST["isbn"];
-                $row->sidebar = $_POST["sidebar"];
-                $row->comments = $_POST["comments"];
-                $row->summary  = $_POST["summary"];
-                $row->no_update = $_POST["no_update"];
-                $label = "Add Book";
-                $action = "add";                 
-            }
-
-            $status = "<span style=\"font-weight: bold; color: #FF0000;\">" . $code . "</span><br />";            
-        }
-        else if ($_GET["id"]){
-            $query = "select bx_item_name as name, bx_item_isbn as isbn, bx_item_comments as comments, bx_item_sidebar as sidebar, bx_item_summary as summary, bx_item_no_update_desc as no_update from " . $this->wpdb->prefix . "bx_item where bx_item_id = %d limit 1";
-            $row = $this->wpdb->get_row($this->wpdb->prepare($query, $_GET["id"]));
-            
-        
-            $label = "Modify Book : " . $row->name;            
-            $action = "modify";
-            
-        }
-        else {
-            $label = "Add Book";
-            $action = "add";    
-        }
-        
-        
-        
-        
-        $this->nonce = wp_create_nonce();
-        
-        $text = "<div class=\"wrap\">";
-        $text .= "<h2>BookX - Books</h2>";
-        $text .= "<br />";
-
-
-        $text .= "<div id=\"poststuff\" class=\"metabox-holder\">";
-        $text .= "<div id=\"post-body\" class=\"has-sidebar\">";
-        $text .= "<div id=\"post-body-content\" class=\"has-sidebar-content\">";
-        $text .= "<div class=\"postbox\">";
-        $text .= "<h3><label>$label</label></h3>";
-        $text .= $status;
-        
-        $text .= "<div class=\"inside\">";
-        $text .= "<form method=\"post\" action=\"" . $this->baseURL . "&sub=submit\">";
-        $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . $this->nonce . "\" />";
-        $text .= "<input type=\"hidden\" name=\"action\" value=\"$action\" />";
-        
-        if ($_GET["id"]){
-            $text .= "<input type=\"hidden\" name=\"id\" value=\"" . $_GET["id"] . "\" />";
-        }
-        $text .= "<table class=\"form-table\">";
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>ISBN:</strong></td>";
-        $text .= "<td><input type=\"text\" name=\"isbn\" value=\"" . $row->isbn . "\" />";
-        $text .= "</td></tr>";
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>Add to Sidebar:</strong></td>";
-        $text .= "<td><select name=\"sidebar\">";
-        foreach(array_keys($this->filter) as $f){
-            if ($f == $row->sidebar){ $s = "selected"; }
-            else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->filter[$f] . "</option>";
-        }
-        
-        
-        $text .= "</select></td></tr>";        
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>Comments:</strong></td>";
-        $text .= "<td><textarea name=\"comments\">" . $row->comments . "</textarea>";
-        $text .= "</td></tr>";
-        
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>Summary from Source:</strong></td>";
-        $text .= "<td><textarea name=\"summary\">" . $row->summary . "</textarea>";
-        $text .= "</td></tr>";            
-        
-        $text .= "<tr class=\"form-field\">";
-        $text .= "<td><strong>Protect Summary from Updating:</strong></td>";
-        $text .= "<td><select name=\"no_update\">";
-        foreach(array_keys($this->filter) as $f){
-            if ($f == $row->no_update){ $s = "selected"; }
-            else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->filter[$f] . "</option>";
-        }
-        
-        
-        $text .= "</select></td></tr>";            
-        
-        
-        $text .= "</table>";
-        $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
-        if ($action == "modify"){
-            $deleteURL = $this->baseURL . "&sub=submit&id=" . $_GET["id"] . "&_wpnonce=" . $this->nonce;
-            $text .= "&nbsp;<input type=\"button\" value=\"Delete\" onClick=\"confirmAction('Are you sure you want to delete this book?', '$deleteURL');\" />";
-        }
-        $text .= "</p></form>";
-        $text .= "</div></div>";
-        
-        
-        if ($action == "add"){
-            $text .= "<div class=\"postbox\">";
-            $text .= "<h3><label>Add Books</label></h3>";
-        
-            $text .= "<div class=\"inside\">";
-            $text .= "<form method=\"post\" action=\"" . $this->baseURL . "&sub=submit\">";
-            $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . $this->nonce . "\" />";
-            $text .= "<input type=\"hidden\" name=\"action\" value=\"adds\" />";
-            $text .= "<table class=\"form-table\">";
-      
-            $text .= "<tr class=\"form-field\">";
-            $text .= "<td><strong>Multiple ISBNs (one per line):</strong></td>";
-            $text .= "<td><textarea name=\"books\" rows=\"20\"></textarea>";
-            $text .= "</td></tr>";
-            $text .= "</table>";
-            $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
-            $text .= "</p></form>";
-            $text .= "</div></div>";        
-        }    
-        $text .= "</div></div>";
-        $text .= "</div></div>";
-        $this->bookx_stroke($text);
-    }
     
     /**
     * form actions to alter a book
