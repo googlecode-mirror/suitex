@@ -30,6 +30,7 @@ None Yet
 <b>1.0</b><br />
 The description from BN can now be edited. (<a href="http://code.google.com/p/suitex/issues/detail?id=49">Issue 49</a>)<br />
 Added a quick and dirty backup option (<a href="http://code.google.com/p/suitex/issues/detail?id=38">Issue 38</a>)<br />
+Also made a few changes to the way the files were laid out.<br />
 
 <b>0.6</b><br />
 Fixed bug for missing external link (<a href="http://code.google.com/p/suitex/issues/detail?id=45">Issue #45</a>)<br />     
