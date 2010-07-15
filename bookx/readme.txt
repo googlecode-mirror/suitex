@@ -3,8 +3,8 @@ Contributors: Xnuiem
 Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
-Tested up to: 2.9.1
-Stable tag: 0.6
+Tested up to: 3.0.0
+Stable tag: 1.0
 
 A simple but powerful recommended book plugin.
 
@@ -27,6 +27,10 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>1.0</b><br />
+The description from BN can now be edited. (<a href="http://code.google.com/p/suitex/issues/detail?id=49">Issue 49</a>)<br />
+Added a quick and dirty backup option (<a href="http://code.google.com/p/suitex/issues/detail?id=38">Issue 38</a>)<br />
+
 <b>0.6</b><br />
 Fixed bug for missing external link (<a href="http://code.google.com/p/suitex/issues/detail?id=45">Issue #45</a>)<br />     
 
@@ -34,7 +38,7 @@ Fixed bug for missing external link (<a href="http://code.google.com/p/suitex/is
 Fixed bug when changing page slug (<a href="http://code.google.com/p/suitex/issues/detail?id=45">Issue #45</a>)<br />
 
 <b>0.4</b><br />
-Added search widget (<a href="http://code.google.com/p/suitex/issues/detail?id=30">Issue 30</a>)<br />
+
 Multiple Book Add (<a href="http://code.google.com/p/suitex/issues/detail?id=39">#39</a>)<br />
 Added better error handling<br />
 

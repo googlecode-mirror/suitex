@@ -34,27 +34,32 @@ class bookx_admin {
         
         ini_set('allow_url_fopen', "1");
         $this->wpdb    = $wpdb;
-        $this->bookx_checkCode();
+        $this->bookx_checkCode($_GET["code"]);
+        
         //$this->wpdb->show_errors(); 
     }
     
     /**
     * Checks to see if there is a status code.  
     * 
-    * @return   string  $this->status
+    * @param    string  $code           code, usualy from GET but can be passed directly
+    * @return   string  $this->status   HTML formatted status update
+    * 
     * 
     */
 
-    function bookx_checkCode(){
+    function bookx_checkCode($code=''){
         $codeArray["a"]  = "Book Added";
         $codeArray["m"]  = "Book Modified";
         $codeArray["d"]  = "Book Deleted";
         $codeArray["c"]  = "Configuration Saved";
         $codeArray["b"]  = "Book List Refreshed";
         $codeArray["as"] = "Books Added";
+        $codeArray["i"]  = "Books Imported";
+        $codeArray["f"]  = "File Missing";
         
-        if ($_GET["code"]){
-            $this->status = "<br /><b><span style=\"color:#FF0000;\">" . $codeArray[$_GET["code"]] . "</span></b>";   
+        if ($code){
+            $this->status = "<br /><b><span style=\"color:#FF0000;\">&nbsp;" . $codeArray[$code] . "</span></b>";   
         }
     }
 
@@ -65,7 +70,7 @@ class bookx_admin {
     */
     
     function bookx_run(){
-        
+
         switch($_GET["sub"]){
             case "submit":
                 $this->bookx_submit();
@@ -81,6 +86,14 @@ class bookx_admin {
                 
             case "refresh":
                 $this->bookx_refreshAll();
+                break;
+                
+            case "export": 
+                $this->bookx_export();
+                break;
+                
+            case "import":
+                $this->bookx_import();
                 break;
                 
             case "list":
@@ -105,6 +118,108 @@ class bookx_admin {
     }
     
     /**
+    * Creates and Export File that can be imported through General Options to restore booklist, or transplant it.
+    * 
+    */
+    
+    function bookx_export(){
+        if (!wp_verify_nonce($_GET["_wpnonce"])){ die('Security check'); }    
+        if (!is_writable(BOOKX_DIR . "export/")){
+            $text .= "<div id=\"message\" class=\"error\">In order to create an export file, the directory " . BOOKX_DIR . "export/ must be writable by the webserver.</div>";        
+        }
+        
+        else {
+            if (!$this->options["export"]){
+                $chars = array("a","A","b","B","c","C","d","D","e","E","f","F","g","G","h","H","i","I","j","J", "k","K","l","L","m","M","n","N","o","O","p","P","q","Q","r","R","s","S","t","T","u","U","v","V","w","W","x","X","y","Y","z","Z","1","2","3","4","5","6","7","8","9","0");
+                $max_elements = count($chars) - 1;
+                $fileName = srand((double)microtime()*1000000);
+                for($i=0;$i<12;$i++){
+                    $fileName .= $chars[rand(0,$max_elements)];
+                }
+                $this->options["export"] = md5($fileName);  
+                update_option('bookx_options', $this->options);
+            }
+            
+        
+            $results = $this->wpdb->get_results("select bx_item_comments, bx_item_isbn, bx_item_sidebar, bx_item_summary, bx_item_no_update_desc from " . $this->wpdb->prefix . "bx_item");
+            foreach($results as $row){
+                $body .= "\"" . $row->bx_item_isbn . "\"|\"" . $row->bx_item_comments . "\"|\"" . $row->bx_item_sidebar . "\"|\"" . $row->bx_item_summary  . "\"|\"" . $row->bx_item_no_update_desc . "\"\r\n";
+            }
+        
+            $fp = fopen(BOOKX_DIR . "export/" . $this->options["export"], "w");
+            fwrite($fp, $body);
+            fclose($fp);
+            
+            $text = "<div class=\"wrap\"><h2>BookX</h2>";
+            $text .= "<strong>Your export file has been created.</strong><br /><br /> ";
+            $text .= "<a href=\"" . BOOKX_URL . "bookx_export.php?file=" . $this->options["export"] . "\">Download Book List</a>";
+            $text .= "</div>";
+            $this->bookx_stroke($text);
+        }
+    }
+    
+    /**
+    * Imports the imported file created in bookx_export()
+    * 
+    */
+    
+    function bookx_import(){
+        
+        if ($_POST["action"] == "import" && $_FILES["import"]["tmp_name"] != ''){        
+            $file = file($_FILES["import"]["tmp_name"]);
+            foreach($file as $f){
+                $r = explode("\"|\"", $f);
+                $insertArray = array();
+                foreach($r as $e){
+                    $e = trim(rtrim($e), '"');
+                    $e = trim(rtrim($e));
+                    $insertArray[] = $e;
+                }
+                
+                $count = $this->wpdb->get_var("select count(*) from " . $this->wpdb->prefix . "bx_item where bx_item_isbn = '" . $insertArray[0] . "' limit 1");
+                if ($count == 0){
+                    $sql = $this->wpdb->prepare("insert into " . $this->wpdb->prefix . "bx_item (bx_item_isbn, bx_item_comments, bx_item_sidebar, bx_item_summary, bx_item_no_update_desc) values (%s, %s, %d, %s, %d)", $insertArray);
+
+                    $this->wpdb->query($sql);
+                    
+                }
+            }
+            $this->bookx_refreshAll(true);
+        }
+        else {
+            if ($_POST["action"] == "import"){
+                $this->bookx_checkCode("f");
+            }
+        
+        
+            $text = "<div class=\"wrap\"><h2>BookX</h2>";
+            $text .= "<form method=\"post\" action=\"\" enctype=\"multipart/form-data\">";
+            $text .= "<input type=\"hidden\" name=\"action\" value=\"import\" />";
+        
+            $text .= $this->status;
+            if ($noExport){
+                $text .= "<div id=\"message\" class=\"error\">In order to create an export file, the directory " . BOOKX_DIR . "export/ must be writable by the webserver.</div>";
+            }
+        
+            $text .= "<table class=\"form-table\">";
+            $text .= "<tr class=\"form-field form-required\">";
+            $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Import Book List File:</label></th>";
+            $text .= "<td><input type=\"file\" name=\"import\" class=\"file\" />";
+            $text .= "</td></tr>";     
+            $text .= "</table>";
+            $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Import Booklist\" />";
+        
+            $text .= "</p></form></div>";
+            $this->bookx_stroke($text);
+        }
+            
+        
+        
+                
+    }    
+    
+    
+    /**
     * Creates the header menu
     * 
     * @return   string  $text
@@ -116,19 +231,33 @@ class bookx_admin {
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=list\">View Books</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=form\">Add New Book</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=refresh&_wpnonce=" . $this->nonce . "\">Refresh Book List</a>";
+        if (is_writable(BOOKX_DIR . "export/")){
+            $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=export&_wpnonce=" . $this->nonce . "\">Export Book List</a>";
+        }        
+        $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=import\">Import Book List</a>";
         $text .= "<script type='text/javascript' src='" . BOOKX_URL. "suitex.js'></script>"; 
+        
+        $text .= "<link rel='stylesheet' href='" . BOOKX_URL . "style.css' type='text/css' />";
+
+        
         return $text;
     }
     
     /**
     * Refreshes all the books in the list
     * 
+    * @param boolean $importSkipNonce
     */
     
-    function bookx_refreshAll(){
+    function bookx_refreshAll($importSkipNonce=false){
         
-        if (!wp_verify_nonce($_GET["_wpnonce"])){ die('Security check'); }        
-        $sql = "select bx_item_id, bx_item_isbn from " . $this->wpdb->prefix . "bx_item";
+        if ($importSkipNonce != true){ 
+            $code = "b";
+            if (!wp_verify_nonce($_GET["_wpnonce"])){ die('Security check'); }   
+        }
+        else { $code = "i"; }
+        
+        $sql = "select bx_item_id, bx_item_isbn, bx_item_no_update_desc from " . $this->wpdb->prefix . "bx_item";
         $result = $this->wpdb->get_results($sql);
         
         foreach($result as $row){
@@ -137,7 +266,12 @@ class bookx_admin {
 
             $sql = "update " . $this->wpdb->prefix . "bx_item set ";
             foreach(array_keys($this->bookArray) as $key){     
-                $sql .= "bx_item_" . $key . " = '" . addslashes($this->bookArray[$key]) . "', ";
+                if ($key != "summary"){
+                    $sql .= "bx_item_" . $key . " = '" . addslashes($this->bookArray[$key]) . "', ";
+                }    
+                else if ($row->bx_item_no_update_desc != 1){
+                    $sql .= "bx_item_summary = '" . addslashes($this->bookArray["summary"]) . "', ";
+                }
             }
 
             $sql .= "bx_item_date_added = " . time() . " where bx_item_id = " . $row->bx_item_id . " limit 1";
@@ -147,7 +281,9 @@ class bookx_admin {
             
             
         }
-        $url = $this->baseURL . "&code=b";
+        
+        
+        $url = $this->baseURL . "&code=$code";
         $text = "<script language=\"javascript\">";
         $text .= "goToURL('$url'); ";
         //$text .= "window.location = '$url';";
@@ -326,7 +462,27 @@ class bookx_admin {
 
     function bookx_install(){
         if (!get_option('bookx_options')){
-            $sql = "CREATE TABLE `" . $this->wpdb->prefix . "bx_item` (`bx_item_id` int(10) NOT NULL AUTO_INCREMENT,`bx_item_name` varchar(255) NOT NULL,`bx_item_author` varchar(255) NOT NULL,`bx_item_comments` text,`bx_item_date` int(10) NOT NULL,`bx_item_date_added` int(10) NOT NULL,`bx_item_format` varchar(255) NOT NULL,`bx_item_image` text NOT NULL,`bx_item_isbn` varchar(15) DEFAULT NULL, `bx_item_link` text NOT NULL, `bx_item_pages` int(10) NOT NULL DEFAULT '0', `bx_item_price` float(4,2) NOT NULL DEFAULT '0.00',`bx_item_sidebar` tinyint(1) NOT NULL DEFAULT '0',`bx_item_summary` text,`bx_item_publisher` varchar(255) NOT NULL,PRIMARY KEY (`bx_item_id`),UNIQUE KEY `bx_item_isbn` (`bx_item_isbn`), KEY `bx_item_sidebar` (`bx_item_sidebar`));";
+            $sql = "CREATE TABLE `" . $this->wpdb->prefix . "bx_item` (
+  `bx_item_id` int(10) NOT NULL AUTO_INCREMENT,
+  `bx_item_name` varchar(255) NOT NULL,
+  `bx_item_author` varchar(255) NOT NULL,
+  `bx_item_comments` text,
+  `bx_item_date` int(10) NOT NULL,
+  `bx_item_date_added` int(10) NOT NULL,
+  `bx_item_format` varchar(255) NOT NULL,
+  `bx_item_image` text NOT NULL,
+  `bx_item_isbn` varchar(15) DEFAULT NULL,
+  `bx_item_link` text NOT NULL,
+  `bx_item_pages` int(10) NOT NULL DEFAULT '0',
+  `bx_item_price` float(4,2) NOT NULL DEFAULT '0.00',
+  `bx_item_sidebar` tinyint(1) NOT NULL DEFAULT '0',
+  `bx_item_summary` text,
+  `bx_item_publisher` varchar(255) NOT NULL,
+  `bx_item_no_update_desc` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`bx_item_id`),
+  UNIQUE KEY `bx_item_isbn` (`bx_item_isbn`),
+  KEY `bx_item_sidebar` (`bx_item_sidebar`)
+);";
             $this->wpdb->query($sql);
         
             $page                   = array();
@@ -375,6 +531,17 @@ class bookx_admin {
             if (!$gt04){
                 $sql = "ALTER TABLE `" . $this->wpdb->prefix . "bx_item` ADD INDEX ( `bx_item_name` , `bx_item_author` , `bx_item_publisher` );";
                 $this->wpdb->query($sql);
+            }
+        
+            $result = $this->wpdb->get_row("show columns from " . $this->wpdb->prefix . "bx_item where Field = 'bx_item_no_update_desc'");
+            
+            if (!$result){
+                $this->wpdb->query("ALTER TABLE `" . $this->wpdb->prefix . "bx_item` ADD `bx_item_no_update_desc` TINYINT( 1 ) NOT NULL DEFAULT '0', CHANGE `bx_item_name` `bx_item_name` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL, CHANGE `bx_item_author` `bx_item_author` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
+CHANGE `bx_item_format` `bx_item_format` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
+CHANGE `bx_item_publisher` `bx_item_publisher` VARCHAR( 255 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL, CHANGE `bx_item_date` `bx_item_date` INT( 10 ) NULL DEFAULT NULL ,
+CHANGE `bx_item_date_added` `bx_item_date_added` INT( 10 ) NULL DEFAULT NULL, CHANGE `bx_item_image` `bx_item_image` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL ,
+CHANGE `bx_item_link` `bx_item_link` TEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL  ");
+                   
             }
         }
         update_option('bookx_options', $options);
@@ -428,13 +595,26 @@ class bookx_admin {
             $this->options['list_sort_default']     = $_POST['list_sort_default'];
             
             update_option('bookx_options', $this->options);
-        }
+            
+                        
 
+        }
+        
+        if (!is_writable(BOOKX_DIR . "export/")){
+            $noExport = true;
+        }
+        
+        
+        //import and export goes HERE...check directory for export
         $text = "<div class=\"wrap\"><h2>BookX</h2>";
         $text .= "<form method=\"post\" action=\"\">";
         $text .= "<input type=\"hidden\" name=\"action\" value=\"update\" />";
         
         $text .= $this->status;
+        if ($noExport){
+            $text .= "<div id=\"message\" class=\"error\">In order to create an export file, the directory " . BOOKX_DIR . "export/ must be writable by the webserver.</div>";
+        }
+        
         $text .= "<table class=\"form-table\">";
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"per_page\"># per page:</label></th>";
@@ -562,12 +742,15 @@ class bookx_admin {
         $text .= "</ul>";
         $text .= "</td></tr>";
               
+  
+
         
         $text .= "</table>";
 
 
 
         $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
+        
         $text .= "</p></form></div>";
         $this->bookx_stroke($text);
     }   
@@ -588,6 +771,8 @@ class bookx_admin {
                 $row->isbn = $_POST["isbn"];
                 $row->sidebar = $_POST["sidebar"];
                 $row->comments = $_POST["comments"];
+                $row->summary  = $_POST["summary"];
+                $row->no_update = $_POST["no_update"];                
                 $_GET["id"] = $_POST["id"];
                 $label = "Modify Book : " . $row->name; 
                 $action = "modify";
@@ -596,6 +781,8 @@ class bookx_admin {
                 $row->isbn = $_POST["isbn"];
                 $row->sidebar = $_POST["sidebar"];
                 $row->comments = $_POST["comments"];
+                $row->summary  = $_POST["summary"];
+                $row->no_update = $_POST["no_update"];
                 $label = "Add Book";
                 $action = "add";                 
             }
@@ -603,7 +790,7 @@ class bookx_admin {
             $status = "<span style=\"font-weight: bold; color: #FF0000;\">" . $code . "</span><br />";            
         }
         else if ($_GET["id"]){
-            $query = "select bx_item_name as name, bx_item_isbn as isbn, bx_item_comments as comments, bx_item_sidebar as sidebar from " . $this->wpdb->prefix . "bx_item where bx_item_id = %d limit 1";
+            $query = "select bx_item_name as name, bx_item_isbn as isbn, bx_item_comments as comments, bx_item_sidebar as sidebar, bx_item_summary as summary, bx_item_no_update_desc as no_update from " . $this->wpdb->prefix . "bx_item where bx_item_id = %d limit 1";
             $row = $this->wpdb->get_row($this->wpdb->prepare($query, $_GET["id"]));
             
         
@@ -661,6 +848,25 @@ class bookx_admin {
         $text .= "<td><strong>Comments:</strong></td>";
         $text .= "<td><textarea name=\"comments\">" . $row->comments . "</textarea>";
         $text .= "</td></tr>";
+        
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>Summary from Source:</strong></td>";
+        $text .= "<td><textarea name=\"summary\">" . $row->summary . "</textarea>";
+        $text .= "</td></tr>";            
+        
+        $text .= "<tr class=\"form-field\">";
+        $text .= "<td><strong>Protect Summary from Updating:</strong></td>";
+        $text .= "<td><select name=\"no_update\">";
+        foreach(array_keys($this->filter) as $f){
+            if ($f == $row->no_update){ $s = "selected"; }
+            else { $s = ''; }
+            $text .= "<option value=\"$f\" $s>" . $this->filter[$f] . "</option>";
+        }
+        
+        
+        $text .= "</select></td></tr>";            
+        
+        
         $text .= "</table>";
         $text .= "<p class=\"submit\"><input type=\"submit\" name=\"Submit\" value=\"Save Changes\" />";
         if ($action == "modify"){
@@ -723,6 +929,7 @@ class bookx_admin {
                 $fields .= "bx_item_comments, bx_item_sidebar, bx_item_date_added";
                 $values .= "'$comments', 0, " . time();
                 $sql .= "($fields) values ($values)";
+                
                 $this->wpdb->query($sql);
                 //$this->wpdb->print_error();
                 $code = "as";                
@@ -731,7 +938,8 @@ class bookx_admin {
                 
                 
                 
-            }    
+            } 
+
 
         
         
@@ -741,14 +949,25 @@ class bookx_admin {
             if ($this->bookArray["name"] == ''){
                 $this->bookx_form("ISBN Number Not Found.");
                 return false;
-            }            
+            }   
+                     
             $sql = "insert into " . $this->wpdb->prefix . "bx_item ";
             foreach(array_keys($this->bookArray) as $key){
-                $fields .= "bx_item_" . $key . ", ";
-                $values .= "'" . addslashes($this->bookArray[$key]) . "', ";
+                if ($key != "summary"){
+                    $fields .= "bx_item_" . $key . ", ";
+                    $values .= "'" . addslashes($this->bookArray[$key]) . "', ";
+                }
             }
-            $fields .= "bx_item_comments, bx_item_sidebar, bx_item_date_added";
-            $values .= "'$comments', " . $_POST["sidebar"] . ", " . time();
+            if ($_POST["no_update"] == 1){
+                $fields .= "bx_item_summary, ";
+                $values .= "'" . addslashes($_POST["summary"]) . "', ";
+            }  
+            else {
+                $fields .= "bx_item_summary,";
+                $values .= "'" . addslashes($this->bookArray["summary"]) . ", ";                
+            }          
+            $fields .= "bx_item_comments, bx_item_sidebar, bx_item_date_added, bx_item_no_update_desc";
+            $values .= "'$comments', " . $_POST["sidebar"] . ", " . time() . ", '" . $_POST["no_update"] . "' ";
             $sql .= "($fields) values ($values)";
 
             $code = "a";
@@ -760,11 +979,19 @@ class bookx_admin {
             }   
             $sql = "update " . $this->wpdb->prefix . "bx_item set ";
             foreach(array_keys($this->bookArray) as $key){     
-                $sql .= "bx_item_" . $key . " = '" . addslashes($this->bookArray[$key]) . "', ";
+                if ($key != "bx_item_summary"){
+                    $sql .= "bx_item_" . $key . " = '" . addslashes($this->bookArray[$key]) . "', ";
+                }                        
             }
-            $sql .= "bx_item_comments = '$comments', bx_item_sidebar = " . $_POST["sidebar"] . ", ";
+            if ($_POST["no_update"] == 1){
+                $sql .= "bx_item_summary = '" . $_POST["summary"] . "', ";     
+            }
+            else {
+                $sql .= "bx_item_summary = '" . addslashes($this->bookArray["summary"]) . "', ";    
+            }
+            $sql .= "bx_item_comments = '$comments', bx_item_sidebar = " . $_POST["sidebar"] . ", bx_item_no_update_desc = '" . $_POST["no_update"] . "', ";
             $sql .= "bx_item_date_added = " . time() . " where bx_item_id = " . $_POST["id"] . " limit 1";
-            
+
             $code = "m";
                         
         }

@@ -3,13 +3,13 @@
 Plugin Name: bookX
 Plugin URI: http://www.thisrand.com/scripts/bookx
 Description: Creates a recommended book list for both a sidebar widget and page based solely on ISBN numbers.
-Version: 0.6
+Version: 1.0
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
 */
 
-/*  Copyright 2009 Xnuiem  (email : scripts @T thisrand D07 com)
+/*  Copyright 2010 Xnuiem  (email : scripts @T thisrand D07 com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
