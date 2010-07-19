@@ -100,7 +100,7 @@ class bookx_functions {
         $results = $this->wpdb->get_results($sql);
         
         
-        if (substr_count($this->options["listTemplate"], "::IMAGE::")){
+        if (substr_count($this->var->options["listTemplate"], "::IMAGE::")){
             $doImage = true;            
         }
         
@@ -128,8 +128,8 @@ class bookx_functions {
                 }
                 $image = str_replace('width="' . $sourceWidth . '"', 'width="' . $newWidth . '"', $image);
                 $image = str_replace('height="' .$sourceHeight . '"', 'height="' . $newHeight . '"', $image);
-                if ($this->options["list_image_align"] != ''){
-                    $image = str_replace("src", "align=\"" . $this->options['list_image_align'] . "\" src", $image);       
+                if ($this->var->options["list_image_align"] != ''){
+                    $image = str_replace("src", "align=\"" . $this->var->options['list_image_align'] . "\" src", $image);       
                 }
                 
             }
@@ -147,8 +147,8 @@ class bookx_functions {
             $trans["::LINK::"]      = $link . "?&book_id=" . $row->bx_item_id;            
             $trans["::IMAGE::"]     = $image;            
             $trans["::PRICE::"]     = $row->bx_item_price;            
-            $trans["::SUMMARY::"]   = substr(strip_tags($row->bx_item_summary), 0, $this->options["list_characters"]) . "...";            
-            $trans["::COMMENTS::"]  = substr(strip_tags($row->bx_item_comments), 0, $this->options["list_characters"]) . "...";
+            $trans["::SUMMARY::"]   = substr(strip_tags($row->bx_item_summary), 0, $this->var->options["list_characters"]) . "...";            
+            $trans["::COMMENTS::"]  = substr(strip_tags($row->bx_item_comments), 0, $this->var->options["list_characters"]) . "...";
             $trans["::MORE::"]      = " <a href=\"" . $link . "?&book_id=" . $row->bx_item_id . "\">More</a>";
             
              

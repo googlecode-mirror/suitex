@@ -41,50 +41,27 @@ if ( ! defined( 'WP_PLUGIN_DIR' ) )
 
 define(BOOKX_DIR, WP_PLUGIN_DIR . '/bookx/');  
 define(BOOKX_URL, WP_PLUGIN_URL . '/bookx/'); 
- 
-$sortArray  = array("asc" => "Ascending", "desc" => "Descending");
 
-$fieldArray["bx_item_id"]           = "ID";
-$fieldArray["bx_item_name"]         = "Title";
-$fieldArray["bx_item_isbn"]         = "ISBN";
-$fieldArray["bx_item_author"]       = "Author";
-$fieldArray["bx_item_publisher"]    = "Publisher";
-$fieldArray["bx_item_date"]         = "Publish Date";
-$fieldArray["bx_item_pages"]        = "Pages";
-$fieldArray["bx_item_format"]       = "Format";
-$fieldArray["bx_item_price"]        = "Price";
-
-$filter     = array("No", "Yes");  
-$options    = get_option('bookx_options');
-
-
+require_once(BOOKX_DIR . 'bookx_admin.php');
+$var = new bookx_var();
 
 require_once(BOOKX_DIR . 'bookx_functions.php');  
 require_once(BOOKX_DIR . 'bookx_widget.php');   
 
 $obj                    = new bookx_functions();
-$obj->options           = $options;
-$obj->filter            = $filter;
-$obj->fieldArray        = $fieldArray;
-$obj->sortArray         = $sortArray;
-$obj->pluginBase        = $pluginBase;
+$obj->var = $var;
 
 if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){  
     require_once(BOOKX_DIR . 'bookx_admin.php');
     $adminObj               = new bookx_admin();
-    $adminObj->options      = $options;
-    $adminObj->sortArray    = $sortArray;
-    $adminObj->fieldArray   = $fieldArray;
-    $adminObj->filter       = $filter;
+    $adminObj-> $var;
     add_action('admin_menu', array($adminObj, 'bookx_adminMenu')); 
     register_activation_hook(__FILE__, array($adminObj, 'bookx_install'));
     register_deactivation_hook(__FILE__, array($adminObj, 'bookx_uninstall'));
 
 }
 $widgetObj              = new bookx_widget();
-$widgetObj->options     = $options;
-$widgetObj->sortArray   = $sortArray;
-$widgetObj->fieldArray  = $fieldArray;
+$widgetObj = $var;
  
 
 
