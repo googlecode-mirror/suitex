@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
 Tested up to: 3.0.0
-Stable tag: 1.0
+Stable tag: 1.1
 
 A simple but powerful recommended book plugin.
 
@@ -27,6 +27,9 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>1.1</b><br />
+Fixed a bug with overlapping variable scope with other SuiteX plugins.<br />
+
 <b>1.0</b><br />
 The description from BN can now be edited. (<a href="http://code.google.com/p/suitex/issues/detail?id=49">Issue 49</a>)<br />
 Added a quick and dirty backup option (<a href="http://code.google.com/p/suitex/issues/detail?id=38">Issue 38</a>)<br />

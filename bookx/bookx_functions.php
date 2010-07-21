@@ -34,21 +34,21 @@ class bookx_functions {
 
     function bookx_search(){
  
-        $link = get_page_link($this->options["page_id"]);
+        $link = get_page_link($this->var->options["page_id"]);
         
         /*if ($_POST["order"]){ $order = $_POST["order"]; }
         else if ($_GET["order"]){ $order = $_GET["order"]; }
-        else { $order = $this->options['list_order_default']; }
+        else { $order = $this->var->options['list_order_default']; }
         
         if ($_POST["sort"]){ $sort = $_POST["sort"]; }
         else if ($_GET["sort"]){ $sort = $_GET["sort"]; }
-        else { $sort = $this->options['list_sort_default']; }
+        else { $sort = $this->var->options['list_sort_default']; }
         */
         $search = "%" . addslashes(strtolower($_POST["bookxsearch"])) . "%";
         
         $text = "<div id=\"bookx_content\">";
         
-        /*if ($this->options["list_filter"] == 1){
+        /*if ($this->var->options["list_filter"] == 1){
             $text .= "<div id=\"bookx_filter\">";
             $text .= "<form id=\"bookx_filter\" action=\"$link\" method=\"post\">";
             $text .= "Field: <select name=\"order\">";
@@ -73,8 +73,8 @@ class bookx_functions {
         if ($_GET["limit"]){ $limit = $_GET["limit"]; }
         else { $limit = 0; }        
         $count = $this->wpdb->get_var("select count(bx_item_id) from " . $this->wpdb->prefix . "bx_item where lower(bx_item_name) like '$search' or lower(bx_item_author) like '$search' or lower(bx_item_publisher) like '$search'");  
-        $setnum = $this->options["per_page"];   
-        if ($this->options["per_page"] != 0 && $count > $setnum){
+        $setnum = $this->var->options["per_page"];   
+        if ($this->var->options["per_page"] != 0 && $count > $setnum){
             $paging = true;
             
             require_once(BOOKX_DIR . 'suitex_list.php'); 
@@ -114,13 +114,13 @@ class bookx_functions {
                 $sourceHeight = substr($image, strpos($image, "height=\"") + 8);
                 $sourceHeight = substr($sourceHeight, 0, strpos($sourceHeight, "\""));            
             
-                if ($sourceWidth > $this->options["list_image_width"]) {
-                    $newWidth  = $this->options["list_image_width"];
-                    $newHeight = (INTEGER) ($sourceHeight * ($this->options["list_image_width"] / $sourceWidth));
+                if ($sourceWidth > $this->var->options["list_image_width"]) {
+                    $newWidth  = $this->var->options["list_image_width"];
+                    $newHeight = (INTEGER) ($sourceHeight * ($this->var->options["list_image_width"] / $sourceWidth));
                 } 
-                else if ($sourceHeight > $this->options["list_image_height"]) {
-                    $newWidth  = (INTEGER) ($sourceWidth * ($this->options["list_image_height"] / $sourceHeight));
-                    $newHeight = $this->options["list_image_height"];
+                else if ($sourceHeight > $this->var->options["list_image_height"]) {
+                    $newWidth  = (INTEGER) ($sourceWidth * ($this->var->options["list_image_height"] / $sourceHeight));
+                    $newHeight = $this->var->options["list_image_height"];
                 } 
                 else {
                     $newWidth  = $sourceWidth;
@@ -152,7 +152,7 @@ class bookx_functions {
             $trans["::MORE::"]      = " <a href=\"" . $link . "?&book_id=" . $row->bx_item_id . "\">More</a>";
             
              
-            $text .= "<div class=\"bookx_list_entry\">" . strtr(stripslashes($this->options["listTemplate"]), $trans) . "</div>";
+            $text .= "<div class=\"bookx_list_entry\">" . strtr(stripslashes($this->var->options["listTemplate"]), $trans) . "</div>";
             
             
   
@@ -172,7 +172,7 @@ class bookx_functions {
     
     function bookx_showItem(){
         
-        $link = get_page_link($this->options["page_id"]);
+        $link = get_page_link($this->var->options["page_id"]);
         $text = "<div id=\"bookx_content\">";
        
         $sql = "select bx_item_publisher, bx_item_price, bx_item_date, bx_item_summary, bx_item_comments, bx_item_link, ";
@@ -182,7 +182,7 @@ class bookx_functions {
         $row = $this->wpdb->get_row($this->wpdb->prepare($sql, $_GET["book_id"]));
         
         
-        if (substr_count($this->options["detailTemplate"], "::IMAGE::")){
+        if (substr_count($this->var->options["detailTemplate"], "::IMAGE::")){
             $doImage = true;            
         }
         
@@ -196,13 +196,13 @@ class bookx_functions {
             $sourceHeight = substr($image, strpos($image, "height=\"") + 8);
             $sourceHeight = substr($sourceHeight, 0, strpos($sourceHeight, "\""));            
             
-            if ($sourceWidth > $this->options["detail_image_width"]) {
-                $newWidth  = $this->options["detail_image_width"];
-                $newHeight = (INTEGER) ($sourceHeight * ($this->options["detail_image_width"] / $sourceWidth));
+            if ($sourceWidth > $this->var->options["detail_image_width"]) {
+                $newWidth  = $this->var->options["detail_image_width"];
+                $newHeight = (INTEGER) ($sourceHeight * ($this->var->options["detail_image_width"] / $sourceWidth));
             } 
-            else if ($sourceHeight > $this->options["detail_image_height"]) {
-                $newWidth  = (INTEGER) ($sourceWidth * ($this->options["detail_image_height"] / $sourceHeight));
-                $newHeight = $this->options["detail_image_height"];
+            else if ($sourceHeight > $this->var->options["detail_image_height"]) {
+                $newWidth  = (INTEGER) ($sourceWidth * ($this->var->options["detail_image_height"] / $sourceHeight));
+                $newHeight = $this->var->options["detail_image_height"];
             } 
             else {
                 $newWidth  = $sourceWidth;
@@ -210,8 +210,8 @@ class bookx_functions {
             }
             $image = str_replace('width="' . $sourceWidth . '"', 'width="' . $newWidth . '"', $image);
             $image = str_replace('height="' .$sourceHeight . '"', 'height="' . $newHeight . '"', $image);
-            if ($this->options["detail_image_align"] != ''){
-                $image = str_replace("src", "align=\"" . $this->options['list_image_align'] . "\" src", $image);       
+            if ($this->var->options["detail_image_align"] != ''){
+                $image = str_replace("src", "align=\"" . $this->var->options['list_image_align'] . "\" src", $image);       
             }
                 
 
@@ -231,7 +231,7 @@ class bookx_functions {
             $trans["::SUMMARY::"]   = $row->bx_item_summary;            
             $trans["::COMMENTS::"]  = $row->bx_item_comments;
              
-            $text .= "<div class=\"bookx_detail_entry\">" . strtr(stripslashes($this->options["detailTemplate"]), $trans) . "</div>";
+            $text .= "<div class=\"bookx_detail_entry\">" . strtr(stripslashes($this->var->options["detailTemplate"]), $trans) . "</div>";
             
             
   
@@ -251,33 +251,33 @@ class bookx_functions {
     function bookx_listItems(){
     
         
-        $link = get_page_link($this->options["page_id"]);
+        $link = get_page_link($this->var->options["page_id"]);
         if ($_POST["order"]){ $order = $_POST["order"]; }
         else if ($_GET["order"]){ $order = $_GET["order"]; }
-        else { $order = $this->options['list_order_default']; }
+        else { $order = $this->var->options['list_order_default']; }
         
         if ($_POST["sort"]){ $sort = $_POST["sort"]; }
         else if ($_GET["sort"]){ $sort = $_GET["sort"]; }
-        else { $sort = $this->options['list_sort_default']; }
+        else { $sort = $this->var->options['list_sort_default']; }
         
         $text = "<div id=\"bookx_content\">";
         
-        if ($this->options["list_filter"] == 1){
+        if ($this->var->options["list_filter"] == 1){
             $text .= "<div id=\"bookx_filter\">";
             $text .= "<form id=\"bookx_filter\" action=\"$link\" method=\"post\">";
             $text .= "Field: <select name=\"order\">";
-            foreach(array_keys($this->fieldArray) as $f){
+            foreach(array_keys($this->var->fieldArray) as $f){
                 if ($f == $order){ $s = "selected"; }
                 else { $s = ''; }
-                $text .= "<option value=\"$f\" $s>" . $this->fieldArray[$f] . "</option>";
+                $text .= "<option value=\"$f\" $s>" . $this->var->fieldArray[$f] . "</option>";
             }
             $text .= "</select>";
             
             $text .= "&nbsp;&nbsp;Order: <select name=\"sort\">";
-            foreach(array_keys($this->sortArray) as $f){
+            foreach(array_keys($this->var->sortArray) as $f){
                 if ($f == $sort){ $s = "selected"; }
                 else { $s = ''; }
-                $text .= "<option value=\"$f\" $s>" . $this->sortArray[$f] . "</option>";
+                $text .= "<option value=\"$f\" $s>" . $this->var->sortArray[$f] . "</option>";
             }            
             $text .= "</select>";
             $text .= "<input type=\"submit\" value=\"Set\" />";
@@ -287,8 +287,8 @@ class bookx_functions {
         if ($_GET["limit"]){ $limit = $_GET["limit"]; }
         else { $limit = 0; }        
         $count = $this->wpdb->get_var("select count(bx_item_id) from " . $this->wpdb->prefix . "bx_item");  
-        $setnum = $this->options["per_page"];   
-        if ($this->options["per_page"] != 0 && $count > $setnum){
+        $setnum = $this->var->options["per_page"];   
+        if ($this->var->options["per_page"] != 0 && $count > $setnum){
             $paging = true;
             
             require_once(BOOKX_DIR . 'suitex_list.php'); 
@@ -314,7 +314,7 @@ class bookx_functions {
         $results = $this->wpdb->get_results($sql);
         
         
-        if (substr_count($this->options["listTemplate"], "::IMAGE::")){
+        if (substr_count($this->var->options["listTemplate"], "::IMAGE::")){
             $doImage = true;            
         }
         
@@ -328,13 +328,13 @@ class bookx_functions {
                 $sourceHeight = substr($image, strpos($image, "height=\"") + 8);
                 $sourceHeight = substr($sourceHeight, 0, strpos($sourceHeight, "\""));            
             
-                if ($sourceWidth > $this->options["list_image_width"]) {
-                    $newWidth  = $this->options["list_image_width"];
-                    $newHeight = (INTEGER) ($sourceHeight * ($this->options["list_image_width"] / $sourceWidth));
+                if ($sourceWidth > $this->var->options["list_image_width"]) {
+                    $newWidth  = $this->var->options["list_image_width"];
+                    $newHeight = (INTEGER) ($sourceHeight * ($this->var->options["list_image_width"] / $sourceWidth));
                 } 
-                else if ($sourceHeight > $this->options["list_image_height"]) {
-                    $newWidth  = (INTEGER) ($sourceWidth * ($this->options["list_image_height"] / $sourceHeight));
-                    $newHeight = $this->options["list_image_height"];
+                else if ($sourceHeight > $this->var->options["list_image_height"]) {
+                    $newWidth  = (INTEGER) ($sourceWidth * ($this->var->options["list_image_height"] / $sourceHeight));
+                    $newHeight = $this->var->options["list_image_height"];
                 } 
                 else {
                     $newWidth  = $sourceWidth;
@@ -342,8 +342,8 @@ class bookx_functions {
                 }
                 $image = str_replace('width="' . $sourceWidth . '"', 'width="' . $newWidth . '"', $image);
                 $image = str_replace('height="' .$sourceHeight . '"', 'height="' . $newHeight . '"', $image);
-                if ($this->options["list_image_align"] != ''){
-                    $image = str_replace("src", "align=\"" . $this->options['list_image_align'] . "\" src", $image);       
+                if ($this->var->options["list_image_align"] != ''){
+                    $image = str_replace("src", "align=\"" . $this->var->options['list_image_align'] . "\" src", $image);       
                 }
                 
             }
@@ -361,12 +361,12 @@ class bookx_functions {
             $trans["::LINK::"]      = $link . "?&book_id=" . $row->bx_item_id;            
             $trans["::IMAGE::"]     = $image;            
             $trans["::PRICE::"]     = $row->bx_item_price;            
-            $trans["::SUMMARY::"]   = substr(strip_tags($row->bx_item_summary), 0, $this->options["list_characters"]) . "...";            
-            $trans["::COMMENTS::"]  = substr(strip_tags($row->bx_item_comments), 0, $this->options["list_characters"]) . "...";
+            $trans["::SUMMARY::"]   = substr(strip_tags($row->bx_item_summary), 0, $this->var->options["list_characters"]) . "...";            
+            $trans["::COMMENTS::"]  = substr(strip_tags($row->bx_item_comments), 0, $this->var->options["list_characters"]) . "...";
             $trans["::MORE::"]      = " <a href=\"" . $link . "?&book_id=" . $row->bx_item_id . "\">More</a>";
             
              
-            $text .= "<div class=\"bookx_list_entry\">" . strtr(stripslashes($this->options["listTemplate"]), $trans) . "</div>";
+            $text .= "<div class=\"bookx_list_entry\">" . strtr(stripslashes($this->var->options["listTemplate"]), $trans) . "</div>";
             
             
   
@@ -384,7 +384,7 @@ class bookx_functions {
    
     function bookx_init(){
         global $post;
-        if ($post->ID == $this->options["page_id"]){
+        if ($post->ID == $this->var->options["page_id"]){
             if ($_GET["book_id"]){
                 $this->bookx_showItem();
             }
@@ -406,7 +406,7 @@ class bookx_functions {
     */
     
     function bookx_stroke(){
-        $this->text = "<style type=\"text/css\">" . $this->options["css"] . "</style>"  . $this->text;
+        $this->text = "<style type=\"text/css\">" . $this->var->options["css"] . "</style>"  . $this->text;
         return $this->text;
     }
 }

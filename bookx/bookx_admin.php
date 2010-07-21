@@ -15,14 +15,14 @@
   
 class bookx_admin {
     
-    var $version        = "1.0";
+    var $version        = "1.1";
     var $wpdb;
-    var $options        = array();
+
     var $baseURL        = "tools.php?page=bookx/bookx_admin.php";
     var $numberPerPage  = "50";
     var $bookArray      = array();
     var $status         = '';
-    var $filter         = array();  
+
     
     /**
     * The contstruct function.  Does nothing other than set up variables.
@@ -85,6 +85,7 @@ class bookx_admin {
         $this->bookx_upgrade();
         switch($_GET["sub"]){
             case "submit":
+                $this->bookx_iniForms();
                 $this->bookx_submit();
                 break;
                 
@@ -139,15 +140,15 @@ class bookx_admin {
         }
         
         else {
-            if (!$this->options["export"]){
+            if (!$this->var->options["export"]){
                 $chars = array("a","A","b","B","c","C","d","D","e","E","f","F","g","G","h","H","i","I","j","J", "k","K","l","L","m","M","n","N","o","O","p","P","q","Q","r","R","s","S","t","T","u","U","v","V","w","W","x","X","y","Y","z","Z","1","2","3","4","5","6","7","8","9","0");
                 $max_elements = count($chars) - 1;
                 $fileName = srand((double)microtime()*1000000);
                 for($i=0;$i<12;$i++){
                     $fileName .= $chars[rand(0,$max_elements)];
                 }
-                $this->options["export"] = md5($fileName);  
-                update_option('bookx_options', $this->options);
+                $this->var->options["export"] = md5($fileName);  
+                update_option('bookx_options', $this->var->options);
             }
             
         
@@ -156,11 +157,11 @@ class bookx_admin {
                 $body .= "\"" . $row->bx_item_isbn . "\"|\"" . $row->bx_item_comments . "\"|\"" . $row->bx_item_sidebar . "\"|\"" . $row->bx_item_summary  . "\"|\"" . $row->bx_item_no_update_desc . "\"\r\n";
             }
         
-            $fp = fopen(BOOKX_DIR . "export/" . $this->options["export"], "w");
+            $fp = fopen(BOOKX_DIR . "export/" . $this->var->options["export"], "w");
             fwrite($fp, $body);
             fclose($fp);
             
-            $url = $this->baseURL . "&sub=admin&export=" . $this->options["export"] . "#export";
+            $url = $this->baseURL . "&sub=admin&export=" . $this->var->options["export"] . "#export";
             $text = "<script language=\"javascript\">";
             $text .= "goToURL('$url'); ";
             $text .= "</script>"; 
@@ -402,19 +403,19 @@ class bookx_admin {
     }
     
     function bookx_upgrade(){
-        if ($this->options["version"] != $this->version){
+        if ($this->var->options["version"] != $this->version){
             require_once(BOOKX_DIR . "bookx_upgrade.php");           
             
-            if ($this->options["version"] == '' || !$this->options["version"]){ //Assume version 0.6 
-                $this->options["version"] = "0.6";
+            if ($this->var->options["version"] == '' || !$this->var->options["version"]){ //Assume version 0.6 
+                $this->var->options["version"] = "0.6";
             }
             
-            foreach($upgradeArray[$this->options["version"]] as $sql){
+            foreach($upgradeArray[$this->var->options["version"]] as $sql){
                 $this->wpdb->query($sql);
             }
             
-            $this->options["version"] = $this->version;
-            update_option('bookx_options', $this->options);
+            $this->var->options["version"] = $this->version;
+            update_option('bookx_options', $this->var->options);
         }
     }
 
@@ -489,7 +490,11 @@ class bookx_admin {
             for($i=0;$i<12;$i++){
                 $fileName .= $chars[rand(0,$max_elements)];
             }
+            
+            
             $options["export"] = md5($fileName);             
+            update_option('bookx_options', $options);
+
             
             
         }
@@ -510,7 +515,7 @@ class bookx_admin {
         
 
         }*/
-        update_option('bookx_options', $options);
+        
     }
 
     /**
@@ -519,7 +524,7 @@ class bookx_admin {
 
     function bookx_uninstall(){
         
-        $sql = "delete from `" . $this->wpdb->prefix . "posts` where `ID` = '" . $this->options['page_id'] . "' limit 1";
+        $sql = "delete from `" . $this->wpdb->prefix . "posts` where `ID` = '" . $this->var->options['page_id'] . "' limit 1";
         $this->wpdb->query($sql);
         $sql = "drop table " . $this->wpdb->prefix . "bx_item";
         $this->wpdb->query($sql);
@@ -577,7 +582,7 @@ class bookx_admin {
         else if ($_POST["action"] == "add"){
             
             if ($this->bookArray["name"] == ''){
-                $this->bookx_form("ISBN Number Not Found.");
+                $this->forms->bookx_form("ISBN Number Not Found.");
                 return false;
             }   
                      
@@ -590,11 +595,11 @@ class bookx_admin {
             }
             if ($_POST["no_update"] == 1){
                 $fields .= "bx_item_summary, ";
-                $values .= "'" . addslashes($_POST["summary"]) . "', ";
+                $values .= "'" . addslashes($_POST["summary"]) . "', "; 
             }  
             else {
                 $fields .= "bx_item_summary,";
-                $values .= "'" . addslashes($this->bookArray["summary"]) . ", ";                
+                $values .= "'" . addslashes($this->bookArray["summary"]) . "', ";                
             }          
             $fields .= "bx_item_comments, bx_item_sidebar, bx_item_date_added, bx_item_no_update_desc";
             $values .= "'$comments', " . $_POST["sidebar"] . ", " . time() . ", '" . $_POST["no_update"] . "' ";
@@ -604,7 +609,7 @@ class bookx_admin {
         }
         else if ($_POST["action"] == "modify"){
             if ($this->bookArray["name"] == ''){
-                $this->bookx_form("ISBN Number Not Found.");
+                $this->forms->bookx_form("ISBN Number Not Found.");
                 return false;
             }   
             $sql = "update " . $this->wpdb->prefix . "bx_item set ";
@@ -634,7 +639,7 @@ class bookx_admin {
         //die();
         if ($code != "as"){
             if (!$this->wpdb->query($sql)){
-                $this->bookx_form("SQL Query Failed"); 
+                $this->forms->bookx_form("SQL Query Failed<br /><br />$sql"); 
                 return false;    
             }
             //$this->wpdb->print_error(); 
@@ -693,7 +698,7 @@ class bookx_admin {
         $result = $this->wpdb->get_results($query);
 
         foreach($result as $row){
-            $sidebar = $this->filter[$row->sidebar];
+            $sidebar = $this->var->filter[$row->sidebar];
             
             if ($row->item){ $itemName = $row->item; }
             else { $itemName = "Import Failed"; }

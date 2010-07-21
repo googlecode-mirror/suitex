@@ -3,7 +3,7 @@
 Plugin Name: bookX
 Plugin URI: http://www.thisrand.com/scripts/bookx
 Description: Creates a recommended book list for both a sidebar widget and page based solely on ISBN numbers.
-Version: 1.0
+Version: 1.1
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
@@ -42,26 +42,26 @@ if ( ! defined( 'WP_PLUGIN_DIR' ) )
 define(BOOKX_DIR, WP_PLUGIN_DIR . '/bookx/');  
 define(BOOKX_URL, WP_PLUGIN_URL . '/bookx/'); 
 
-require_once(BOOKX_DIR . 'bookx_admin.php');
+require_once(BOOKX_DIR . 'bookx_var.php');
 $var = new bookx_var();
 
 require_once(BOOKX_DIR . 'bookx_functions.php');  
 require_once(BOOKX_DIR . 'bookx_widget.php');   
 
 $obj                    = new bookx_functions();
-$obj->var = $var;
+$obj->var               = $var;
 
 if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){  
     require_once(BOOKX_DIR . 'bookx_admin.php');
     $adminObj               = new bookx_admin();
-    $adminObj-> $var;
+    $adminObj->var          = $var;
     add_action('admin_menu', array($adminObj, 'bookx_adminMenu')); 
     register_activation_hook(__FILE__, array($adminObj, 'bookx_install'));
     register_deactivation_hook(__FILE__, array($adminObj, 'bookx_uninstall'));
 
 }
 $widgetObj              = new bookx_widget();
-$widgetObj = $var;
+$widgetObj->var         = $var;
  
 
 

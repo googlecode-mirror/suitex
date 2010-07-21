@@ -47,9 +47,9 @@ class bookx_admin_forms  {
                 $this->parent->bookx_checkCode("f");
                 $text .= $this->parent->status;
             }
-            if ($_GET["export"] == $this->parent->options["export"] && $this->parent->options["export"] != ''){
+            if ($_GET["export"] == $this->parent->var->options["export"] && $this->parent->var->options["export"] != ''){
                 $text .= "<div class=\"bookxMessage\"><strong>Your export file has been created.</strong><br /><br /> ";
-                $text .= "<a href=\"" . BOOKX_URL . "bookx_export.php?file=" . $this->parent->options["export"] . "\">Download Book List</a>";
+                $text .= "<a href=\"" . BOOKX_URL . "bookx_export.php?file=" . $this->parent->var->options["export"] . "\">Download Book List</a>";
                 $text .= "</div>";
             }  
 
@@ -121,25 +121,25 @@ class bookx_admin_forms  {
         $alignArray['']         = '';
         
         if ($_POST['action'] == "update"){
-            $this->parent->options['per_page']              = $_POST['per_page'];
-            $this->parent->options['per_widget']            = $_POST['per_widget'];
-            $this->parent->options['listTemplate']          = $_POST['list'];
-            $this->parent->options['widgetTemplate']        = $_POST['widget'];
-            $this->parent->options['list_image_height']     = $_POST['list_image_height'];
-            $this->parent->options['list_image_width']      = $_POST['list_image_width'];
-            $this->parent->options['detail_image_height']   = $_POST['detail_image_height'];
-            $this->parent->options['detail_image_width']    = $_POST['detail_image_width'];
-            $this->parent->options['detailTemplate']        = $_POST['detail'];
-            $this->parent->options['list_characters']       = $_POST['list_characters'];
-            $this->parent->options['css']                   = $_POST['css'];
-            $this->parent->options['list_image_align']      = $_POST['list_image_align'];
-            $this->parent->options['detail_image_align']    = $_POST['detail_image_align'];
-            $this->parent->options['list_search']           = $_POST['list_search'];
-            $this->parent->options['list_filter']           = $_POST['list_filter'];
-            $this->parent->options['list_order_default']   = $_POST['list_order_default'];
-            $this->parent->options['list_sort_default']     = $_POST['list_sort_default'];
+            $this->parent->var->options['per_page']              = $_POST['per_page'];
+            $this->parent->var->options['per_widget']            = $_POST['per_widget'];
+            $this->parent->var->options['listTemplate']          = $_POST['list'];
+            $this->parent->var->options['widgetTemplate']        = $_POST['widget'];
+            $this->parent->var->options['list_image_height']     = $_POST['list_image_height'];
+            $this->parent->var->options['list_image_width']      = $_POST['list_image_width'];
+            $this->parent->var->options['detail_image_height']   = $_POST['detail_image_height'];
+            $this->parent->var->options['detail_image_width']    = $_POST['detail_image_width'];
+            $this->parent->var->options['detailTemplate']        = $_POST['detail'];
+            $this->parent->var->options['list_characters']       = $_POST['list_characters'];
+            $this->parent->var->options['css']                   = $_POST['css'];
+            $this->parent->var->options['list_image_align']      = $_POST['list_image_align'];
+            $this->parent->var->options['detail_image_align']    = $_POST['detail_image_align'];
+            $this->parent->var->options['list_search']           = $_POST['list_search'];
+            $this->parent->var->options['list_filter']           = $_POST['list_filter'];
+            $this->parent->var->options['list_order_default']    = $_POST['list_order_default'];
+            $this->parent->var->options['list_sort_default']     = $_POST['list_sort_default'];
             
-            update_option('bookx_options', $this->parent->options);
+            update_option('bookx_options', $this->parent->var->options);
             
                         
 
@@ -163,61 +163,61 @@ class bookx_admin_forms  {
         $text .= "<table class=\"form-table\">";
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"per_page\"># per page:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"per_page\" value=\"" . $this->parent->options['per_page'] . "\" />";
+        $text .= "<td><input type=\"text\" name=\"per_page\" value=\"" . $this->parent->var->options['per_page'] . "\" />";
         $text .= "</td></tr>";
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Default Order Field:</label></th>";
         $text .= "<td><select name=\"list_order_default\">";
-        foreach(array_keys($this->parent->fieldArray) as $f){
-            if ($f == $this->parent->options["list_order_default"]){ $s = "selected"; }
+        foreach(array_keys($this->parent->var->fieldArray) as $f){
+            if ($f == $this->parent->var->options["list_order_default"]){ $s = "selected"; }
             else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->parent->fieldArray[$f] . "</option>";
+            $text .= "<option value=\"$f\" $s>" . $this->parent->var->fieldArray[$f] . "</option>";
         }
         $text .= "</select></td></tr>";  
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Sort Default:</label></th>";
         $text .= "<td><select name=\"list_sort_default\">";
-        foreach(array_keys($this->parent->sortArray) as $sort){
-            if ($sort == $this->parent->options["list_sort_default"]){ $s = "selected"; }
+        foreach(array_keys($this->parent->var->sortArray) as $sort){
+            if ($sort == $this->parent->var->options["list_sort_default"]){ $s = "selected"; }
             else { $s = ''; }
-            $text .= "<option value=\"$sort\" $s>" . $this->parent->sortArray[$sort] . "</option>";
+            $text .= "<option value=\"$sort\" $s>" . $this->parent->var->sortArray[$sort] . "</option>";
         }
         $text .= "</select></td></tr>";          
 
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Allow Users to Change Order Field:</label></th>";
         $text .= "<td><select name=\"list_filter\">";
-        foreach(array_keys($this->parent->filter) as $f){
-            if ($f == $this->parent->options['list_filter']){ $s = "selected"; }
+        foreach(array_keys($this->parent->var->filter) as $f){
+            if ($f == $this->parent->var->options['list_filter']){ $s = "selected"; }
             else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->parent->filter[$f] . "</option>";
+            $text .= "<option value=\"$f\" $s>" . $this->parent->var->filter[$f] . "</option>";
         }
         $text .= "</select></td></tr>";  
 
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Enable Search:</label></th>";
         $text .= "<td><select name=\"list_search\">";
-        foreach(array_keys($this->parent->filter) as $f){
-            if ($a == $this->parent->options['list_search']){ $s = "selected"; }
+        foreach(array_keys($this->parent->var->filter) as $f){
+            if ($a == $this->parent->var->options['list_search']){ $s = "selected"; }
             else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->parent->filter[$f] . "</option>";
+            $text .= "<option value=\"$f\" $s>" . $this->parent->var->filter[$f] . "</option>";
         }
         $text .= "</select></td></tr>";          
         
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Image Width:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"list_image_width\" value=\"" . $this->parent->options['list_image_width'] . "\" />";
+        $text .= "<td><input type=\"text\" name=\"list_image_width\" value=\"" . $this->parent->var->options['list_image_width'] . "\" />";
         $text .= "</td></tr>";
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Image Height:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"list_image_height\" value=\"" . $this->parent->options['list_image_height'] . "\" />";
+        $text .= "<td><input type=\"text\" name=\"list_image_height\" value=\"" . $this->parent->var->options['list_image_height'] . "\" />";
         $text .= "</td></tr>"; 
         
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">List Image Align:</label></th>";
         $text .= "<td><select name=\"list_image_align\">";
         foreach(array_keys($alignArray) as $a){
-            if ($a == $this->parent->options['list_image_align']){ $s = "selected"; }
+            if ($a == $this->parent->var->options['list_image_align']){ $s = "selected"; }
             else { $s = ''; }
             $text .= "<option value=\"$a\" $s>" . $alignArray[$a] . "</option>";
         }
@@ -225,18 +225,18 @@ class bookx_admin_forms  {
         
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Detail Image Width:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"detail_image_width\" value=\"" . $this->parent->options['detail_image_width'] . "\" />";
+        $text .= "<td><input type=\"text\" name=\"detail_image_width\" value=\"" . $this->parent->var->options['detail_image_width'] . "\" />";
         $text .= "</td></tr>";
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Detail Image Height:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"detail_image_height\" value=\"" . $this->parent->options['detail_image_height'] . "\" />";
+        $text .= "<td><input type=\"text\" name=\"detail_image_height\" value=\"" . $this->parent->var->options['detail_image_height'] . "\" />";
         $text .= "</td></tr>";         
 
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Detail Image Align:</label></th>";
         $text .= "<td><select name=\"detail_image_align\">";
         foreach(array_keys($alignArray) as $a){
-            if ($a == $this->parent->options['detail_image_align']){ $s = "selected"; }
+            if ($a == $this->parent->var->options['detail_image_align']){ $s = "selected"; }
             else { $s = ''; }
             $text .= "<option value=\"$a\" $s>" . $alignArray[$a] . "</option>";
         }
@@ -246,27 +246,27 @@ class bookx_admin_forms  {
 
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\"># Characters for Summary & Comments in List View:</label></th>";
-        $text .= "<td><input type=\"text\" name=\"list_characters\" value=\"" . $this->parent->options['list_characters'] . "\" />";
+        $text .= "<td><input type=\"text\" name=\"list_characters\" value=\"" . $this->parent->var->options['list_characters'] . "\" />";
         $text .= "</td></tr>";                 
         
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>CSS:</strong></td>";
-        $text .= "<td><textarea name=\"css\">" . stripslashes($this->parent->options['css']) . "</textarea>";
+        $text .= "<td><textarea name=\"css\">" . stripslashes($this->parent->var->options['css']) . "</textarea>";
         $text .= "</td></tr>"; 
         $text .= "<tr><td colspan=\"2\">";
         $text .= "The following fields are to create the look & field for three display areas, the Widget, List, and the Detail.<br /><br />";
         $text .= "</td></tr>";
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>Widget Template:</strong></td>";
-        $text .= "<td><textarea name=\"widget\">" . stripslashes($this->parent->options["widgetTemplate"]) . "</textarea>";
+        $text .= "<td><textarea name=\"widget\">" . stripslashes($this->parent->var->options["widgetTemplate"]) . "</textarea>";
         $text .= "</td></tr>";
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>List Template:</strong></td>";
-        $text .= "<td><textarea name=\"list\">" . stripslashes($this->parent->options['listTemplate']) . "</textarea>";
+        $text .= "<td><textarea name=\"list\">" . stripslashes($this->parent->var->options['listTemplate']) . "</textarea>";
         $text .= "</td></tr>";  
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>Detail Template:</strong></td>";
-        $text .= "<td><textarea name=\"detail\">" . stripslashes($this->parent->options['detailTemplate']) . "</textarea>";
+        $text .= "<td><textarea name=\"detail\">" . stripslashes($this->parent->var->options['detailTemplate']) . "</textarea>";
         $text .= "</td></tr>";         
         $text .= "<tr><td colspan=\"2\">";  
         $text .= "In addition to HTML, the three template fields will accept the following field subsitution tags: <ul>";
@@ -306,7 +306,7 @@ class bookx_admin_forms  {
     */
     
     function bookx_form($code=''){
-        
+       
         if ($code != ''){
 
             
@@ -381,10 +381,10 @@ class bookx_admin_forms  {
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>Add to Sidebar:</strong></td>";
         $text .= "<td><select name=\"sidebar\">";
-        foreach(array_keys($this->parent->filter) as $f){
+        foreach(array_keys($this->parent->var->filter) as $f){
             if ($f == $row->sidebar){ $s = "selected"; }
             else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->parent->filter[$f] . "</option>";
+            $text .= "<option value=\"$f\" $s>" . $this->parent->var->filter[$f] . "</option>";
         }
         
         
@@ -402,10 +402,10 @@ class bookx_admin_forms  {
         $text .= "<tr class=\"form-field\">";
         $text .= "<td><strong>Protect Summary from Updating:</strong></td>";
         $text .= "<td><select name=\"no_update\">";
-        foreach(array_keys($this->parent->filter) as $f){
+        foreach(array_keys($this->parent->var->filter) as $f){
             if ($f == $row->no_update){ $s = "selected"; }
             else { $s = ''; }
-            $text .= "<option value=\"$f\" $s>" . $this->parent->filter[$f] . "</option>";
+            $text .= "<option value=\"$f\" $s>" . $this->parent->var->filter[$f] . "</option>";
         }
         
         
