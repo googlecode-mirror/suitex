@@ -18,7 +18,7 @@ class bookx_admin {
     var $version        = "1.1";
     var $wpdb;
 
-    var $baseURL        = "tools.php?page=bookx/bookx_admin.php";
+    var $baseURL        = "tools.php?page=bookx/includes/bookx_admin.php";
     var $numberPerPage  = "50";
     var $bookArray      = array();
     var $status         = '';
@@ -40,11 +40,12 @@ class bookx_admin {
         
         
         
+        
         //$this->wpdb->show_errors(); 
     }
     
     function bookx_iniForms(){
-        require_once(BOOKX_DIR . "bookx_admin_forms.php");
+        require_once(BOOKX_DIR . "includes/bookx_admin_forms.php");
         $this->forms = new bookx_admin_forms();
         $this->forms->parent = $this;
     }
@@ -184,12 +185,19 @@ class bookx_admin {
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=list\">View Books</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=form\">Add New Book</a>"; 
         //$text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=refresh&_wpnonce=" . $this->nonce . "\">Refresh Book List</a>";
-        $text .= "<script type='text/javascript' src='" . BOOKX_URL. "suitex.js'></script>"; 
+        $text .= "<script type='text/javascript' src='" . BOOKX_URL. "suitex/suitex.js'></script>"; 
         
-        $text .= "<link rel='stylesheet' href='" . BOOKX_URL . "style.css' type='text/css' />";
+        $text .= "<link rel='stylesheet' href='" . BOOKX_URL . "css/style.css' type='text/css' />";
 
         
         return $text;
+    }
+    
+    function bookx_get_fetch(){
+        
+        $fileName = BOOKX_DIR . "fetch/bookx_fetch_" . $this->var->options["fetch"] . ".php";
+        require_once($fileName);
+        $this->fetchObj = new bookx_fetch($this);
     }
     
     /**
@@ -199,6 +207,8 @@ class bookx_admin {
     */
     
     function bookx_refreshAll($importSkipNonce=false){
+        $this->bookx_get_fetch();
+        
         
         if ($importSkipNonce != true){ 
             $code = "b";
@@ -211,7 +221,7 @@ class bookx_admin {
         
         foreach($result as $row){
             $this->bookArray = array();
-            $this->bookx_fetchItem($row->bx_item_isbn);
+            $this->fetchObj->bookx_fetchItem($row->bx_item_isbn);
 
             $sql = "update " . $this->wpdb->prefix . "bx_item set ";
             foreach(array_keys($this->bookArray) as $key){     
@@ -242,146 +252,6 @@ class bookx_admin {
     }
     
     /**
-    * Fetches book information based on the isbn
-    * 
-    * @param    mixed   $isbn
-    * @return   array   $this->bookArray
-    */
-        
-    function bookx_fetchItem($isbn){
-
-    
-        $url = 'http://search.barnesandnoble.com/booksearch/isbninquiry.asp?ean=' . $isbn;
-
-        if (function_exists('curl_init')){
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url );
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            $lines = curl_exec($ch);
-            curl_close($ch);
-        }
-        else {
-            $lines = file_get_contents($url);
-        }
-
-        $start = "<div id=\"product-top\">";
-
-        $lines = substr($lines, strpos($lines, $start));
-        //print($lines); 
-
-        if (substr_count($lines, "<ul class=\"reviewBox\">")){
-            $end = "<ul class=\"reviewBox\">";
-        }        
-        else if (substr_count($lines, "<h3 class=\"pr-selected\">")){
-            $end = "<h3 class=\"pr-selected\">";
-        }
-        
-        
-        
-        
-        $lines = substr($lines, 0, strpos($lines, $end));
-        //print($lines);
-        
-        $titleLine = substr($lines, strpos($lines, "<div id=\"product-info\">"));
-        $titleLine = substr($titleLine, 0, strpos($titleLine, "<div class=\"pb\">"));
-        $titleLine = strip_tags($titleLine);
-        
-        
-        $title = substr($titleLine, 0, strpos($titleLine, "by"));
-        $title = trim(rtrim($title));
-        
-        $author = substr($titleLine, strpos($titleLine, "by") + 2);
-        $author = trim(rtrim($author));
-        
-        $price = substr($lines, strpos($lines, "\$"));
-        $price = substr($price, 0, strpos($price, ".") + 3);
-        $price = str_replace("\$", '', $price);
-        
-        
-        $publisher = substr($lines, strpos($lines, "Publisher:"));
-        $publisher = substr($publisher, 0, strpos($publisher, "</li>"));
-        $publisher = str_replace("Publisher:", '', $publisher);
-        
-        $pubDate = substr($lines, strpos($lines, "Pub. Date:"));
-        $pubDate = substr($pubDate, 0, strpos($pubDate, "</li>"));
-        $pubDate = str_replace("Pub. Date:", '', $pubDate);
-        $pubDate = strtotime($pubDate);
-        
-        $pages = substr($lines, strpos($lines, "pp</li>") - 5);
-        $pages = substr($pages, 0, strpos($pages, "</li>"));
-        $pages = str_replace("i", '', $pages);
-        $pages = str_replace(">", '', $pages);
-        $pages = str_replace("l", '', $pages);
-        $pages = str_replace("<", '', $pages);
-        $pages = str_replace("pp", '', $pages);
-      
-        if (!is_numeric($pages)){ $pages = 0; }
-        
-        $format = substr($lines, strpos($lines, "<p class=\"format\">"));
-        $format = substr($format, 0, strpos($format, "</p>"));
-        $format = str_replace("(", '', $format);
-        $format = str_replace(")", '', $format);
-        //print($lines);
-        //print("<br><br><br><br><br>\r\n\r\n");
-        $summary = substr($lines, strpos($lines, "<h3>Synopsis</h3>"));
-        //print($summary);
-        //die();
-        $summary = substr($summary, 0, strpos($summary, "</p>"));
-        $summary = str_replace("<h3>Synopsis</h3>", '', $summary);
-        $summary = str_replace("—", "-", $summary);
-        //$summary = htmlentities($summary);
-        
-        $image = substr($lines, strpos($lines, "<img border=\"0\" src=\"http://images.barnesandnoble.com/images/"));
-        $image = substr($image, 0, strpos($image, ">")) . " />";
-        
-        /*
-        $source = substr($image, strpos($image, "src=") + 5);
-        $source = substr($source, 0, strpos($source, "alt"));
-        $source = trim(rtrim(str_replace('"', '', $source)));
-        
-        $sourceTest = strtolower($source);
-        
-        if (substr_count($sourceTest, ".jpg") || substr_count($source, ".jpeg") || substr_count($source, ".jpe")){ 
-            $imageType = "image/jpeg"; 
-        }
-        else if (substr_count($sourceTest, ".gif")){
-            $imageType = "image/gif";
-        }
-        else if (substr_count($sourceTest, ".png")){
-            $imageType = "image/png";
-        }
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $source );
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $imageData = curl_exec($ch);
-        curl_close($ch);
-        */
-
-        //if (substr_count($title, "Knuffle")){ $this->die = true; }                
-        if ($title != ''){ print("Working on $title <br />"); }
-        flush();
-        
-        
-        $this->addBookToArray("publisher", $publisher);
-        $this->addBookToArray("price", $price);
-        $this->addBookToArray("author", $author);
-        $this->addBookToArray("name", $title);
-        $this->addBookToArray("date", $pubDate);
-        $this->addBookToArray("pages", $pages);
-        $this->addBookToArray("format", $format);
-        $this->addBookToArray("summary", $summary, "<br>");
-        $this->addBookToArray("image", $image, true);
-        //$this->addBookToArray("image_type", $imageType);
-        $this->addBookToArray("link", $url, true);
-        $this->addBookToArray("isbn", $isbn);
-        
-        //print_r($this->bookArray);
-        //die();
-
-    }
-    
-    /**
     * Adds a value to the bookarray
     * 
     * @param    mixed   $key
@@ -390,6 +260,7 @@ class bookx_admin {
     */
                              
     function addBookToArray($key, $value, $noStrip = false){
+
         if ($noStrip == true){ 
             $this->bookArray[$key] = trim(rtrim($value)); 
         }
@@ -403,8 +274,9 @@ class bookx_admin {
     }
     
     function bookx_upgrade(){
+
         if ($this->var->options["version"] != $this->version){
-            require_once(BOOKX_DIR . "bookx_upgrade.php");           
+            require_once(BOOKX_DIR . "includes/bookx_upgrade.php");           
             
             if ($this->var->options["version"] == '' || !$this->var->options["version"]){ //Assume version 0.6 
                 $this->var->options["version"] = "0.6";
@@ -413,6 +285,8 @@ class bookx_admin {
             foreach($upgradeArray[$this->var->options["version"]] as $sql){
                 $this->wpdb->query($sql);
             }
+            
+            if (!$this->var->options["fetch"] || $this->var->options["fetch"] == ''){ $this->var->options["fetch"] = "bn"; }
             
             $this->var->options["version"] = $this->version;
             update_option('bookx_options', $this->var->options);
@@ -482,7 +356,8 @@ class bookx_admin {
             $options['list_search']             = "0";
             $options['list_filter']             = "1";
             $options['list_order_default']      = "bx_item_name";
-            $options['list_sort_default']       = "asc";  
+            $options['list_sort_default']       = "asc"; 
+            $options['fetch']                   = "bn"; 
             
             $chars = array("a","A","b","B","c","C","d","D","e","E","f","F","g","G","h","H","i","I","j","J", "k","K","l","L","m","M","n","N","o","O","p","P","q","Q","r","R","s","S","t","T","u","U","v","V","w","W","x","X","y","Y","z","Z","1","2","3","4","5","6","7","8","9","0");
             $max_elements = count($chars) - 1;
@@ -546,14 +421,16 @@ class bookx_admin {
         else if ($_GET["_wpnonce"]){ $nonce = $_GET["_wpnonce"]; }
 
         if (!wp_verify_nonce($nonce)){ die('Security check'); }
-        
+        $this->bookx_get_fetch();
         $comments = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["comments"])));
-        if ($_POST["action"] != "adds"){ $this->bookx_fetchItem(strip_tags($_POST["isbn"])); }        
+        if ($_POST["action"] != "adds"){ 
+            $this->fetchObj->bookx_fetchItem(strip_tags($_POST["isbn"])); 
+        }        
         
         if ($_POST["action"] == "adds"){
             $books = explode("\r\n", $_POST["books"]);
             foreach($books as $b){
-                $this->bookx_fetchItem(strip_tags($b));
+                $this->fetchObj->bookx_fetchItem(strip_tags($b));
                 $sql = "insert into " . $this->wpdb->prefix . "bx_item ";
                 $fields = '';
                 $values = '';
@@ -568,16 +445,7 @@ class bookx_admin {
                 $this->wpdb->query($sql);
                 //$this->wpdb->print_error();
                 $code = "as";                
-                
-                
-                
-                
-                
             } 
-
-
-        
-        
         }
         else if ($_POST["action"] == "add"){
             
@@ -651,8 +519,8 @@ class bookx_admin {
         $text .= "goToURL('$url'); ";
         //$text .= "window.location = '$url';";
         $text .= "</script>";
+
         $this->bookx_stroke($text);
-        
     }
     
     /**
@@ -663,7 +531,7 @@ class bookx_admin {
     function bookx_list(){
         
         
-        require_once(BOOKX_DIR . 'suitex_list.php'); 
+        require_once(BOOKX_DIR . 'suitex/suitex_list.php'); 
         
 
 

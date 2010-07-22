@@ -291,7 +291,7 @@ class bookx_functions {
         if ($this->var->options["per_page"] != 0 && $count > $setnum){
             $paging = true;
             
-            require_once(BOOKX_DIR . 'suitex_list.php'); 
+            require_once(BOOKX_DIR . 'suitex/suitex_list.php'); 
             $listObj = new suitex_list();
             $listObj->setNum = $setnum;
             $url = $link . "?&order=$order&sort=$sort";

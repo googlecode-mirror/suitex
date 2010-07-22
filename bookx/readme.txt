@@ -27,6 +27,10 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>1.2</b><br />
+Fixed a bug with redirection after form submission<br />
+Added Open Library as another Source<br />
+
 <b>1.1</b><br />
 Fixed a bug with overlapping variable scope with other SuiteX plugins.<br />
 

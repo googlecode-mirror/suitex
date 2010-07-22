@@ -3,7 +3,7 @@
 Plugin Name: bookX
 Plugin URI: http://www.thisrand.com/scripts/bookx
 Description: Creates a recommended book list for both a sidebar widget and page based solely on ISBN numbers.
-Version: 1.1
+Version: 1.2
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
@@ -38,35 +38,33 @@ if ( ! defined( 'WP_PLUGIN_URL' ) )
       define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
 if ( ! defined( 'WP_PLUGIN_DIR' ) )
       define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
-
+      
 define(BOOKX_DIR, WP_PLUGIN_DIR . '/bookx/');  
 define(BOOKX_URL, WP_PLUGIN_URL . '/bookx/'); 
 
-require_once(BOOKX_DIR . 'bookx_var.php');
+require_once(BOOKX_DIR . 'includes/bookx_var.php');
 $var = new bookx_var();
 
-require_once(BOOKX_DIR . 'bookx_functions.php');  
-require_once(BOOKX_DIR . 'bookx_widget.php');   
-
+require_once(BOOKX_DIR . 'includes/bookx_functions.php');  
 $obj                    = new bookx_functions();
 $obj->var               = $var;
+add_action('wp', array($obj, 'bookx_init'));
 
 if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){  
-    require_once(BOOKX_DIR . 'bookx_admin.php');
+    require_once(BOOKX_DIR . 'includes/bookx_admin.php');
     $adminObj               = new bookx_admin();
     $adminObj->var          = $var;
     add_action('admin_menu', array($adminObj, 'bookx_adminMenu')); 
     register_activation_hook(__FILE__, array($adminObj, 'bookx_install'));
     register_deactivation_hook(__FILE__, array($adminObj, 'bookx_uninstall'));
-
 }
+
+require_once(BOOKX_DIR . 'includes/bookx_widget.php');   
 $widgetObj              = new bookx_widget();
 $widgetObj->var         = $var;
- 
-
-
 add_action('widgets_init', array($widgetObj, 'bookx_widget_init'));   
-add_action('wp', array($obj, 'bookx_init'));
+
+
 
 
 

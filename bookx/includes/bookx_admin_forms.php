@@ -138,6 +138,7 @@ class bookx_admin_forms  {
             $this->parent->var->options['list_filter']           = $_POST['list_filter'];
             $this->parent->var->options['list_order_default']    = $_POST['list_order_default'];
             $this->parent->var->options['list_sort_default']     = $_POST['list_sort_default'];
+            $this->parent->var->options['fetch']                 = $_POST['fetch'];
             
             update_option('bookx_options', $this->parent->var->options);
             
@@ -148,7 +149,7 @@ class bookx_admin_forms  {
 
         
         
-        //import and export goes HERE...check directory for export
+
         $text = "<div class=\"wrap\"><h2>BookX</h2>";
         
         $text .= "<form method=\"post\" action=\"" . $this->parent->baseURL . "&sub=admin\">";
@@ -161,6 +162,17 @@ class bookx_admin_forms  {
 
         
         $text .= "<table class=\"form-table\">";
+        
+        $text .= "<tr class=\"form-field form-required\">";
+        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"fetch\">Source:</label></th>";
+        $text .= "<td><select name=\"fetch\">";
+        foreach(array_keys($this->parent->var->fetchSourceArray) as $f){
+            if ($f == $this->parent->var->options["fetch"]){ $s = "selected"; }
+            else { $s = ''; }
+            $text .= "<option value=\"$f\" $s>" . $this->parent->var->fetchSourceArray[$f] . "&nbsp;&nbsp;&nbsp;&nbsp;</option>";
+        }
+        $text .= "</select></td></tr>";  
+                
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"per_page\"># per page:</label></th>";
         $text .= "<td><input type=\"text\" name=\"per_page\" value=\"" . $this->parent->var->options['per_page'] . "\" />";

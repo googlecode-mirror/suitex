@@ -2,6 +2,9 @@
 class bookx_var {
     
     function __construct(){
+        $this->fetchSourceArray["bn"] = "Barnes & Nobel";
+        $this->fetchSourceArray["ol"] = "Open Library";
+        
         $this->sortArray  = array("asc" => "Ascending", "desc" => "Descending");
 
         $this->fieldArray["bx_item_id"]           = "ID";
@@ -15,12 +18,7 @@ class bookx_var {
         $this->fieldArray["bx_item_price"]        = "Price";
 
         $this->filter    = array("No", "Yes");  
-        $this->options   = get_option('bookx_options');        
-        
-        
-        
-        
-        
+        $this->options   = get_option('bookx_options');   
         
     }
     
