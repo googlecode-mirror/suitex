@@ -3,8 +3,8 @@ Contributors: Xnuiem
 Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
-Tested up to: 3.0.0
-Stable tag: 1.1
+Tested up to: 3.0.1
+Stable tag: 1.2
 
 A simple but powerful recommended book plugin.
 
