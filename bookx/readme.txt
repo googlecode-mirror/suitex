@@ -29,7 +29,8 @@ None Yet
 == Change Log ==
 <b>1.2</b><br />
 Fixed a bug with redirection after form submission<br />
-Added Open Library as another Source<br />
+Updated the fetch method for B&N's new page format (<a href="http://code.google.com/p/suitex/issues/detail?id=50">Issue 50</a>)<br />
+
 
 <b>1.1</b><br />
 Fixed a bug with overlapping variable scope with other SuiteX plugins.<br />

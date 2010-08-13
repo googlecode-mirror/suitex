@@ -17,7 +17,7 @@ class bookx_fetch extends bookx_admin {
     function bookx_fetchItem($isbn){
 
 
-        $url = 'http://search.barnesandnoble.com/booksearch/isbninquiry.asp?ean=' . $isbn;
+        $url = 'http://search.barnesandnoble.com/books/product.aspx?ean=' . $isbn;
 
         if (function_exists('curl_init')){
             $ch = curl_init();
@@ -31,26 +31,31 @@ class bookx_fetch extends bookx_admin {
         }
 
 
-        $start = "<div id=\"product-top\">";
+        $start = "<div class=\"preview\">";
 
         $lines = substr($lines, strpos($lines, $start));
         //print($lines); 
 
-        if (substr_count($lines, "<ul class=\"reviewBox\">")){
-            $end = "<ul class=\"reviewBox\">";
+        if (substr_count($lines, "<div id=\"tab-edreviews\"")){
+            $end = "<div id=\"tab-edreviews\"";
         }        
-        else if (substr_count($lines, "<h3 class=\"pr-selected\">")){
-            $end = "<h3 class=\"pr-selected\">";
-        }
+        //else if (substr_count($lines, "<h3 class=\"pr-selected\">")){
+        //    $end = "<h3 class=\"pr-selected\">";
+        //}
         
         
         
         
         $lines = substr($lines, 0, strpos($lines, $end));
-        //print($lines);
         
-        $titleLine = substr($lines, strpos($lines, "<div id=\"product-info\">"));
-        $titleLine = substr($titleLine, 0, strpos($titleLine, "<div class=\"pb\">"));
+        $lines = str_replace("\r", '', $lines);
+        $lines = str_replace("\n", '', $lines);
+        $lines = str_replace("\t", '', $lines);
+
+
+        
+        $titleLine = substr($lines, strpos($lines, "<h1>"));
+        $titleLine = substr($titleLine, 0, strpos($titleLine, "</h1>"));
         $titleLine = strip_tags($titleLine);
         
         
@@ -74,14 +79,17 @@ class bookx_fetch extends bookx_admin {
         $pubDate = str_replace("Pub. Date:", '', $pubDate);
         $pubDate = strtotime($pubDate);
         
-        $pages = substr($lines, strpos($lines, "pp</li>") - 5);
+        $pages = substr($lines, strpos($lines, "Pub. Date:"));
+        $pages = substr($pages, strpos($pages, "pp") - 5);
+
         $pages = substr($pages, 0, strpos($pages, "</li>"));
         $pages = str_replace("i", '', $pages);
         $pages = str_replace(">", '', $pages);
         $pages = str_replace("l", '', $pages);
         $pages = str_replace("<", '', $pages);
         $pages = str_replace("pp", '', $pages);
-      
+        $pages = trim(rtrim($pages));
+        
         if (!is_numeric($pages)){ $pages = 0; }
         
         $format = substr($lines, strpos($lines, "<p class=\"format\">"));
@@ -143,8 +151,8 @@ class bookx_fetch extends bookx_admin {
         $this->parent->addBookToArray("link", $url, true);
         $this->parent->addBookToArray("isbn", $isbn);
         
-        
-        //print_r($this->bookArray);
+        //print("<br><br><br><br><br><br>");
+        //print_r($this->parent->bookArray);
         //die();
 
     }    

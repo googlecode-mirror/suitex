@@ -15,7 +15,9 @@ class bookx_fetch extends bookx_admin {
     */
         
     function bookx_fetchItem($isbn){
-        $url = 'http://www.openlibrary.org/search?q=' . $isbn;
+        $url = 'http://www.openlibrary.org/search?isbn=' . $isbn;
+        
+        print($url . "<br><br>");
         if (function_exists('curl_init')){
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url );
@@ -27,6 +29,10 @@ class bookx_fetch extends bookx_admin {
         else {
             $lines = file_get_contents($url);
         }
+        
+        print($lines);
+        die();
+        
         $start = "<h6 class=\"title\">Open Library</h6>";
         $lines = substr($lines, strpos($lines, $start));
         $end = "</span>";
@@ -55,14 +61,17 @@ class bookx_fetch extends bookx_admin {
             $xmlData = str_replace($r . ":", '', $xmlData);
         }
         
-        $xml = new SimpleXMLElement($xmlData);    
+        print($xmlData);
+        die();
+        
+        //$xml = new SimpleXMLElement($xmlData);    
                 
         $title = $xml->Description->title;
 
 
         //print_r($xml);
 
-
+        $image = "http://covers.openlibrary.org/b/id/" . $isbn . "-M.jpg";
 
 
 

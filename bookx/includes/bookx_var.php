@@ -2,8 +2,8 @@
 class bookx_var {
     
     function __construct(){
-        $this->fetchSourceArray["bn"] = "Barnes & Nobel";
-        $this->fetchSourceArray["ol"] = "Open Library";
+        $this->fetchSourceArray["bn"] = "Barnes & Noble";
+        //$this->fetchSourceArray["ol"] = "Open Library";
         
         $this->sortArray  = array("asc" => "Ascending", "desc" => "Descending");
 
