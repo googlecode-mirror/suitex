@@ -106,8 +106,13 @@ class bookx_fetch extends bookx_admin {
         $summary = str_replace("—", "-", $summary);
         //$summary = htmlentities($summary);
         
-        $image = substr($lines, strpos($lines, "<img border=\"0\" src=\"http://images.barnesandnoble.com/images/"));
+        //$image = substr($lines, strpos($lines, "<img border=\"0\" src=\"http://images.barnesandnoble.com/images/"));
+        $image = substr($lines, strpos($lines, "<img"));
         $image = substr($image, 0, strpos($image, ">")) . " />";
+        $image = strip_tags($image, "<img>");
+        
+        //print("IMAGE: " . $image);
+        //die();
         
         /*
         $source = substr($image, strpos($image, "src=") + 5);

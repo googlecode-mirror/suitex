@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
 Tested up to: 3.0.1
-Stable tag: 1.2
+Stable tag: 1.3
 
 A simple but powerful recommended book plugin.
 
@@ -27,9 +27,12 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>1.3</b><br />
+Updated the fetch method for B&N's new page format (Caused problems on images) (<a href="http://code.google.com/p/suitex/issues/detail?id=52">Issue 52</a>)<br />
+
 <b>1.2</b><br />
 Fixed a bug with redirection after form submission<br />
-Updated the fetch method for B&N's new page format (<a href="http://code.google.com/p/suitex/issues/detail?id=50">Issue 50</a>)<br />
+
 
 
 <b>1.1</b><br />
