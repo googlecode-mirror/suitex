@@ -1,5 +1,5 @@
 <?php
-class bookx_fetch extends bookx_admin {
+class bookx_fetch_ol {
 
     function __construct($parent){
         $this->parent = $parent;
@@ -16,8 +16,7 @@ class bookx_fetch extends bookx_admin {
         
     function bookx_fetchItem($isbn){
         $url = 'http://www.openlibrary.org/search?isbn=' . $isbn;
-        
-        print($url . "<br><br>");
+
         if (function_exists('curl_init')){
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url );
@@ -30,8 +29,9 @@ class bookx_fetch extends bookx_admin {
             $lines = file_get_contents($url);
         }
         
-        print($lines);
-        die();
+        if (!$lines || $lines == ''){ return false; }
+        $price = '0.00';
+        
         
         $start = "<h6 class=\"title\">Open Library</h6>";
         $lines = substr($lines, strpos($lines, $start));
@@ -61,39 +61,53 @@ class bookx_fetch extends bookx_admin {
             $xmlData = str_replace($r . ":", '', $xmlData);
         }
         
-        print($xmlData);
-        die();
         
-        //$xml = new SimpleXMLElement($xmlData);    
+        
+        
+        $xml = new SimpleXMLElement($xmlData);    
                 
         $title = $xml->Description->title;
+        
+        
+        $pages = $xml->Description->extent;
+        if ($pages == ''){ 
+            $pages = 0; 
+        }
 
+        //$image = "http://covers.openlibrary.org/books/isbn/" . $isbn . "-M.jpg";
+        $image = "<img src=\"http://covers.openlibrary.org/b/id/" . $isbn . "-M.jpg\" alt=\"$title\" border=\"0\" />";
+        foreach($xml->Description as $desc){
+            $link = (string) $desc['about'];   
+                
+        }
 
-        //print_r($xml);
-
-        $image = "http://covers.openlibrary.org/b/id/" . $isbn . "-M.jpg";
-
-
-
+        $date = strtotime($xml->Description->issued);
 
         if ($title != ''){ print("Working on $title <br />"); }
         flush();
         
         
         $this->parent->addBookToArray("publisher", $xml->Description->publisher);
-        $this->parent->addBookToArray("price", '');
+        $this->parent->addBookToArray("price", $price);
         $this->parent->addBookToArray("author", $xml->Description->authorList->Description->value);
         $this->parent->addBookToArray("name", $title);
-        $this->parent->addBookToArray("date", $xml->Description->issued);
+        $this->parent->addBookToArray("date", $date);
         $this->parent->addBookToArray("pages", $pages);
-        $this->parent->addBookToArray("format", '');
+        $this->parent->addBookToArray("format", $format);
         $this->parent->addBookToArray("summary", $xml->Description->description, "<br>");
         $this->parent->addBookToArray("image", $image, true);
         //$this->parent->addBookToArray("image_type", $imageType);
-        $this->parent->addBookToArray("link", $xml->Description->attributes["about"], true);
+        $this->parent->addBookToArray("link", $link, true);
         $this->parent->addBookToArray("isbn", $isbn);
+        /*
+        print($xmlData);
+        print("<br><br><hr><br><br>");
+        print_r($xml);
+        print("<br><br><hr><br><br>");
         print_r($this->parent->bookArray);
         die();
+        */
+        return true;
     }    
     
 }  

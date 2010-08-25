@@ -193,11 +193,53 @@ class bookx_admin {
         return $text;
     }
     
-    function bookx_get_fetch(){
+    function bookx_startFetch($isbn){
         
-        $fileName = BOOKX_DIR . "fetch/bookx_fetch_" . $this->var->options["fetch"] . ".php";
-        require_once($fileName);
-        $this->fetchObj = new bookx_fetch($this);
+        if ($this->bookx_getFetch()){
+            $this->fetchObj->bookx_fetchItem($isbn);
+
+            if ($this->var->options["failover"] == 0){
+                $this->bookArray = array();
+                return false;
+            }
+            else if ($this->bookArray["name"] == ''){
+                $this->fetchObj = null;
+                $this->bookx_startFetch($isbn);
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            $this->bookArray = array();
+        }
+        
+        
+        
+    }
+    
+    function bookx_getFetch(){
+        if (!$this->tried){ $fetch = $this->var->options["fetch"]; }
+        else {
+            foreach(array_keys($this->var->fetchSourceArray) as $f){
+                if (!in_array($f, $this->tried)){
+                    $fetch = $f;
+                }
+            }
+        }
+        
+        if ($fetch){
+            $fetchClassName = "bookx_fetch_" . $fetch;
+            $fileName = BOOKX_DIR . "fetch/bookx_fetch_" . $fetch . ".php";
+            require_once($fileName);
+            $this->fetchObj = new $fetchClassName($this);
+            $this->tried[] = $fetch;
+            return true;
+        }
+        else {
+            $this->bookArray = array(); 
+        }
+        
     }
     
     /**
@@ -278,15 +320,20 @@ class bookx_admin {
         if ($this->var->options["version"] != $this->version){
             require_once(BOOKX_DIR . "includes/bookx_upgrade.php");           
             
+            if ($this->var->options["failover"] == '' || !$this->var->options["failover"]){ $this->var->options["failover"] = "0"; }            
+            if (!$this->var->options["fetch"] || $this->var->options["fetch"] == ''){ $this->var->options["fetch"] = "bn"; }
+
             if ($this->var->options["version"] == '' || !$this->var->options["version"]){ //Assume version 0.6 
                 $this->var->options["version"] = "0.6";
             }
+            
+            
             
             foreach($upgradeArray[$this->var->options["version"]] as $sql){
                 $this->wpdb->query($sql);
             }
             
-            if (!$this->var->options["fetch"] || $this->var->options["fetch"] == ''){ $this->var->options["fetch"] = "bn"; }
+            
             
             $this->var->options["version"] = $this->version;
             update_option('bookx_options', $this->var->options);
@@ -421,16 +468,16 @@ class bookx_admin {
         else if ($_GET["_wpnonce"]){ $nonce = $_GET["_wpnonce"]; }
 
         if (!wp_verify_nonce($nonce)){ die('Security check'); }
-        $this->bookx_get_fetch();
+        
         $comments = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["comments"])));
         if ($_POST["action"] != "adds"){ 
-            $this->fetchObj->bookx_fetchItem(strip_tags($_POST["isbn"])); 
+            $this->bookx_startFetch(strip_tags($_POST["isbn"])); 
         }        
         
         if ($_POST["action"] == "adds"){
             $books = explode("\r\n", $_POST["books"]);
             foreach($books as $b){
-                $this->fetchObj->bookx_fetchItem(strip_tags($b));
+                $this->bookx_startFetch(strip_tags($b));
                 $sql = "insert into " . $this->wpdb->prefix . "bx_item ";
                 $fields = '';
                 $values = '';
@@ -507,7 +554,7 @@ class bookx_admin {
         //die();
         if ($code != "as"){
             if (!$this->wpdb->query($sql)){
-                $this->forms->bookx_form("SQL Query Failed<br /><br />$sql"); 
+                $this->forms->bookx_form("SQL Query Failed<br /><br />" . mysql_error() . "<br /><br />$sql"); 
                 return false;    
             }
             //$this->wpdb->print_error(); 

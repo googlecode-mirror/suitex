@@ -182,7 +182,7 @@ class bookx_functions {
         $row = $this->wpdb->get_row($this->wpdb->prepare($sql, $_GET["book_id"]));
         
         
-        if (substr_count($this->var->options["detailTemplate"], "::IMAGE::")){
+        if (substr_count($this->var->options["detailTemplate"], "::IMAGE::") && is_file($row->bx_item_image)){
             $doImage = true;            
         }
         
@@ -213,30 +213,25 @@ class bookx_functions {
             if ($this->var->options["detail_image_align"] != ''){
                 $image = str_replace("src", "align=\"" . $this->var->options['list_image_align'] . "\" src", $image);       
             }
-                
-
-            
-            
-            
-            $trans["::ELINK::"]     = $row->bx_item_link;
-            $trans["::TITLE::"]     = $row->bx_item_name;
-            $trans["::AUTHOR::"]    = $row->bx_item_author;            
-            $trans["::ISBN::"]      = $row->bx_item_isbn;             
-            $trans["::PUBLISHER::"] = $row->bx_item_publisher;             
-            $trans["::DATE::"]      = date(get_option("date_format"), $row->bx_item_date);             
-            $trans["::PAGES::"]     = $row->bx_item_pages;             
-            $trans["::FORMAT::"]    = $row->bx_item_format;             
-            $trans["::IMAGE::"]     = $image;            
-            $trans["::PRICE::"]     = $row->bx_item_price;            
-            $trans["::SUMMARY::"]   = $row->bx_item_summary;            
-            $trans["::COMMENTS::"]  = $row->bx_item_comments;
-             
-            $text .= "<div class=\"bookx_detail_entry\">" . strtr(stripslashes($this->var->options["detailTemplate"]), $trans) . "</div>";
-            
-            
-  
-            
+            $trans["::IMAGE::"]     = $image;     
         }
+        else {
+            $trans["::IMAGE::"] = '';
+        }
+
+        $trans["::ELINK::"]     = $row->bx_item_link;
+        $trans["::TITLE::"]     = $row->bx_item_name;
+        $trans["::AUTHOR::"]    = $row->bx_item_author;            
+        $trans["::ISBN::"]      = $row->bx_item_isbn;             
+        $trans["::PUBLISHER::"] = $row->bx_item_publisher;             
+        $trans["::DATE::"]      = date(get_option("date_format"), $row->bx_item_date);             
+        $trans["::PAGES::"]     = $row->bx_item_pages;             
+        $trans["::FORMAT::"]    = $row->bx_item_format;             
+        $trans["::PRICE::"]     = $row->bx_item_price;            
+        $trans["::SUMMARY::"]   = $row->bx_item_summary;            
+        $trans["::COMMENTS::"]  = $row->bx_item_comments;
+             
+        $text .= "<div class=\"bookx_detail_entry\">" . strtr(stripslashes($this->var->options["detailTemplate"]), $trans) . "</div>";        
         
         $text .= "</div>"; 
         $this->text = $text;        

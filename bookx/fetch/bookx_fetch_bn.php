@@ -1,5 +1,5 @@
 <?php
-class bookx_fetch extends bookx_admin {
+class bookx_fetch_bn {
 
     function __construct($parent){
         $this->parent = $parent;
@@ -30,7 +30,7 @@ class bookx_fetch extends bookx_admin {
             $lines = file_get_contents($url);
         }
 
-
+        if (!$lines || $lines == ''){ return false; }
         $start = "<div class=\"preview\">";
 
         $lines = substr($lines, strpos($lines, $start));
@@ -106,9 +106,14 @@ class bookx_fetch extends bookx_admin {
         $summary = str_replace("—", "-", $summary);
         //$summary = htmlentities($summary);
         
-        //$image = substr($lines, strpos($lines, "<img border=\"0\" src=\"http://images.barnesandnoble.com/images/"));
-        $image = substr($lines, strpos($lines, "<img"));
-        $image = substr($image, 0, strpos($image, ">")) . " />";
+        
+        $image = substr($lines, strpos($lines, "<a class=\"underline\""));
+        $image = substr($image, 0, strpos($image, "</a>"));
+        
+        
+        
+        
+        
         $image = strip_tags($image, "<img>");
         
         //print("IMAGE: " . $image);
@@ -159,7 +164,7 @@ class bookx_fetch extends bookx_admin {
         //print("<br><br><br><br><br><br>");
         //print_r($this->parent->bookArray);
         //die();
-
+        return true;
     }    
     
 }  

@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
 Tested up to: 3.0.1
-Stable tag: 1.3
+Stable tag: 1.4
 
 A simple but powerful recommended book plugin.
 
@@ -27,13 +27,17 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>1.4</b><br />
+Fixed See Inside Image bug (<a href="http://code.google.com/p/suitex/issues/detail?id=53">Issue 53</a>)<br />
+Added Open Library fetching<br />
+Added the ability to fail over to the other fetch method if the default fails.<br />
+
+
 <b>1.3</b><br />
 Updated the fetch method for B&N's new page format (Caused problems on images) (<a href="http://code.google.com/p/suitex/issues/detail?id=52">Issue 52</a>)<br />
 
 <b>1.2</b><br />
 Fixed a bug with redirection after form submission<br />
-
-
 
 <b>1.1</b><br />
 Fixed a bug with overlapping variable scope with other SuiteX plugins.<br />

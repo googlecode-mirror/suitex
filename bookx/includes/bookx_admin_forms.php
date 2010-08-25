@@ -139,6 +139,7 @@ class bookx_admin_forms  {
             $this->parent->var->options['list_order_default']    = $_POST['list_order_default'];
             $this->parent->var->options['list_sort_default']     = $_POST['list_sort_default'];
             $this->parent->var->options['fetch']                 = $_POST['fetch'];
+            $this->parent->var->options['failover']              = $_POST['failover'];
             
             update_option('bookx_options', $this->parent->var->options);
             
@@ -172,6 +173,16 @@ class bookx_admin_forms  {
             $text .= "<option value=\"$f\" $s>" . $this->parent->var->fetchSourceArray[$f] . "&nbsp;&nbsp;&nbsp;&nbsp;</option>";
         }
         $text .= "</select></td></tr>";  
+        
+        $text .= "<tr class=\"form-field form-required\">";
+        $text .= "<th scope=\"row\" valign=\"top\"><label for=\"fetch\">If ISBN not found, try the other sources:</label></th>";
+        $text .= "<td><select name=\"failover\">";
+        foreach(array_keys($this->parent->var->filter) as $f){
+            if ($f == $this->parent->var->options["failover"]){ $s = "selected"; }
+            else { $s = ''; }
+            $text .= "<option value=\"$f\" $s>" . $this->parent->var->filter[$f] . "&nbsp;&nbsp;&nbsp;&nbsp;</option>";
+        }
+        $text .= "</select></td></tr>";          
                 
         $text .= "<tr class=\"form-field form-required\">";
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"per_page\"># per page:</label></th>";
