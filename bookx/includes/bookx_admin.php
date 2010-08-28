@@ -184,7 +184,7 @@ class bookx_admin {
         $text = "<a href=\"" . $this->baseURL . "&sub=admin\">BookX Options</a>";
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=list\">View Books</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=form\">Add New Book</a>"; 
-        //$text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=refresh&_wpnonce=" . $this->nonce . "\">Refresh Book List</a>";
+        $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=refresh&_wpnonce=" . $this->nonce . "\">Refresh Book List</a>";
         $text .= "<script type='text/javascript' src='" . BOOKX_URL. "suitex/suitex.js'></script>"; 
         
         $text .= "<link rel='stylesheet' href='" . BOOKX_URL . "css/style.css' type='text/css' />";
@@ -197,8 +197,7 @@ class bookx_admin {
         
         if ($this->bookx_getFetch()){
             $this->fetchObj->bookx_fetchItem($isbn);
-
-            if ($this->var->options["failover"] == 0){
+            if ($this->var->options["failover"] == 0 && $this->bookArray["name"] == ''){
                 $this->bookArray = array();
                 return false;
             }
@@ -219,7 +218,7 @@ class bookx_admin {
     }
     
     function bookx_getFetch(){
-        if (!$this->tried){ $fetch = $this->var->options["fetch"]; }
+        if (!$this->tried || count($this->tried) == 0){ $fetch = $this->var->options["fetch"]; }
         else {
             foreach(array_keys($this->var->fetchSourceArray) as $f){
                 if (!in_array($f, $this->tried)){
@@ -249,7 +248,7 @@ class bookx_admin {
     */
     
     function bookx_refreshAll($importSkipNonce=false){
-        $this->bookx_get_fetch();
+        
         
         
         if ($importSkipNonce != true){ 
@@ -262,27 +261,21 @@ class bookx_admin {
         $result = $this->wpdb->get_results($sql);
         
         foreach($result as $row){
+            $this->tried = array();
             $this->bookArray = array();
-            $this->fetchObj->bookx_fetchItem($row->bx_item_isbn);
-
-            $sql = "update " . $this->wpdb->prefix . "bx_item set ";
-            foreach(array_keys($this->bookArray) as $key){     
-                if ($key != "summary"){
-                    $sql .= "bx_item_" . $key . " = '" . addslashes($this->bookArray[$key]) . "', ";
-                }    
-                else if ($row->bx_item_no_update_desc != 1){
-                    $sql .= "bx_item_summary = '" . addslashes($this->bookArray["summary"]) . "', ";
+            $this->bookx_startFetch($row->bx_item_isbn); 
+            
+            if ($this->bookArray["name"] != ''){
+            
+                $sql = "update " . $this->wpdb->prefix . "bx_item set ";
+                foreach(array_keys($this->bookArray) as $key){     
+                    if ($key != "summary"){$sql .= "bx_item_" . $key . " = '" . addslashes($this->bookArray[$key]) . "', "; }
+                    else if ($row->bx_item_no_update_desc != 1){ $sql .= "bx_item_summary = '" . addslashes($this->bookArray["summary"]) . "', ";  }
                 }
+                $sql .= "bx_item_date_added = " . time() . " where bx_item_id = " . $row->bx_item_id . " limit 1";
+                $this->wpdb->query($sql);
             }
-
-            $sql .= "bx_item_date_added = " . time() . " where bx_item_id = " . $row->bx_item_id . " limit 1";
-            
-            $this->wpdb->query($sql);
-            if ($this->die){ print("<br><br>$sql<br><br>"); die();}
-            
-            
         }
-        
         
         $url = $this->baseURL . "&code=$code";
         $text = "<script language=\"javascript\">";
@@ -471,6 +464,7 @@ class bookx_admin {
         
         $comments = str_replace("\r\n", "<br />", strip_tags(htmlentities($_POST["comments"])));
         if ($_POST["action"] != "adds"){ 
+            
             $this->bookx_startFetch(strip_tags($_POST["isbn"])); 
         }        
         
@@ -523,6 +517,7 @@ class bookx_admin {
             $code = "a";
         }
         else if ($_POST["action"] == "modify"){
+
             if ($this->bookArray["name"] == ''){
                 $this->forms->bookx_form("ISBN Number Not Found.");
                 return false;

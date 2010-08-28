@@ -11,7 +11,7 @@ class bookx_fetch_bn {
     * Fetches book information based on the isbn
     * 
     * @param    mixed   $isbn
-    * @return   array   $this->bookArray
+    * @return   array   $this->parent->bookArray
     */
         
     function bookx_fetchItem($isbn){
@@ -57,7 +57,7 @@ class bookx_fetch_bn {
         $titleLine = substr($lines, strpos($lines, "<h1>"));
         $titleLine = substr($titleLine, 0, strpos($titleLine, "</h1>"));
         $titleLine = strip_tags($titleLine);
-        
+               
         
         $title = substr($titleLine, 0, strpos($titleLine, "by"));
         $title = trim(rtrim($title));

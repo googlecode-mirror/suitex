@@ -182,13 +182,13 @@ class bookx_functions {
         $row = $this->wpdb->get_row($this->wpdb->prepare($sql, $_GET["book_id"]));
         
         
-        if (substr_count($this->var->options["detailTemplate"], "::IMAGE::") && is_file($row->bx_item_image)){
+        if (substr_count($this->var->options["detailTemplate"], "::IMAGE::")){
             $doImage = true;            
         }
         
-        
-        if ($doImage){
-            $image = $row->bx_item_image;
+        $image = $row->bx_item_image;
+        if ($doImage && $image != ''){
+            
             
             $sourceWidth = substr($image, strpos($image, "width=\"") + 7);
             $sourceWidth = substr($sourceWidth, 0, strpos($sourceWidth, "\""));
@@ -314,11 +314,15 @@ class bookx_functions {
         }
         
         foreach($results as $row){
-            if ($doImage){
-                $image = $row->bx_item_image;
+            $image = $row->bx_item_image;
+            if ($doImage && $image != ''){
+                               
+                
             
                 $sourceWidth = substr($image, strpos($image, "width=\"") + 7);
                 $sourceWidth = substr($sourceWidth, 0, strpos($sourceWidth, "\""));
+                
+                
 
                 $sourceHeight = substr($image, strpos($image, "height=\"") + 8);
                 $sourceHeight = substr($sourceHeight, 0, strpos($sourceHeight, "\""));            

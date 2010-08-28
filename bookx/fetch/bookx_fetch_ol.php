@@ -65,17 +65,18 @@ class bookx_fetch_ol {
         
         
         $xml = new SimpleXMLElement($xmlData);    
-                
         $title = $xml->Description->title;
-        
-        
         $pages = $xml->Description->extent;
-        if ($pages == ''){ 
-            $pages = 0; 
-        }
 
-        //$image = "http://covers.openlibrary.org/books/isbn/" . $isbn . "-M.jpg";
-        $image = "<img src=\"http://covers.openlibrary.org/b/id/" . $isbn . "-M.jpg\" alt=\"$title\" border=\"0\" />";
+        if ($pages == ''){ $pages = 0; }
+
+        $imageSrc = "http://covers.openlibrary.org/b/id/" . $isbn . "-M.jpg";
+        if (!is_file($imageSrc)){
+            $image = '';    
+        }
+        else {
+            $image = "<img src=\"$imageSrc\" alt=\"$title\" border=\"0\" height=\"" . $this->var->options["list_image_height"] . "\" width=\"" . $this->var->options["list_image_width"] . "\" />";
+        }
         foreach($xml->Description as $desc){
             $link = (string) $desc['about'];   
                 
@@ -83,7 +84,7 @@ class bookx_fetch_ol {
 
         $date = strtotime($xml->Description->issued);
 
-        if ($title != ''){ print("Working on $title <br />"); }
+        //if ($title != ''){ print("Working on $title <br />"); }
         flush();
         
         
