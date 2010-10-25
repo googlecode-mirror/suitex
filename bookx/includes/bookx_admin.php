@@ -624,12 +624,13 @@ class bookx_admin {
         $list->orderForm    = false;
         $list->filters      = false;
         $list->omit         = array("cb");
-        $this->paging       = true;
-        $this->pluginPath   = BOOKX_URL;
+        $list->paging       = true;
+        $list->pluginPath   = BOOKX_URL;
+        $list->setNum       = $this->numberPerPage;
         
         
         
-        $list->startList($headers, $url, $order, $sort, $rows, $limit, $this->numberPerPage);
+        $list->startList($headers, $url, $order, $sort, $rows, $limit, $count);
         $text .= $list->text;
         $text .= "</div>";
         

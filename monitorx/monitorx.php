@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: bookX
-Plugin URI: http://www.thisrand.com/scripts/bookx
-Description: Creates a recommended book list for both a sidebar widget and page based solely on ISBN numbers.
-Version: 1.6
+Plugin Name: MonitorX
+Plugin URI: http://www.thisrand.com/scripts/monitorx
+Description: A plugin to monitor and manage mulitple Wordpress installations.  Includes uptime monitoring, plugin updates, version updates, cross logins (login once across all sites).
+Version: 0.1
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
@@ -27,7 +27,7 @@ Author URI: http://www.thisrand.com
 */
 
 /**
- * A recommended book plugin
+ * A SVN display plugin
  * @since 2.6
  */
 if ( ! defined( 'WP_CONTENT_URL' ) )
@@ -38,34 +38,39 @@ if ( ! defined( 'WP_PLUGIN_URL' ) )
       define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
 if ( ! defined( 'WP_PLUGIN_DIR' ) )
       define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
-      
-define(BOOKX_DIR, WP_PLUGIN_DIR . '/bookx/');  
-define(BOOKX_URL, WP_PLUGIN_URL . '/bookx/'); 
 
-require_once(BOOKX_DIR . 'includes/bookx_var.php');
-$var = new bookx_var();
+define(MONITORX_DIR, WP_PLUGIN_DIR . '/monitorx/');  
+define(MONITORX_URL, WP_PLUGIN_URL . '/monitorx/'); 
 
-require_once(BOOKX_DIR . 'includes/bookx_functions.php');  
-$obj                    = new bookx_functions();
-$obj->var               = $var;
-add_action('wp', array($obj, 'bookx_init'));
 
-if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){  
-    require_once(BOOKX_DIR . 'includes/bookx_admin.php');
-    $adminObj               = new bookx_admin();
-    $adminObj->var          = $var;
-    add_action('admin_menu', array($adminObj, 'bookx_adminMenu')); 
-    register_activation_hook(__FILE__, array($adminObj, 'bookx_install'));
-    register_deactivation_hook(__FILE__, array($adminObj, 'bookx_uninstall'));
+$options = get_option('monitorx_options');      
+ 
+require_once(MONITORX_DIR . 'includes/monitorx_functions.php');
+
+$obj = new monitorx_functions();
+$obj->options = $options;
+ 
+ if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){           
+    require_once(MONITORX_DIR . 'includes/monitorx_admin.php');
+    $adminObj               = new monitorx_admin();
+    $adminObj->options      = $options;    
+    $adminObj->obj          = $obj;
+    add_action('admin_menu', array($adminObj, 'monitorx_adminMenu')); 
+    register_activation_hook(__FILE__, array($adminObj, 'monitorx_install'));
+    register_deactivation_hook(__FILE__, array($adminObj, 'monitorx_uninstall'));
 }
 
-require_once(BOOKX_DIR . 'includes/bookx_widget.php');   
-$widgetObj              = new bookx_widget();
-$widgetObj->var         = $var;
-add_action('widgets_init', array($widgetObj, 'bookx_widget_init'));   
 
 
 
+add_action('wp', array($obj, 'monitorx_init'));
+  
 
+//Check Versions
+//Check Plugins
+//MulitX Login
+//Check Uptime
+
+//Cron or Manual
 
 ?>

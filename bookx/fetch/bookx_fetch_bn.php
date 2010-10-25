@@ -18,13 +18,15 @@ class bookx_fetch_bn {
 
 
         $url = 'http://search.barnesandnoble.com/books/product.aspx?ean=' . $isbn;
+        
+        
 
-        if (function_exists('curl_init')){
+        if (function_exists('curl_exec')){
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url );
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             $lines = curl_exec($ch);
-            curl_close($ch);
+            curl_close($ch); 
         }
         else {
             $lines = file_get_contents($url);

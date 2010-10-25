@@ -1,4 +1,4 @@
 <?php 
- $config->setSvnConfigDir('/tmp');
- $config->setSVNCommandPath('/usr/local/bin'); 
+ $config->setSvnConfigDir('C:\tmp');
+ $config->setSVNCommandPath('C:\Program Files (x86)\Subversion\bin'); 
  ?>

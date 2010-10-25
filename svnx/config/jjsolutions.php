@@ -1,3 +1,3 @@
 <?php 
- $config->addRepository('JJ Solutions', 'svn://www.xmtek.net/jj', null, 'ryan', 'hummer01'); 
+ $config->addRepository('J+J Solutions', 'svn://www.xmtek.net/jj-new', null, 'ryan', 'hummer01'); 
  ?>

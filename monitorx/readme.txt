@@ -1,15 +1,15 @@
-=== SVNX ===
+=== MonitorX ===
 Contributors: Xnuiem
-Donate link: http://www.thisrand.com/scripts/svnx
+Donate link: http://www.thisrand.com/scripts/monitorx
 Tags: plugin, content
 Requires at least: 2.9.0
 Tested up to: 2.9.2
 Stable tag: 0.1
 
-A plugin to show the contents of Subversion Repositories within your WP website.  Uses websvn as a base.        
+A plugin to monitor and manage mulitple Wordpress installations.  Includes uptime monitoring, plugin updates, version updates, cross logins (login once across all sites).       
 
 == Description ==
-SVNX allows you to setup a page for each Subversion repository, and display that page within your Wordpress website.  Security can be handled via Wordpress, as can CSS controls to customize the look and feel of the SVN files.  SVNX uses WebSVN as a backend.
+
 
 == Installation ==
 1. Upload the svnx directory to the `/wp-content/plugins/` directory
@@ -33,4 +33,3 @@ None Yet
 
 
 == Demos ==
-<a href="http://www.thisrand.com/scripts/svnx/demo" target="_new">this.rand()</a>

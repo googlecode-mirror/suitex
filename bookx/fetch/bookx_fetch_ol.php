@@ -17,7 +17,7 @@ class bookx_fetch_ol {
     function bookx_fetchItem($isbn){
         $url = 'http://www.openlibrary.org/search?isbn=' . $isbn;
 
-        if (function_exists('curl_init')){
+        if (function_exists('curl_exec')){
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url );
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

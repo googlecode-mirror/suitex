@@ -143,6 +143,8 @@ class bookx_admin_forms  {
             
             update_option('bookx_options', $this->parent->var->options);
             
+            
+            
                         
 
         }
@@ -221,7 +223,7 @@ class bookx_admin_forms  {
         $text .= "<th scope=\"row\" valign=\"top\"><label for=\"image_size\">Enable Search:</label></th>";
         $text .= "<td><select name=\"list_search\">";
         foreach(array_keys($this->parent->var->filter) as $f){
-            if ($a == $this->parent->var->options['list_search']){ $s = "selected"; }
+            if ($f == $this->parent->var->options['list_search']){ $s = "selected"; }
             else { $s = ''; }
             $text .= "<option value=\"$f\" $s>" . $this->parent->var->filter[$f] . "</option>";
         }
