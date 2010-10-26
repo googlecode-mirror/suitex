@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
 Tested up to: 3.0.1
-Stable tag: 1.6
+Stable tag: 1.7
 
 A simple but powerful recommended book plugin.
 
@@ -27,6 +27,10 @@ all customizable from the easy to use admin interface.
 None Yet
 
 == Change Log ==
+<b>1.7</b><br />
+Fixed export bugs (<a href="http://code.google.com/p/suitex/issues/detail?id=61">Issue 61</a>)<br />
+Fixed require bug in suitex paging for list (<a href="http://code.google.com/p/suitex/issues/detail?id=62">Issue 62</a>)<br />
+
 <b>1.6</b><br />
 Fixed Book List admin view bug (<a href="http://code.google.com/p/suitex/issues/detail?id=58">Issue 58</a>)<br />
 Fixed error adding book bug (<a href="http://code.google.com/p/suitex/issues/detail?id=59">Issue 59</a>)<br />

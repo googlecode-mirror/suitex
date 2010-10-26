@@ -292,7 +292,7 @@ class bookx_functions {
             $url = $link . "?&order=$order&sort=$sort";
             
             
-            $pager = $listObj->paging($limit, $count, $url);
+            $pager = $listObj->createPaging($limit, $count, $url);
             $text .= "<div id=\"bookx_pager\">$pager</div>";
         }
         

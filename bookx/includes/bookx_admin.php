@@ -158,6 +158,7 @@ class bookx_admin {
                 $body .= "\"" . $row->bx_item_isbn . "\"|\"" . $row->bx_item_comments . "\"|\"" . $row->bx_item_sidebar . "\"|\"" . $row->bx_item_summary  . "\"|\"" . $row->bx_item_no_update_desc . "\"\r\n";
             }
         
+
             $fp = fopen(BOOKX_DIR . "export/" . $this->var->options["export"], "w");
             fwrite($fp, $body);
             fclose($fp);
@@ -439,11 +440,12 @@ class bookx_admin {
 
     function bookx_uninstall(){
         
-        $sql = "delete from `" . $this->wpdb->prefix . "posts` where `ID` = '" . $this->var->options['page_id'] . "' limit 1";
+        /*$sql = "delete from `" . $this->wpdb->prefix . "posts` where `ID` = '" . $this->var->options['page_id'] . "' limit 1";
         $this->wpdb->query($sql);
         $sql = "drop table " . $this->wpdb->prefix . "bx_item";
         $this->wpdb->query($sql);
         delete_option('bookx_options');  
+        */
 
     }
 

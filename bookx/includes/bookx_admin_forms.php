@@ -49,7 +49,7 @@ class bookx_admin_forms  {
             }
             if ($_GET["export"] == $this->parent->var->options["export"] && $this->parent->var->options["export"] != ''){
                 $text .= "<div class=\"bookxMessage\"><strong>Your export file has been created.</strong><br /><br /> ";
-                $text .= "<a href=\"" . BOOKX_URL . "bookx_export.php?file=" . $this->parent->var->options["export"] . "\">Download Book List</a>";
+                $text .= "<a href=\"" . BOOKX_URL . "includes/bookx_export.php?file=" . $this->parent->var->options["export"] . "\">Download Book List</a>";
                 $text .= "</div>";
             }  
 

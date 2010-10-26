@@ -7,7 +7,7 @@ header("Content-Disposition: attachment; filename=BookxBookList.txt");
 header("Content-Type: text/plain");
 
 
-$body = file_get_contents("export/" . $_GET["file"]);
+$body = file_get_contents("../export/" . $_GET["file"]);
 print($body);
 exit;
 
