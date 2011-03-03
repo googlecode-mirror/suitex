@@ -66,6 +66,4 @@ add_action('widgets_init', array($widgetObj, 'bookx_widget_init'));
 
 
 
-
-
 ?>
