@@ -414,7 +414,6 @@ class bookx_functions {
     
     function bookx_regenPage(){
         if (!get_post($this->var->options['page_id'])){
-            print("HERE");
             $page                   = array();
             $page['post_type']      = 'page';                                       
             $page['post_title']     = 'Recommended Books';
