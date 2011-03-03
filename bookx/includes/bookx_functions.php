@@ -397,6 +397,9 @@ class bookx_functions {
                 add_filter('the_content', array($this, 'bookx_stroke'));   
             }            
         }
+        else if ($_GET['regenbookx'] == 1){
+            $this->bookx_regenPage();
+        }
     }
     
     /**
@@ -407,6 +410,21 @@ class bookx_functions {
     function bookx_stroke(){
         $this->text = "<style type=\"text/css\">" . $this->var->options["css"] . "</style>"  . $this->text;
         return $this->text;
+    }
+    
+    function bookx_regenPage(){
+        if (!get_post($this->var->options['page_id'])){
+            print("HERE");
+            $page                   = array();
+            $page['post_type']      = 'page';                                       
+            $page['post_title']     = 'Recommended Books';
+            $page['post_name']      = 'booklist';
+            $page['post_status']    = 'publish';
+            $page['comment_status'] = 'closed';
+            $page['post_content']   = 'This page displays your BookX front end.';
+            $this->var->options['page_id'] = wp_insert_post($page);
+            update_option('bookx_options', $this->var->options);
+        }
     }
 }
 
