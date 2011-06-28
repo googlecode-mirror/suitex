@@ -360,10 +360,6 @@ class multiX {
             $text .= "<input type=\"hidden\" name=\"_wpnonce\" value=\"" . $this->nonce . "\" />";
             $text .= "<table class=\"form-table\">";
             $text .= "<tr class=\"form-field form-required\">";
-            $text .= "<th scope=\"row\" valign=\"top\"><label for=\"member_number\">Site Name</label></th>";
-            $text .= "<td><input type=\"text\" name=\"name\" value=\"" . $row->multix_name . "\" />";
-            $text .= "</td></tr>";
-            $text .= "<tr class=\"form-field form-required\">";
             $text .= "<th scope=\"row\" valign=\"top\"><label for=\"member_number\">Site URI</label></th>";
             $text .= "<td><input type=\"text\" name=\"uri\" value=\"" . $row->multix_uri . "\" />";
             $text .= "</td></tr>";
