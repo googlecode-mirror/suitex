@@ -4,7 +4,7 @@ Donate link: http://www.thisrand.com/scripts/multix
 Tags: automatic, integration, plugin, admin
 Requires at least: 2.6
 Tested up to: 3.1.3
-Stable tag: 0.3
+Stable tag: 0.4
 
 A lightweight script to allow for the seemless administration of multiple Wordpress websites that can reside on different servers and databases.
 
@@ -29,16 +29,23 @@ This usually means some part of the information is wrong.  Make sure the URI is 
 
 <b>0.1</b><br />
 Initial Version
+<br />
 
-<br /><br />
 <b>0.2</b><br />
 Added Dashboard Widget<br />
 Added Auto Add Site<br />
 Started Migrating to the SuiteX Framework Model<br />
+<br />
 
-<br /><br />
 <b>0.3</b><br />
 Fixed a bug with the confirmation window on "Generate New Key"<br />
+<br />
+
+<b>0.4</b><br />
+Fixed a bug in the CSS scope<br />
+
+
+
 
 == Screenshots==
 

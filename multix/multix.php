@@ -3,7 +3,7 @@
 Plugin Name: MultiX
 Plugin URI: http://www.thisrand.com/scripts/multix
 Description: A lightweight script to allow for the seemless administration of multiple Wordpress websites that can reside on different servers and databases.
-Version: 0.3
+Version: 0.4
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
