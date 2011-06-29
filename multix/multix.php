@@ -44,18 +44,7 @@ define(MULTIX_URL, WP_PLUGIN_URL . '/multix/');
 require_once(MULTIX_DIR . 'includes/multix_functions.php');
 
 
-global $suiteXLoaded;
 
-if (!$suiteXLoaded){
-        $suiteXLoaded = true;
-        //wp_deregister_script('jquery');
-        //wp_deregister_script('jquery-ui-core');
-        //wp_register_script('jquery', MULTIX_URL . 'suitex/js/jquery-1.5.1.min.js');
-        //wp_register_script('jquery-ui-core', MULTIX_URL . 'suitex/js/jquery-ui-1.8.13.custom.min.js');
-        //wp_register_script('jquery-validate', MULTIX_URL . 'suitex/js/jquery.validate.min.js');
-        wp_enqueue_script('suitex', MULTIX_URL . 'suitex/js/suitex.js');
-        //wp_localize_script('suitex', 'SuiteXAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
-}
 
 
 $obj = new multiX(); 
@@ -68,7 +57,6 @@ register_deactivation_hook(__FILE__, array($obj, 'multix_uninstall'));
 
 add_action('admin_menu', array($obj, 'multix_admin_menu'));
 add_action('plugins_loaded', array($obj, 'multix_api'));
-add_action('admin_head', array($obj, 'suitex_addCSS')); 
 add_action('wp_dashboard_setup', array($obj, 'multix_dashboard_setup'));
 
 

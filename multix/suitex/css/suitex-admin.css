@@ -36,7 +36,8 @@
     color: #000000 !important;
     padding: 2px 0;
 }
-#suitexContainer input[type="submit"]{
+#suitexContainer input[type="submit"], 
+#suitexContainer input[type="button"] {
     padding: 3px 8px; 
 }
 
@@ -65,6 +66,39 @@
     filter: alpha(opacity=70); 
 }
 
+#confirmWin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 200px;
+    width: 450px;
+    border: 2px solid black;
+    background: #FFFFFF;
+    text-align: left;
+    display: none;
+    z-index: 1000;
+    margin-left: -300px;
+    margin-top: -250px;   
+    padding: 0px;
+    text-align: center; 
+}
+
+#confirmWinText {
+    padding: 10px;
+    width: 100%;
+    height: 170px;
+}
+
+#buttonArea {
+    background-color: #D7D7D7;
+    width: 100%;
+    bottom: 0;
+    height: 30px;
+    text-align: right;
+    padding-top: 10px;
+    border-top: 1px solid #000000;
+}
+
 #alertWin {
     position: absolute;
     top: 50%;
@@ -81,6 +115,5 @@
     margin-top: -250px;   
     padding: 10px;
     text-align: center; 
-    
-    
 }
+

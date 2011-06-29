@@ -30,7 +30,11 @@ class multiX {
         * @param NULL
         * @return NULL
         */
-
+                
+        if (!is_plugin_active('phpx/phpx.php')){
+            die('MultiX requires the PHPX Framework.  Please install PHPX and then reinstall MutliX.');
+        }
+        
         if (!get_option('multix_options')){
             $sql = "CREATE TABLE `" . $this->wpdb->prefix . "multix` (`multix_id` int(10) NOT NULL AUTO_INCREMENT,`multix_name` varchar(50) NOT NULL,`multix_uri` varchar(255) NOT NULL,`multix_key` varchar(255) NOT NULL, PRIMARY KEY (`multix_id`)) ENGINE=MyISAM";
             $this->wpdb->query($sql);
@@ -69,10 +73,10 @@ class multiX {
     
     
     function multix_stroke($text){
-        $body = '<div id="suitexContainer">'; 
+        $body = '<div id="phpxContainer">'; 
         $body .= $this->adminHeaderMenu();
         $body .= $text;
-        $body .= '<div id="dimmer"></div><div id="alertWin"></div>';
+        $body .= '<div id="dimmer"></div><div id="confirmWin"><div id="confirmWinText"></div><div id="buttonArea"></div></div>';
         $body .= '</div>';
         print($body);
         
@@ -199,7 +203,7 @@ class multiX {
         $text .= "<br /><br />";
         $text .= "The current website key is: " . $this->options["key"];
         
-        require_once(MULTIX_DIR . 'suitex/suitex_list.php');
+        require_once(PHPX_DIR . 'phpx_list.php');
         
         $headers["multix_name"] = "Website Name";
         $headers["multix_uri"] = "Website URI";
@@ -223,7 +227,7 @@ class multiX {
             $rows[$row->multix_id] = array($row->multix_name, $row->multix_uri, $loginForm);
         }
         
-        $list = new suitex_list();
+        $list = new phpx_list();
         $list->search       = false;
         $list->orderForm    = false;
         $list->filters      = false;
@@ -473,18 +477,13 @@ class multiX {
         }
     }
     
-    function suitex_addCSS(){        
-        if (is_admin()){
-            print('<link type="text/css" rel="stylesheet" href="' . MULTIX_URL . 'suitex/css/suitex-admin.css" />');         
-        }
-    }
     
     function multix_dashboard_setup(){
         wp_add_dashboard_widget('multix_sites', 'MultiX Sites', array($this, 'multix_dashboard'));
     }
     
     function multix_dashboard(){
-        require_once(MULTIX_DIR . 'suitex/suitex_list.php');
+        require_once(PHPX_DIR . 'phpx_list.php');
         $text = 'Click on a link below to be taken and automatically logged into that website.<br /><br />';
         
         $result = $this->wpdb->get_results('select * from ' . $this->wpdb->prefix . 'multix');
@@ -495,7 +494,7 @@ class multiX {
         //$headers["Login"] = "Login";
         
         foreach($result as $row){
-            $loginForm = "<form method=\"post\" action=\"" . $row->multix_uri . "\" class=\"suitex\">";
+            $loginForm = "<form method=\"post\" action=\"" . $row->multix_uri . "\" class=\"phpx\">";
             $loginForm .= "<input type=\"hidden\" name=\"multix_login\" value=\"1\" />";
             $loginForm .= "<input type=\"hidden\" name=\"log\" value=\"" . $current_user->user_login . "\" />";
             $loginForm .= "<input type=\"hidden\" name=\"token\" value=\"" . $this->options["key"] . "\" />";
@@ -507,7 +506,7 @@ class multiX {
             $rows[$row->multix_id] = array($row->multix_name, $loginForm);
         }
         
-        $list = new suitex_list();
+        $list = new phpx_list();
         $list->search       = false;
         $list->orderForm    = false;
         $list->filters      = false;
