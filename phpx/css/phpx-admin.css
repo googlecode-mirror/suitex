@@ -1,0 +1,119 @@
+#suitexContainer form label { width: 250px; float: left; font-weight: bold; }
+#suitexContainer em { font-weight: bold; padding-right: 1em; vertical-align: top; color: #ff0000; }
+#suitexContainer .error {
+    font-weight: normal;
+}
+
+#suitexContainer label.error { 
+    float: none; 
+    color: #ff0000;
+    font-weight: bold; 
+    padding-left: .5em; 
+    vertical-align: middle; 
+}
+
+#suitexContainer p { clear: both; }
+
+#suitexContainer .entry-content input, 
+#suitexContainer .entry-content select  { 
+    margin: 0; 
+}
+
+#suitexContainer fieldset {
+    border: 1px solid #DFDFDF;
+    margin-bottom: 10px;
+}
+
+#suitexContainer fieldset legend {
+    border: 1px solid #DFDFDF;
+    padding: 5px; 
+    font-size: 12px;
+    font-weight: bold;
+}
+
+#suitexContainer input, 
+#suitexContainer select {
+    color: #000000 !important;
+    padding: 2px 0;
+}
+#suitexContainer input[type="submit"], 
+#suitexContainer input[type="button"] {
+    padding: 3px 8px; 
+}
+
+
+#suitexContainer input[type=text]  { 
+    width: 300px; 
+}
+
+#suitexContainer div.status { 
+    font-weight: bold;
+    padding: 10px 0 10px 25px;
+}
+
+#dimmer {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 500;
+    display: none;
+    text-align: center;
+    background-color: rgb(0, 0, 0);
+    opacity: 0.7; 
+    -moz-opacity:0.70; 
+    filter: alpha(opacity=70); 
+}
+
+#confirmWin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 200px;
+    width: 450px;
+    border: 2px solid black;
+    background: #FFFFFF;
+    text-align: left;
+    display: none;
+    z-index: 1000;
+    margin-left: -300px;
+    margin-top: -250px;   
+    padding: 0px;
+    text-align: center; 
+}
+
+#confirmWinText {
+    padding: 10px;
+    width: 100%;
+    height: 170px;
+}
+
+#buttonArea {
+    background-color: #D7D7D7;
+    width: 100%;
+    bottom: 0;
+    height: 30px;
+    text-align: right;
+    padding-top: 10px;
+    border-top: 1px solid #000000;
+}
+
+#alertWin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 200px;
+    width: 300px;
+    border: 2px solid black;
+    background: #FFFFFF;
+    text-align: left;
+    display: none;
+    z-index: 1000;
+    padding-top: 10px; 
+    margin-left: -300px;
+    margin-top: -250px;   
+    padding: 10px;
+    text-align: center; 
+}
+

@@ -1,0 +1,192 @@
+#dimmer {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 500;
+    display: none;
+    text-align: center;
+    background-color: rgb(0, 0, 0);
+    opacity: 0.7; 
+    -moz-opacity:0.70; 
+    filter: alpha(opacity=70); 
+}
+
+#alertWin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 200px;
+    width: 300px;
+    border: 2px solid black;
+    background: #FFFFFF;
+    text-align: left;
+    display: none;
+    z-index: 1000;
+    padding-top: 10px; 
+    margin-left: -300px;
+    margin-top: -250px;   
+    padding: 10px;
+    text-align: center; 
+    
+    
+}
+
+#noteWin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 300px;
+    width: 500px;
+    border: 2px solid black;
+    background: #FFFFFF;
+    text-align: left;
+    display: none;
+    z-index: 1000;
+    padding-top: 10px; 
+    margin-left: -300px;
+    margin-top: -250px;   
+    padding: 10px;
+    text-align: center; 
+    
+    
+}
+
+#adjWin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 375px;
+    width: 500px;
+    border: 2px solid black;
+    background: #FFFFFF;
+    text-align: left;
+    display: none;
+    z-index: 1000;
+    padding-top: 10px; 
+    margin-left: -300px;
+    margin-top: -250px;   
+    padding: 10px;
+    text-align: center; 
+}
+
+
+
+
+/* CSS Document */
+.calendar {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1em;
+    }
+.calendar caption {
+    background: url("../js/redmond/images/ui-bg_gloss-wave_55_5c9ccc_500x100.png") repeat-x scroll 50% 50% #5C9CCC;
+    border: 1px solid #4297D7;
+    color: #FFFFFF;
+    font-weight: bold;
+    
+    }
+.calendar th {
+    border-bottom: 1px solid #ccc;
+    font-weight: normal;
+    background: #fff;
+    }
+.calendar td {
+    border: 1px solid #fff;
+    padding: .1em .3em ;
+    width: 1em;
+    text-align: center;
+    }
+.calendar a {
+    color: #000;
+    text-decoration: none;
+    }
+
+.calendar td.today {
+    background: #ffc;
+    }
+.calendar td.selected {
+    border: 1px dotted #ff7800;
+    }
+.calendar td.highlighted {
+    background: #fc9;
+    }
+    
+.calendar td:hover, .calendar td.today:hover, 
+.calendar td.selected:hover, .calendar td.highlighted:hover {
+    background: #cff;
+    border: 1px solid #09f;
+    }
+
+table.calendar td.pad {
+    color: #999;
+    background: #fff;
+    }
+table.calendar td.pad:hover {
+    background: none;
+    border: 0;
+    }
+    
+.sunday, .saturday {
+    background: #f0f0f0;
+    }
+    
+#year {
+    padding: 0;
+    width: 500px;
+    list-style: none;
+    }
+#year:after {
+    content: "";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+    }
+#year li {
+    float: left;
+    padding: 0 .5em .5em 0;
+    height: 150px;
+    }
+
+.calendar td.passed a {
+    color: #eeeeee;
+}
+
+form label { width: 250px; float: left; font-weight: bold; }
+em { font-weight: bold; padding-right: 1em; vertical-align: top; color: #ff0000; }
+.error {
+    font-weight: normal;
+}
+label.error { 
+    float: none; 
+    color: #ff0000;
+    font-weight: bold; 
+    padding-left: .5em; 
+    vertical-align: middle; 
+}
+p { clear: both; }
+.entry-content input, .entry-content select  { margin: 0; }
+form fieldset {
+    border: 1px solid #DFDFDF;
+    margin-bottom: 10px;
+}
+
+form fieldset legend {
+    border: 1px solid #DFDFDF;
+    padding: 5px; 
+    font-size: 12px;
+    font-weight: bold;
+}
+
+input, select {
+    color: #000000 !important;
+    padding: 2px 0;
+    
+}
+
+.postbox input[type=text]  { 
+    width: 300px; 
+}
