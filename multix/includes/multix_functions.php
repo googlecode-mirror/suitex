@@ -71,6 +71,7 @@ class multiX {
     function multix_stroke($text){
         $body = $this->adminHeaderMenu();
         $body .= $text;
+        $body .= '<div id="dimmer"></div><div id="alertWin"></div>';
         print($body);
         
     }
@@ -87,7 +88,7 @@ class multiX {
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=list\">List Sites</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"" . $this->baseURL . "&sub=form\">Add Site</a>"; 
         $text .= "&nbsp;&nbsp;<a href=\"javascript:confirmAction('Are you sure?  This will invalidate all incoming authentication requests until the new key is populated.', '" . $this->baseURL . "&sub=generate');\">Generate New Key</a>";        
-        $text .= "<script type='text/javascript' src='" . $this->pluginURL . "suitex.js'></script>"; 
+        
         return $text;
     }   
      
@@ -376,7 +377,7 @@ class multiX {
             $text .= "</p></form></div></div>";        
         }            
         $text .= "</div></div>";
-        $text .= '<div id="dimmer"></div><div id="alertWin"></div>';
+        
          
         $this->text = $text;
     }
