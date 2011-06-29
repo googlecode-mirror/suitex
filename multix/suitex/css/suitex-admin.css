@@ -1,44 +1,51 @@
-form label { width: 250px; float: left; font-weight: bold; }
-.suitex em { font-weight: bold; padding-right: 1em; vertical-align: top; color: #ff0000; }
-.suitex .error {
+#suitexContainer form label { width: 250px; float: left; font-weight: bold; }
+#suitexContainer em { font-weight: bold; padding-right: 1em; vertical-align: top; color: #ff0000; }
+#suitexContainer .error {
     font-weight: normal;
 }
-.suitex label.error { 
+
+#suitexContainer label.error { 
     float: none; 
     color: #ff0000;
     font-weight: bold; 
     padding-left: .5em; 
     vertical-align: middle; 
 }
-p { clear: both; }
-.entry-content .suitex input, .entry-content .suitex select  { margin: 0; }
-form.suitex fieldset {
+
+#suitexContainer p { clear: both; }
+
+#suitexContainer .entry-content input, 
+#suitexContainer .entry-content select  { 
+    margin: 0; 
+}
+
+#suitexContainer fieldset {
     border: 1px solid #DFDFDF;
     margin-bottom: 10px;
 }
 
-form.suitex fieldset legend {
+#suitexContainer fieldset legend {
     border: 1px solid #DFDFDF;
     padding: 5px; 
     font-size: 12px;
     font-weight: bold;
 }
 
-.suitex input, 
-.suitex select {
+#suitexContainer input, 
+#suitexContainer select {
     color: #000000 !important;
     padding: 2px 0;
 }
-.suitex input[type="submit"]{
+#suitexContainer input[type="submit"]{
     padding: 3px 8px; 
 }
 
 
-.postbox .suitex input[type=text]  { 
+#suitexContainer input[type=text]  { 
     width: 300px; 
 }
 
-div.status { 
+#suitexContainer div.status { 
     font-weight: bold;
     padding: 10px 0 10px 25px;
 }

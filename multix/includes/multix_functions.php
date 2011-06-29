@@ -69,9 +69,11 @@ class multiX {
     
     
     function multix_stroke($text){
-        $body = $this->adminHeaderMenu();
+        $body = '<div id="suitexContainer">'; 
+        $body .= $this->adminHeaderMenu();
         $body .= $text;
         $body .= '<div id="dimmer"></div><div id="alertWin"></div>';
+        $body .= '</div>';
         print($body);
         
     }
