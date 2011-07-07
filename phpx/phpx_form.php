@@ -294,7 +294,8 @@ class phpx_form {
     }
     
     function hidden($name, $value=''){
-        $this->text .= "<input type=\"hidden\" name=\"" . $name . "\" value=\"" . $value . "\" />";
+        $this->text .= "<input type=\"hidden\" name=\"" . $name . "\" value=\"" . $value . "\" id=\"" . $this->idSet . "\" />";
+        $this->idSet++;
     }
     
     function freeField($label, $value){
