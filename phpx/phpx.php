@@ -39,15 +39,26 @@ if (!defined('WP_PLUGIN_DIR')){  define('WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plug
 define(PHPX_DIR, WP_PLUGIN_DIR . '/phpx/');  
 define(PHPX_URL, WP_PLUGIN_URL . '/phpx/'); 
 
-wp_deregister_script('jquery');
-wp_deregister_script('jquery-ui-core');
-wp_register_script('jquery', PHPX_URL . 'suitex/js/jquery-1.5.1.min.js');
-wp_register_script('jquery-ui-core', PHPX_URL . 'suitex/js/jquery-ui-1.8.13.custom.min.js');
-wp_register_script('jquery-validate', PHPX_URL . 'suitex/js/jquery.validate.min.js');
-wp_enqueue_script('phpx', PHPX_URL . 'js/phpx.js');
+if (!session_id()){ session_start(); }
 
-add_action('admin_head', 'phpx_addCSS'); 
-add_action('wp_head', 'phpx_addCSS'); 
+
+if (!is_admin()){
+    wp_deregister_script('jquery');
+    wp_deregister_script('jquery-ui-core');
+    wp_register_script('jquery', PHPX_URL . 'js/jquery-1.5.1.min.js');
+    wp_register_script('jquery-ui-core', PHPX_URL . 'js/jquery-ui-1.8.13.custom.min.js');
+    wp_register_script('jquery-validate', PHPX_URL . 'js/jquery.validate.min.js');
+    wp_enqueue_script('phpx', PHPX_URL . 'js/phpx.js', array('jquery', 'jquery-ui-core', 'jquery-validate', 'jquery-form'));
+    add_action('wp_head', 'phpx_addCSS'); 
+}
+else {
+    add_action('admin_head', 'phpx_addCSS');    
+    wp_register_script('jquery-validate', PHPX_URL . 'js/jquery.validate.min.js');
+    wp_enqueue_script('phpx', PHPX_URL . 'js/phpx.js', array('jquery', 'jquery-ui-core', 'jquery-validate', 'jquery-form'));
+}
+
+
+
 
 register_activation_hook(__FILE__, 'phpx_install');
 register_deactivation_hook(__FILE__, 'phpx_uninstall');
@@ -55,10 +66,13 @@ register_deactivation_hook(__FILE__, 'phpx_uninstall');
 function phpx_addCSS(){        
     if (is_admin()){
         print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'css/phpx-admin.css" />');         
+        //print('<script>$.noConflict();</script>');
+        
     }
     else {
-        print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'css/phpx.css" />');  
-        print('<meta name="generator" content="phpX Framework" />');
+        print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'css/phpx.css" />' . "\n");  
+        print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'jquery-themes/redmond/jquery-theme.css" />' . "\n");   
+        print('<meta name="framework" content="phpX Framework 0.1" />' . "\n");
        
     }
 }
