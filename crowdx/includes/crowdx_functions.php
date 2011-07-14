@@ -28,13 +28,10 @@ class crowdx_functions {
     }
     
     function crowdx_login(){
+        die("HERE");
         print_r($_POST);
         $url = $this->options['server'] . '/rest/usermanagement/latest/authentication?username=' . $_POST['log'];
-        <?xml version="1.0" encoding="UTF-8"?>
-<password>
-  <value>Password</value>
-</password>
-        print($url);
+
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);

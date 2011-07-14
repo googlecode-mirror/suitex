@@ -48,7 +48,7 @@ $crowdxOptions   = get_option('crowdx_options');
 require_once(CROWDX_DIR . 'includes/crowdx_functions.php');  
 $obj                    = new crowdx_functions();
 $obj->options           = $crowdxOptions;
-add_action('wp_authenticate', array($obj, 'crowdx_login'));
+add_action('wp_login', array($obj, 'crowdx_login'));
 
 if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){  
     require_once(CROWDX_DIR . 'includes/crowdx_admin.php');
