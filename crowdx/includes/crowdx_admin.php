@@ -106,6 +106,9 @@ class crowdx_admin {
         $form->dropDown('Enabled', 'enable', $this->options['enable'], array('Off', 'On'));
         $form->dropDown('All Users', 'all_users', $this->options['all_users'], array('Off', 'On'));
         $form->textField('URL to Crowd Server', 'server', $this->options['server']);
+        $form->textField('Application Name', 'app_name', $this->options['app_name'], true);
+        $form->textField('Application Password', 'app_pass', $this->options['app_pass'], true);
+        
         $form->endForm('Submit');
         $text .= $form->text;
         $text .= '</div></div></div></div></div></div>';

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: CrowdX
-Plugin URI: http://www.thisrand.com/scripts/crowd
+Plugin URI: http://www.thisrand.com/scripts/crowdx
 Description: A plugin to connect Wordpress to Atlassian Crowd
 Version: 0.1
 Author: Xnuiem
@@ -48,7 +48,14 @@ $crowdxOptions   = get_option('crowdx_options');
 require_once(CROWDX_DIR . 'includes/crowdx_functions.php');  
 $obj                    = new crowdx_functions();
 $obj->options           = $crowdxOptions;
-add_action('wp_login', array($obj, 'crowdx_login'));
+
+
+
+
+if ($crowdxOptions['enable'] == 1){
+    
+    //add_action('wp_login', array($obj, 'crowdx_login'));
+}
 
 if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){  
     require_once(CROWDX_DIR . 'includes/crowdx_admin.php');

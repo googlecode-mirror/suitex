@@ -28,25 +28,34 @@ class crowdx_functions {
     }
     
     function crowdx_login(){
-        die("HERE");
-        print_r($_POST);
-        $url = $this->options['server'] . '/rest/usermanagement/latest/authentication?username=' . $_POST['log'];
+        
+        $client = new SoapClient($this->options['server'] . 'services/SecurityServer?wsdl');
+        
+        $param = array('in0' => array('credential' => array('credential' => $this->options['app_pass']), 'name' => $this->options['app_name']));
+        $resp = $client->authenticateApplication($param);
+        
+        print_r($resp);
+        die();
+        
+        $param1 = array('in0' => array('name'               => $this->options['app_name'],
+                                      'token'               => $resp->out->token),
+                       'in1' => array('application'         => $this->options['app_name'],
+                                      'credential'          => array('credential' => $_POST['pwd']),
+                                      'name'                => $_POST['log'],
+                                      'validationFactors'   => array()));
+                                      
+        try {
+            $resp1 = $client->authenticatePrincipal($param1);
+            return true;
+        }
+        catch (SoapFault $fault) {
+            wp_clear_auth_cookie(); 
+            return false;
+        }
 
         
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $fieldString);
-        $response = curl_exec($ch);
-        print($response);
-        flush();
-        curl_close($ch);
         
-        die("HERE");
+        
         
     }
     
