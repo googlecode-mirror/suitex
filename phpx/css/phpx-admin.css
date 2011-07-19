@@ -47,6 +47,7 @@
 }
 
 #phpxContainer div.status { 
+    color: #FF0000;
     font-weight: bold;
     padding: 10px 0 10px 25px;
 }
