@@ -6,6 +6,9 @@ class phpx_page {
 	var $scope = 'admin';
 	
 	public function startPage($title='', $status=''){
+        $status = ($status != '') ? '<div class="status">' . $status . '</div>' : '';
+        
+        
         $text = '<div class="wrap">';
         $text .= '<h2>' . $title . '</h2>';
         $text .= '<div id="poststuff" class="metabox-holder">';
