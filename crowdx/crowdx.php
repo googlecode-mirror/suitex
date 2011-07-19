@@ -30,14 +30,10 @@ Author URI: http://www.thisrand.com
  * A plugin to connect Wordpress to Atlassian Crowd
  * @since 2.6
  */
-if ( ! defined( 'WP_CONTENT_URL' ) )
-      define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' );
-if ( ! defined( 'WP_CONTENT_DIR' ) )
-      define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
-if ( ! defined( 'WP_PLUGIN_URL' ) )
-      define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' );
-if ( ! defined( 'WP_PLUGIN_DIR' ) )
-      define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
+if (!defined('WP_CONTENT_URL')){ define('WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' ); }
+if (!defined('WP_CONTENT_DIR')){ define('WP_CONTENT_DIR', ABSPATH . 'wp-content' ); }
+if (!defined('WP_PLUGIN_URL')){  define('WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' ); }
+if (!defined('WP_PLUGIN_DIR')){  define('WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' ); }
       
 define(CROWDX_DIR, WP_PLUGIN_DIR . '/crowdx/');  
 define(CROWDX_URL, WP_PLUGIN_URL . '/crowdx/'); 
@@ -53,8 +49,7 @@ $obj->options           = $crowdxOptions;
 
 
 if ($crowdxOptions['enable'] == 1){
-    
-    //add_action('wp_login', array($obj, 'crowdx_login'));
+	add_action('wp_authenticate', array($obj, 'crowdx_login'));	
 }
 
 if (substr_count($_SERVER["REQUEST_URI"], "wp-admin") != 0){  

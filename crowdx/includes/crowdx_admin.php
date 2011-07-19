@@ -52,8 +52,8 @@ class crowdx_admin {
 
     function crowdx_install(){
         if (!get_option('crowdx_options')){
-            $sql = 'CREATE TABLE IF NOT EXISTS `' . $this->wpdb->prefix . '_cx_user` (  `wp_user_id` int(10) NOT NULL,  `cx_user_active` tinyint(1) NOT NULL DEFAULT \'0\',  UNIQUE KEY `wp_user_id` (wp_user_id`),  KEY `cx_user_active` (`cx_user_active`)) ENGINE=MyISAM DEFAULT CHARSET=latin1;';
-            $this->wpdb->query($sql);
+            //$sql = 'CREATE TABLE IF NOT EXISTS `' . $this->wpdb->prefix . '_cx_user` (  `wp_user_id` int(10) NOT NULL,  `cx_user_active` tinyint(1) NOT NULL DEFAULT \'0\',  UNIQUE KEY `wp_user_id` (wp_user_id`),  KEY `cx_user_active` (`cx_user_active`)) ENGINE=MyISAM DEFAULT CHARSET=latin1;';
+            //$this->wpdb->query($sql);
         
             $options = array();
             $options['enable'] = false;
@@ -86,32 +86,35 @@ class crowdx_admin {
                 
             }
             update_option('crowdx_options', $this->options);
-            $status = '<div class="suitexStatus">Options Updated</div>';
-        
+            $status = 'Options Updated';
         }
-        $text .= "<link rel='stylesheet' href='" . CROWDX_URL . "suitex/suitex.css' type='text/css' media='all' />";
-        $text .= "<div class=\"wrap\">";
-        $text .= "<h2>CrowdX Configuration</h2>";
-        $text .= "<div id=\"poststuff\" class=\"metabox-holder\">";
-        $text .= "<div id=\"post-body\" class=\"has-sidebar\">";
-        $text .= "<div id=\"post-body-content\" class=\"has-sidebar-content\">";
-        $text .= "<div class=\"postbox\">$status";
         
-        $text .= "<div class=\"inside\">";         
+        $userRoleArray = array();
+        $wp_roles = new WP_Roles();
+        foreach ($wp_roles->role_names as $role => $name){        
+            $userRoleArray[$role] = $name;    
+        }
         
-        require_once(CROWDX_DIR . 'suitex/suitex_form.php');
-        $form = new suitex_form();
+        
+        require_once(PHPX_DIR . 'phpx_page.php');
+    	require_once(PHPX_DIR . 'phpx_form.php');
+    	$page = new phpx_page();
+        $form = new phpx_form();
         $form->startForm($this->baseURL, "crowdxForm");
         $form->hidden("_wpnonce", wp_create_nonce());
         $form->dropDown('Enabled', 'enable', $this->options['enable'], array('Off', 'On'));
         $form->dropDown('All Users', 'all_users', $this->options['all_users'], array('Off', 'On'));
+        $form->dropDown('Auto Add New Users from Crowd', 'add_users', $this->options['add_users'], array('Off', 'On'));
+        $form->dropDown('User Role for Added Users', 'default_user_role', $this->options['default_user_role'], $userRoleArray);
+        $form->dropDown('Fallback to Internal WP Users', 'fallback', $this->option['fallback'], array('Off', 'On'));
         $form->textField('URL to Crowd Server', 'server', $this->options['server']);
         $form->textField('Application Name', 'app_name', $this->options['app_name'], true);
         $form->textField('Application Password', 'app_pass', $this->options['app_pass'], true);
         
         $form->endForm('Submit');
-        $text .= $form->text;
-        $text .= '</div></div></div></div></div></div>';
+
+        $text = $page->startPage('CrowdX Configuration', $status) . $form->text . $page->endPage();
+        
         print($text);
     }
     
