@@ -3,8 +3,8 @@ Contributors: Xnuiem
 Donate link: http://www.thisrand.com/scripts/multix
 Tags: automatic, integration, plugin, admin
 Requires at least: 2.6
-Tested up to: 3.1.3
-Stable tag: 0.4
+Tested up to: 3.2.1
+Stable tag: 0.5
 
 A lightweight script to allow for the seemless administration of multiple Wordpress websites that can reside on different servers and databases.
 
@@ -13,6 +13,8 @@ A lightweight script to allow for the seemless administration of multiple Wordpr
 This plugin is a way for those of us that need to administer multiple Wordpress websites but don't have the luxury of having all those sites on the same server or database.  
 
 == Installation ==
+
+Note: This plugin, as of version 0.5, requires PHPX to be installed as well.
 
 1. Upload the multix directory to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
@@ -43,6 +45,9 @@ Fixed a bug with the confirmation window on "Generate New Key"<br />
 
 <b>0.4</b><br />
 Fixed a bug in the CSS scope<br />
+
+<b>0.5</b><br />
+Added Support for the PHPX Framework<br />
 
 
 
