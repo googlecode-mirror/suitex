@@ -2,7 +2,7 @@
 /*
 Plugin Name: phpX
 Plugin URI: http://www.phpx.org
-Description: 
+Description: A development framework plugin
 Version: 0.1
 Author: Xnuiem
 Author URI: http://www.thisrand.com
