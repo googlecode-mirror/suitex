@@ -3,14 +3,14 @@ Contributors: Xnuiem
 Donate link: http://www.thisrand.com
 Tags: plugin, content
 Requires at least: 2.6
-Tested up to: 3.1.4
+Tested up to: 3.2.1
 Stable tag: 0.1
 
 A plugin to connect Wordpress to Atlassian Crowd
 
 
 == Description ==
-A plugin to connect Wordpress to Atlassian Crowd for both Single Signon as well as User Authenication.  CrowdX will authenicate against all or only select users using custom fields.
+A plugin to connect Wordpress to Atlassian Crowd for both Single Signon as well as User Authenication.  
 
 
 == Installation ==
