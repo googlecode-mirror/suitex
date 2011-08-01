@@ -5,16 +5,17 @@ class phpx_form {
     var $fieldset = false;
     var $required = false;
     var $formId;
+    var $fieldsOnly = false;
     
     function startForm($action, $id="theForm", $method="post", $files=false){
-        $this->text .= "<form method=\"" . $method . "\" action=\"" . $action . "\" id=\"" . $id . "\"";
-        if ($files == true){
-            $this->text .= " enctype=\"multipart/form-data\"";
+        if ($this->fieldsOnly != true){
+            $this->text .= "<form method=\"" . $method . "\" action=\"" . $action . "\" id=\"" . $id . "\"";
+            if ($files == true){
+                $this->text .= " enctype=\"multipart/form-data\"";
+            }
+            $this->text .= ">";
         }
-        
-        $this->text .= ">";
         $this->formId = $id;
-        
     }
     
     function endForm($buttonText="Submit"){

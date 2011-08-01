@@ -1,4 +1,4 @@
-#phpxContainer form label { width: 250px; float: left; font-weight: bold; }
+#phpxContainer label { width: 250px; float: left; font-weight: bold; }
 #phpxContainer em { font-weight: bold; padding-right: 1em; vertical-align: top; color: #ff0000; }
 #phpxContainer .error {
     font-weight: normal;
