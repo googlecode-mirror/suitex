@@ -31,10 +31,17 @@
     font-weight: bold;
 }
 
+
+
 #phpxContainer input, 
 #phpxContainer select {
     color: #000000 !important;
     padding: 2px 0;
+}
+
+#phpxContainer select {
+    
+    
 }
 #phpxContainer input[type="submit"], 
 #phpxContainer input[type="button"] {

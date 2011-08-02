@@ -212,6 +212,22 @@ class phpx_form {
         $this->idSet++;        
     }
     
+    function checkBox($label, $name, $value, $required=false){
+        $this->text .= "<p><label>" . $label . "</label><em>";
+        if ($required == true){ 
+            $this->required = true;
+            $this->text .= "*"; 
+        }
+        else { $this->text .= "&nbsp;&nbsp;"; }
+        $this->text .= "</em><input type=\"checkbox\" id=\"" . $this->idSet . "\" name=\"" . $name . "\"";
+        if ($required != false && $required != ''){ 
+            $this->text .= " class=\"required\"";  
+        }
+        $checked = ($value == 1 || $value == true) ? 'checked' : '';
+        $this->text .= " $checked /></p>";      
+        $this->idSet++;
+    }
+    
     
     function textField($label, $name, $value='', $required=false, $minLength="3"){
         
