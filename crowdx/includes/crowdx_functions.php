@@ -79,7 +79,24 @@ class crowdx_functions {
     function crowdx_soapLogin(){
         $param = array('in0' => array('credential' => array('credential' => $this->options['app_pass']), 'name' => $this->options['app_name']));
         $resp = $this->client->authenticateApplication($param);
-        ;
+        try {
+            $resp = $this->client->authenticateApplication($param);
+        }
+        catch (SoapFault $fault) {
+            if ($this->options['all_users'] == 0){
+                
+                remove_action('authenticate', 'wp_authenticate_username_password', 20);
+                return false;           
+                
+            }
+            else if ($this->options['fallback'] == 1){
+                
+                $this->crowdx_fallBackLogin();
+                return true;
+            }
+            return false;             
+        }
+        
     
           
         $param1 = array('in0' => array('name'               => $this->options['app_name'],
