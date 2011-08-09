@@ -125,3 +125,8 @@
     text-align: center; 
 }
 
+h4 span.addLink {
+    padding: 2px;
+    font-weight: normal;
+}
+
