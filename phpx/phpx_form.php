@@ -252,13 +252,16 @@ class phpx_form {
     
     function dropDown($label, $name, $value='', $list, $blank=false, $required=false, $multiple=false, $onChange=''){
         
-        $this->text .= "<p><label>" . $label . "</label><em>";
-        if ($required == true){
-            $this->required = true;
-            $this->text .= "*";
+        if ($label != null && $blank != 'label'){
+            $this->text .= "<p><label>" . $label . "</label><em>";
+            if ($required == true){
+                $this->required = true;
+                $this->text .= "*";
+            }
+            else { $this->text .= "&nbsp;&nbsp;"; }
+            $this->text .= '</em>';
         }
-        else { $this->text .= "&nbsp;&nbsp;"; }
-        $this->text .= "</em><select name=\"" . $name . "\" ";
+        $this->text .= "<select name=\"" . $name . "\" ";
         if ($multiple == true){
             $this->text .= " multiple size=\"8\" ";
         }
@@ -270,7 +273,10 @@ class phpx_form {
         
         
         $this->text .= " >";
-        if ($blank == true){
+        if ($blank == 'label'){
+            $this->text .= '<option value="">' . $label . '</option>';
+        }
+        else if ($blank == true){
             $this->text .= "<option value=''></option>";
         }
         foreach(array_keys($list) as $l){
@@ -286,7 +292,8 @@ class phpx_form {
         }
         
         
-        $this->text .= "</select></p>";
+        $this->text .= "</select>";
+        if ($label != null && $blank != 'label'){ $this->text .= "</p>"; }
         $this->idSet++;    
     }
     
