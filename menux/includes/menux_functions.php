@@ -121,6 +121,7 @@ class menuX {
     }
 
     function menux_addContent(){
+        
         foreach($this->options['pages'] as $key => $value){
             $info = get_post($value);
             $divs .= '<div id="menux-' . $key . '" class="menuxItem">' . $info->post_content . '</div>';

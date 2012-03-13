@@ -49,7 +49,7 @@ register_activation_hook(__FILE__, array($obj, 'menux_install'));
 register_deactivation_hook(__FILE__, array($obj, 'menux_uninstall'));
 
 if (!is_admin()){
-    wp_enqueue_script('menux_js', MENUX_URL . 'js/menux.js');
+    //wp_enqueue_script('menux_js', MENUX_URL . 'js/menux.js', array(), false, true);
     add_action('wp_head', array($obj, 'menux_addCSS'));
     add_action('wp_footer', array($obj, 'menux_addContent'));
     
