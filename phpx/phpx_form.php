@@ -6,6 +6,7 @@ class phpx_form {
     var $required = false;
     var $formId;
     var $fieldsOnly = false;
+    var $instantReturn = false;
     
     function startForm($action, $id="theForm", $method="post", $files=false){
         if ($this->fieldsOnly != true){
@@ -16,27 +17,53 @@ class phpx_form {
             $this->text .= ">";
         }
         $this->formId = $id;
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }
     }
     
     function endForm($buttonText="Submit"){
         if ($this->fieldset == true){ $this->endFieldSet(); }
         $this->text .= "<p class=\"submit\"><input class=\"submit\" name=\"submit\" type=\"submit\" value=\"" . $buttonText . "\" id=\"" . $this->formId . "_end\" /></p>";        
         $this->text .= "</form>";
-        if ($this->required == true){
-            $this->text .= "<script>jQuery(document).ready(function(){ jQuery(\"#" . $this->formId . "\").validate(); }); </script>";            
-        }
+        $this->text .= $this->setRequired();
         return $this->text;   
+    }
+    
+    function setRequired(){
+        
+        if ($this->required == true){
+            $ret = "<script>jQuery(document).ready(function(){ jQuery(\"#" . $this->formId . "\").validate(); }); </script>";            
+        }
+        if ($this->instantReturn == true){
+            return $ret;
+        }        
+        else { 
+            $this->text .= $ret;
+        }
     }
     
     function startFieldSet($legend=''){
         $this->text .= "<fieldset><legend>" . $legend . "</legend>";
         $this->fieldset = true;
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
         
     }
        
     function endFieldSet(){
         $this->text .= "</fieldset>";
         $this->fieldset = false;
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     function fileField($label, $name, $required=false){
@@ -53,6 +80,11 @@ class phpx_form {
         }
         $this->text .= " value=\"" . $value . "\" /></p>";      
         $this->idSet++;
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     function freeText($text, $class=''){
@@ -60,6 +92,11 @@ class phpx_form {
         $this->subText .= $text;
         $this->text .= $text;       
         if ($this->colName){ $col = $this->colName; $this->$col .= $text; } 
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     function phoneField($label, $name, $list, $value=array(), $required=false){
@@ -91,6 +128,11 @@ class phpx_form {
         
         $this->text .= "</p>";      
         $this->idSet++;        
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     function dateField($label, $name, $value, $required=false, $useCalendar=false){
@@ -112,13 +154,18 @@ class phpx_form {
             if ($value != ''){
                 $defaultDate = '{ defaultDate: ' . $value . '}';
             } 
-            $text .= '<script language="javascript">$(\'#f' . $this->idSet . '\').datepicker(' . $defaultDate . ');</script>';
+            $text .= '<script language="javascript">jQuery(function() { jQuery(\'#f' . $this->idSet . '\').datepicker(' . $defaultDate . ');});</script>';
         }
         $this->idSet++;  
         $this->subText .= $text;
         $this->text .= $text;
         if ($this->colName){ $col = $this->colName; $this->$col .= $text; }
         $this->date = true;
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     function dateRange($label, $name, $value=array(), $required=false, $useCalendar=true){
@@ -180,7 +227,12 @@ class phpx_form {
             $col = $this->colName; 
             $this->$col .= $text; 
         }
-        $this->date = true;        
+        $this->date = true;    
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }              
     }
     
     function calendarSetup(){
@@ -210,6 +262,11 @@ class phpx_form {
 
         $this->text .= " value=\"" . $value . "\" /></p>";      
         $this->idSet++;        
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     function checkBox($label, $name, $value, $required=false){
@@ -226,6 +283,11 @@ class phpx_form {
         $checked = ($value == 1 || $value == true) ? 'checked' : '';
         $this->text .= " $checked /></p>";      
         $this->idSet++;
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     
@@ -248,6 +310,11 @@ class phpx_form {
         }
         $this->text .= " value=\"" . $value . "\" /></p>";      
         $this->idSet++;
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     function dropDown($label, $name, $value='', $list, $blank=false, $required=false, $multiple=false, $onChange=''){
@@ -295,6 +362,11 @@ class phpx_form {
         $this->text .= "</select>";
         if ($label != null && $blank != 'label'){ $this->text .= "</p>"; }
         $this->idSet++;    
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     function textArea($label, $name, $value, $required=false, $minLength=8){
@@ -314,12 +386,22 @@ class phpx_form {
             }
         }
         $this->text .= ">" . stripslashes($value) . "</textarea></p>";      
-        $this->idSet++;        
+        $this->idSet++;       
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }           
     }
     
     function hidden($name, $value=''){
         $this->text .= "<input type=\"hidden\" name=\"" . $name . "\" value=\"" . $value . "\" id=\"" . $this->idSet . "\" />";
         $this->idSet++;
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }
     
     function freeField($label, $value){
@@ -328,6 +410,11 @@ class phpx_form {
         $this->text .= $text;   
         if ($this->colName){ $col = $this->colName; $this->$col .= $text; }     
         //$this->idSet++;    
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }          
     }    
 }
 ?>
