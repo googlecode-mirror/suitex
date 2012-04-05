@@ -43,22 +43,29 @@ define(MENUX_DIR, WP_PLUGIN_DIR . '/menux/');
 define(MENUX_URL, WP_PLUGIN_URL . '/menux/'); 
 require_once(MENUX_DIR . 'includes/menux_functions.php');
 
-$obj = new menuX(); 
+$menuXobj = new menuX(); 
 
-register_activation_hook(__FILE__, array($obj, 'menux_install'));
-register_deactivation_hook(__FILE__, array($obj, 'menux_uninstall'));
+register_activation_hook(__FILE__, array($menuXobj, 'menux_install'));
+register_deactivation_hook(__FILE__, array($menuXobj, 'menux_uninstall'));
 
 if (!is_admin()){
-    //wp_enqueue_script('menux_js', MENUX_URL . 'js/menux.js', array(), false, true);
-    add_action('wp_head', array($obj, 'menux_addCSS'));
-    add_action('wp_footer', array($obj, 'menux_addContent'));
+    wp_enqueue_script('menux_js', MENUX_URL . 'js/menux.js', array(), false, true);
+    add_action('wp_head', array($menuXobj, 'menux_addCSS'));
+    add_action('wp_footer', array($menuXobj, 'menux_addContent'));
+    
     
 }
 else {
-    add_action('init', array($obj, 'menux_createPostType'));
-    add_action('admin_menu', array($obj, 'menux_prepAdmin'));
-    add_filter('post_updated_messages', array($obj, 'menux_message'));
-    add_action('save_post', array($obj, 'menux_savePost'));    
+    add_action('init', array($menuXobj, 'menux_createPostType'));
+    add_action('admin_menu', array($menuXobj, 'menux_prepAdmin'));
+    add_filter('post_updated_messages', array($menuXobj, 'menux_message'));
+    add_action('save_post', array($menuXobj, 'menux_savePost'));    
+}
+
+
+function menux_get_content(){
+    global $menuXobj;
+    print($menuXobj->menux_addContent());
 }
 
 

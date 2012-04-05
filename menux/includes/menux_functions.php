@@ -147,6 +147,26 @@ class menuX {
             });</script>
         ';
         print($text);
+        
+/*
+        $text = '<div class="menu-menux-container">
+                    <ul id="menu-menux" class="menu">';
+        
+        $items = wp_get_nav_menu_items('MenuX');
+        foreach($items as $item){
+            $info = get_post($this->options['pages'][$item->ID]);
+            $text .= '<li id="menu-item-' . $item->ID . '" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-' . $item->ID . '">
+                <a href="#" title="' . $item->post_title . '">' . $item->post_title . '</a>
+                    <ul>
+                        <li>
+                               ' . $info->post_content . '
+                        </li>
+                    </ul>
+                </li>';    
+        }
+
+        $text .= '</ul></div>';
+        return $text;*/        
     }
     
     function menux_addCSS(){
