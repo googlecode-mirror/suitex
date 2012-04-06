@@ -56,7 +56,7 @@ if (!is_admin()){
     
 }
 else {
-    add_filter('admin_head', adbarx_showEditor());
+    
     add_action('admin_menu', array($adBarXobj, 'adbarx_adminMenu')); 
 }
 
@@ -66,19 +66,7 @@ function adbarx_get_content(){
     print($adBarXobj->adbarx_addContent());
 }
 
-function adbarx_showEditor() {
-    
-    wp_enqueue_script( 'common' );
-    wp_enqueue_script( 'jquery-color' );
-    wp_print_scripts('editor');
-    if (function_exists('add_thickbox')) add_thickbox();
-    wp_print_scripts('media-upload');
-    if (function_exists('wp_tiny_mce')) wp_tiny_mce();
-    wp_admin_css();
-    wp_enqueue_script('utils');
-    do_action("admin_print_styles-post-php");
-    do_action('admin_print_styles');
-}
+
 
 
 
