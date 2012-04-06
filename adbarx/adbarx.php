@@ -49,9 +49,10 @@ register_activation_hook(__FILE__, array($adBarXobj, 'adbarx_install'));
 register_deactivation_hook(__FILE__, array($adBarXobj, 'adbarx_uninstall'));
 
 if (!is_admin()){
-    wp_enqueue_script('adbarx_js', MENUX_URL . 'js/adbarx.js', array(), false, true);
+    wp_enqueue_script('adbarx_js', ADBARX_URL . 'js/adbarx.js', array(), false, true);
     add_action('wp_head', array($adBarXobj, 'adbarx_addCSS'));
-    add_action('wp_footer', array($adBarXobj, 'adbarx_addContent'));
+    
+    add_action('init', array($adBarXobj, 'adbarx_addCookie'));
     
     
 }

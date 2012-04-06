@@ -85,17 +85,27 @@ class adBarX {
 
     
     function adbarx_addContent(){
-        $text = '<div id="adbarxTitle">' . $this->options['title'] . '</div>';
-        $text .= '<div id="adbarxContent">' . $this->options['content'] . '</div>';
-        if (!$_COOKIE[$this->options['cookie']]){
-            //setcookie($this->options['cookie'], 'k4kak4alkjhargl3o0a', time() + (86400*365), COOKIEPATH, COOKIE_DOMAIN);
-        }  
+        $text = '<div id="adbarxTitle"><p>' . $this->options['title'] . '</p></div>';
+        $text .= '<div id="adbarxContent"><p>' . $this->options['content'] . '</p></div>';
+        if ($this->showAd == true){
+            $text .= '<script>jQuery(function(){
+            
+                jQuery("#adbarxContent").slideDown();
+            });</script>';
+        }
         print($text);  
         
     }
     
     function adbarx_addCSS(){
         print("<link rel='stylesheet' href='" . ADBARX_URL . "css/adbarx.css' type='text/css' media='all' />");      
+    }  
+    
+    function adbarx_addCookie(){
+        if (!$_COOKIE[$this->options['cookie']]){
+            $this->showAd = true;
+            setcookie($this->options['cookie'], 'k4kak4alkjhargl3o0a', time() + (86400*365), COOKIEPATH, COOKIE_DOMAIN);
+        }          
     }
     
     
