@@ -1,0 +1,8 @@
+.loginx_error {
+    background:#fccac3 url('../images/error.png') no-repeat 10px 10px;
+    border: 1px solid #ea5338;
+    width: 80%;
+    padding:17px 17px 17px 55px;
+    margin-bottom:15px;
+
+}
