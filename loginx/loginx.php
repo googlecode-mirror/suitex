@@ -58,9 +58,10 @@ else {
 }
 
 
-function getLoginXURL(){
+function getLoginXURL($return = false){
     global $loginXobj;
-    print($loginXobj->loginx_getURL());    
+    if ($return == false){ print($loginXobj->loginx_getURL());  }
+    else { return $loginXobj->loginx_getURL(); }   
 }
 
 

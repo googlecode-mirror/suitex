@@ -71,19 +71,23 @@ class LoginX {
     }
     
     function loginx_content($text){
-        require_once(PHPX_DIR . '/phpx_form.php');
-        $form = new phpx_form();
-        $form->startForm($this->loginx_getURL());
-        if ($this->errorMessage){
-            $form->freeText($this->errorMessage, 'loginx_error');
+        global $post;
+        if ($post->ID == $this->options['page']){        
+            require_once(PHPX_DIR . '/phpx_form.php');
+            $form = new phpx_form();
+            $form->startForm($this->loginx_getURL());
+            if ($this->errorMessage){
+                $form->freeText($this->errorMessage, 'loginx_error');
+            }
+            $form->textField('Username', 'username', '', true);
+            $form->password('Password', 'password', true, 4);
+            $form->checkBox('Remember Me?', 'remember', 0);
+            $form->hidden('nonce', wp_create_nonce('loginx'));
+        
+            $text = $form->endForm();
+        
+            
         }
-        $form->textField('Username', 'username', '', true);
-        $form->password('Password', 'password', true, 4);
-        $form->checkBox('Remember Me?', 'remember', 0);
-        $form->hidden('nonce', wp_create_nonce('loginx'));
-        
-        $text = $form->endForm();
-        
         return $text;
     }
     
