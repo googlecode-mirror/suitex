@@ -6,3 +6,12 @@
     margin-bottom:15px;
 
 }
+
+.loginx_success {
+    background:#effeb9 url('../images/success.png') no-repeat 10px 10px;
+    border: 1px solid #98c700;
+    width: 80%;
+    padding:17px 17px 17px 55px;
+    margin-bottom:15px;
+
+}
