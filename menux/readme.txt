@@ -1,9 +1,9 @@
-=== MenuX ===
+=== AdBarX ===
 Contributors: Xnuiem
 Donate link: http://www.phpx.org/
 Tags: 
 Requires at least: 2.6
-Tested up to: 3.2.1
+Tested up to: 3.3.1
 Stable tag: 0.1
 
 
@@ -13,7 +13,7 @@ Stable tag: 0.1
 
 == Installation ==
 
-1. Upload the winex directory to the `/wp-content/plugins/` directory
+1. Upload the adbarx directory to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Frequently Asked Questions ==
@@ -27,8 +27,6 @@ Initial Version
 
 == Screenshots==
 
-1. The admin page (found in Manage)
-2. The results of an imported wine cellar
 
 == Demos ==
 

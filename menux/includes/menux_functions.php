@@ -124,7 +124,8 @@ class menuX {
         
         foreach($this->options['pages'] as $key => $value){
             $info = get_post($value);
-            $divs .= '<div id="menux-' . $key . '" class="menuxItem">' . $info->post_content . '</div>';
+            $content = do_shortcode($info->post_content);
+            $divs .= '<div id="menux-' . $key . '" class="menuxItem">' . $content . '</div>';
             $scripts .= 'jQuery(\'#menu-item-' . $key . '\').hover(function(){
                 jQuery(\'#menux-' . $key . '\').show();
             });';
@@ -137,6 +138,9 @@ class menuX {
                 jQuery(\'#content\').hover(function(){
                     jQuery(\'.menuxItem\').hide();
                 });
+                jQuery(\'.wrapper\').hover(function(){
+                    jQuery(\'.menuxItem\').hide();
+                });                
                 jQuery(\'.menu-item\').hover(function(){
                     jQuery(\'.menuxItem\').hide();
                 });
