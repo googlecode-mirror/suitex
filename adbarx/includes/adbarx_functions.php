@@ -85,8 +85,9 @@ class adBarX {
 
     
     function adbarx_addContent(){
+        $content = do_shortcode($this->options['content']);
         $text = '<div id="adbarxTitle"><p>' . $this->options['title'] . '</p></div>';
-        $text .= '<div id="adbarxContent"><p>' . $this->options['content'] . '</p></div>';
+        $text .= '<div id="adbarxContent"><p>' . $content . '</p></div>';
         if ($this->showAd == true){
             $text .= '<script>jQuery(function(){
             
