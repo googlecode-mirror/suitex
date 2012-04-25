@@ -92,7 +92,10 @@ class LoginX {
                             $this->errorMessage = $user->get_error_message();    
                         }
                         else {
-                            if ($_POST['redirect_to'] == $this->loginx_getURL() || $_POST['redirect_to'] == ''){
+                            if (!in_array('subscriber', array($user->roles))){
+                                wp_redirect('/wp-admin');
+                            }
+                            else if ($_POST['redirect_to'] == $this->loginx_getURL() || $_POST['redirect_to'] == ''){
                                 wp_redirect(get_permalink($this->options['profile_page']));    
                             }
                             else { 
@@ -194,6 +197,7 @@ class LoginX {
         require_once(PHPX_DIR . 'phpx_form.php');
         $form = new phpx_form();
         $pages = get_pages();
+        
         foreach($pages as $p){
             $pageArray[$p->ID] = $p->post_title;
         }
@@ -202,8 +206,8 @@ class LoginX {
         if ($message){ $text .= '<p>Options Saved</p>'; }
         $text .= $form->startForm('tools.php?page=loginx/includes/loginx_functions.php', 'adbarxForm');        
         $text .= $form->hidden('nonce', wp_create_nonce('loginx_admin'));
-        $text .= $form->dropDown('Profile Page', 'profile_page', $this->options['profile_page'], $pageArray, true);
-        $text .= $form->dropDown('Register Page', 'register_page', $this->options['register_page'], $pageArray, true);
+        $text .= $form->dropDown('Profile Page', 'profile_page', $this->options['profile_page'], $pageArray, false);
+        $text .= $form->dropDown('Register Page', 'register_page', $this->options['register_page'], $pageArray, false);
         $text .= $form->textArea('Password Lookup Text', 'password_text', $this->options['password_text']);
         $text .= $form->endForm();
         $text .= '</div>';
@@ -212,7 +216,12 @@ class LoginX {
     
     function loginx_adminMenu(){
         add_management_page('LoginX', 'LoginX', 5, __FILE__, array($this, 'loginx_admin')); 
-    }    
+    }   
+    
+    function loginx_redirect_login(){
+        wp_redirect(get_permalink($this->options['page']));  
+        exit;      
+    } 
     
     
     

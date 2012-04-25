@@ -57,6 +57,8 @@ else {
     add_action('admin_menu', array($loginXobj, 'loginx_adminMenu')); 
 }
 
+add_action('login_head', array($loginXobj, 'loginx_redirect_login'));
+
 
 function getLoginXURL($return = false){
     global $loginXobj;
