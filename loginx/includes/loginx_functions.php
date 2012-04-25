@@ -29,8 +29,28 @@ class LoginX {
         $page['comment_status'] = 'closed';
         $page['post_content']   = 'This page is used to display your Login Form via LoginX.';
 
-        $page_id = wp_insert_post($page);
-        update_option('loginx_options', array('page' => $page_id));
+        $login_id = wp_insert_post($page);
+        $page                   = array();
+        $page['post_type']      = 'page';
+        $page['post_title']     = 'Register';
+        $page['post_name']      = 'register';
+        $page['post_status']    = 'publish';
+        $page['comment_status'] = 'closed';
+        $page['post_content']   = 'This page is used to display your Register via LoginX.';
+
+        $register_id = wp_insert_post($page);
+        $page                   = array();
+        $page['post_type']      = 'page';
+        $page['post_title']     = 'Profile';
+        $page['post_name']      = 'profile';
+        $page['post_status']    = 'publish';
+        $page['comment_status'] = 'closed';
+        $page['post_content']   = 'This page is used to display your Profile via LoginX.';
+
+        $profile_id = wp_insert_post($page);        
+        $options =  array('login_page' => $page_id, 'login' => true, 'register' => true, 'profile' => true, 'register_page' => $register_id, 'profile_id' => $profile_id);
+        
+        update_option('loginx_options', $options);
                 
 
     }
