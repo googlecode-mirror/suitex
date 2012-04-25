@@ -8,11 +8,11 @@ div#menuxContainer  div {
 
 div#menuxContainer div.menuxItem {
     height: 250px;
-    width: 550px;
+    width: 750px;
     background-color: #ffffff;
     border: 1px solid #000000;
     position: absolute;
-    z-index: 10000000939393939393;
+    z-index: 10000000;
     top: 30px;
     left: 60px;
     padding: 5px 2px;

@@ -50,7 +50,7 @@ register_deactivation_hook(__FILE__, array($menuXobj, 'menux_uninstall'));
 
 if (!is_admin()){
     wp_enqueue_script('menux_js', MENUX_URL . 'js/menux.js', array(), false, true);
-    add_action('wp_head', array($menuXobj, 'menux_addCSS'));
+    //add_action('wp_head', array($menuXobj, 'menux_addCSS'));
     add_action('wp_footer', array($menuXobj, 'menux_addContent'));
     
     
