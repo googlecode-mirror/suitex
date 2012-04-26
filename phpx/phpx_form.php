@@ -9,6 +9,7 @@ class phpx_form {
     var $instantReturn = false;
     
     function startForm($action, $id="theForm", $method="post", $files=false){
+        $this->text = '';
         if ($this->fieldsOnly != true){
             $this->text .= "<form method=\"" . $method . "\" action=\"" . $action . "\" id=\"" . $id . "\"";
             if ($files == true){
@@ -319,7 +320,7 @@ class phpx_form {
     
     function dropDown($label, $name, $value='', $list, $blank=false, $required=false, $multiple=false, $onChange=''){
         
-        if ($label != null && $blank != 'label'){
+        if (($label != null && $blank != 'label') || $blank == true){
             $this->text .= "<p><label>" . $label . "</label><em>";
             if ($required == true){
                 $this->required = true;
@@ -340,7 +341,7 @@ class phpx_form {
         
         
         $this->text .= " >";
-        if ($blank == 'label'){
+        if ($blank == 'label' && $blank != true){
             $this->text .= '<option value="">' . $label . '</option>';
         }
         else if ($blank == true){
