@@ -177,6 +177,9 @@ class LoginX {
                 $form->hidden('nonce', wp_create_nonce('loginx'));
                 $form->freeText('<div id="loginx_password_link"><a href="' . get_permalink() . '?password=1">Forgot Login/Password?</a></div>');
                 $form->freeText('<div id="loginx_register_link"><a href="' . get_permalink($this->options['register_page']) . '">Register</a></div>');
+                if (function_exists('rpx_init')){
+                    $form->freeText(do_shortcode('[rpxlogin]'));    
+                }
             
                 $text = '<div id="loginx_form">' . $form->endForm() . '</div>';
             }

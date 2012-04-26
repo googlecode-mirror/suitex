@@ -86,7 +86,7 @@ label.error {
     padding-left: .5em; 
     vertical-align: middle; 
 }
-p { clear: both; }
+p.phpx { clear: both; }
 .entry-content input, .entry-content select  { margin: 0; }
 form fieldset {
     border: 1px solid #DFDFDF;
