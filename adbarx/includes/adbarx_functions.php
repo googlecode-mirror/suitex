@@ -64,7 +64,7 @@ class adBarX {
         $text .= $form->hidden('nonce', wp_create_nonce('adbarx_admin'));
         print($text);
         
-        the_editor($this->options['content'], 'content');
+        the_editor(stripslashes($this->options['content']), 'content');
         $text = '<br /><br />';
         $text .= $form->textField('Bar Title', 'title', $this->options['title']);
         $text .= $form->checkBox('Show Adbar Once', 'showOnce', 1);
@@ -85,7 +85,7 @@ class adBarX {
 
     
     function adbarx_addContent(){
-        $content = do_shortcode($this->options['content']);
+        $content = do_shortcode(stripslashes($this->options['content']));
         $text = '<div id="adbarxTitle"><p>' . $this->options['title'] . '</p></div>';
         $text .= '<div id="adbarxContent"><p>' . $content . '</p></div>';
         if ($this->showAd == true){
