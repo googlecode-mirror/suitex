@@ -7,6 +7,8 @@ class phpx_form {
     var $formId;
     var $fieldsOnly = false;
     var $instantReturn = false;
+    var $labels = true;
+    var $useNameForId = false;
     
     function startForm($action, $id="theForm", $method="post", $files=false){
         $this->text = '';
@@ -27,6 +29,7 @@ class phpx_form {
     
     function endForm($buttonText="Submit"){
         if ($this->fieldset == true){ $this->endFieldSet(); }
+        
         $this->text .= "<p class=\"submit\"><input class=\"submit\" name=\"submit\" type=\"submit\" value=\"" . $buttonText . "\" id=\"" . $this->formId . "_end\" /></p>";        
         $this->text .= "</form>";
         $this->text .= $this->setRequired();
@@ -68,18 +71,21 @@ class phpx_form {
     }
     
     function fileField($label, $name, $required=false){
+        $id = ($this->useNameForId == true) ? $name : $this->idSet;
+        if ($this->labels == true){ $this->text .= "<p><label>" . $label . "</label><em>"; }
         
-        $this->text .= "<p><label>" . $label . "</label><em>";
         if ($required == true){ 
             $this->required = true;
             $this->text .= "*"; 
         }
         else { $this->text .= "&nbsp;&nbsp;"; }
-        $this->text .= "</em><input type=\"file\" id=\"" . $this->idSet . "\" name=\"" . $name . "\"";
+        if ($this->labels == true){ $this->text .= "</em>"; }
+        $this->text .= "<input type=\"file\" id=\"" . $id. "\" name=\"" . $name . "\"";
         if ($required != false && $required != ''){ 
             $this->text .= " class=\"required\"";  
         }
-        $this->text .= " value=\"" . $value . "\" /></p>";      
+        $this->text .= " value=\"" . $value . "\" />";
+        if ($this->labels == true){ $this->text .= "</p>";    }  
         $this->idSet++;
         if ($this->instantReturn == true){
             $ret = $this->text;
@@ -101,14 +107,15 @@ class phpx_form {
     }
     
     function phoneField($label, $name, $list, $value=array(), $required=false){
-        
-        $this->text .= "<p><label>" . $label . "</label><em>";
+        $id = ($this->useNameForId == true) ? $name : $this->idSet;
+        if ($this->labels == true){ $this->text .= "<p><label>" . $label . "</label><em>"; }
         if ($required == true){ 
             $this->required = true;
             $this->text .= "*"; 
         }
         else { $this->text .= "&nbsp;&nbsp;"; }
-        $this->text .= "</em><input type=\"text\" id=\"" . $this->idSet . "\" name=\"" . $name . "_text\"";
+        if ($this->labels == true){ $this->text .= "</em>"; }
+        $this->text .= "<input type=\"text\" id=\"" . $id . "\" name=\"" . $name . "_text\"";
         if ($required == true){ $this->text .= "class=\"required phone\""; }
         $this->text .= " value=\"" . $value[0] . "\" />&nbsp;";
         $this->text .= "<select name=\"" . $name . "_type\" ";
@@ -127,7 +134,7 @@ class phpx_form {
         
         
         
-        $this->text .= "</p>";      
+        if ($this->labels == true){ $this->text .= "</p>";      }
         $this->idSet++;        
         if ($this->instantReturn == true){
             $ret = $this->text;
@@ -140,13 +147,17 @@ class phpx_form {
         
         if ($value > 1000){ $value = date("m/d/Y", $value); }
         else { $value = ''; }
-        $text .= "<p id=\"p" . $this->idSet . "\" class=\"date\"><label class=\"date\">" . $label . "</label><em>";
+        if ($this->labels == true){ $text .= "<p id=\"p" . $this->idSet . "\" class=\"date\"><label class=\"date\">" . $label . "</label><em>"; }
+        else { 
+             $text .= "<p id=\"p" . $this->idSet . "\" class=\"date\">";    
+        }
         if ($required == true){ 
             $this->required = true;
             $text .= "*"; 
         }
         else { $text .= "&nbsp;&nbsp;"; }
-        $text .= "</em><input type=\"text\" id=\"f" . $this->idSet . "\" name=\"" . $name . "\"";
+        if ($this->labels == true){ $text .= "</em>"; }
+        $text .= "<input type=\"text\" id=\"f" . $this->idSet . "\" name=\"" . $name . "\"";
         if ($required != false && $required != ''){ 
             $text .= " class=\"required date\"";      
         }
@@ -181,14 +192,18 @@ class phpx_form {
             $$fName = ($v > 1000) ? date('m/d/Y', $v) : '';
             $x++;
         }    
-        $text .= "<p id=\"p" . $this->idSet . "\" class=\"date\"><label class=\"date\">" . $label . "</label><em>";
+        if ($this->labels == true){ $text .= "<p id=\"p" . $this->idSet . "\" class=\"date\"><label class=\"date\">" . $label . "</label><em>"; }
+        else { 
+             $text .= "<p id=\"p" . $this->idSet . "\" class=\"date\">";    
+        }
         if ($required == true){ 
             $this->required = true;
             $text .= "*"; 
         }
         else { $text .= "&nbsp;&nbsp;"; }        
         if ($this->ajax){ $name1 = $this->idSet; }
-        $text .= "</em><input type=\"text\" id=\"f" . $this->idSet . "\" name=\"$name" . "$name1\"";
+        if ($this->labels == true){ $text .= "</em>"; }
+        $text .= "<input type=\"text\" id=\"f" . $this->idSet . "\" name=\"$name" . "$name1\"";
         if ($required != false && $required != ''){ 
             $text .= " class=\"required date\"";      
         }
@@ -241,13 +256,15 @@ class phpx_form {
     }
     
     function password($label, $name, $required=false, $minLength="8", $confirm=false){
-        $this->text .= "<p><label>" . $label . "</label><em>";
+        $id = ($this->useNameForId == true) ? $name : $this->idSet;
+        if ($this->labels == true){ $this->text .= "<p><label>" . $label . "</label><em>"; }
         if ($required == true){ 
             $this->required = true;
             $this->text .= "*"; 
         }
         else { $this->text .= "&nbsp;&nbsp;"; }
-        $this->text .= "</em><input type=\"password\" id=\"" . $this->idSet . "\" name=\"" . $name . "\"";
+        if ($this->labels == true){ $this->text .= "</em>"; }
+        $this->text = "<input type=\"password\" id=\"" . $id . "\" name=\"" . $name . "\"";
         if ($confirm != false){
             $this->text .= " equalTo=\"#" . ($this->idSet - 1) . "\"";
         }
@@ -261,7 +278,8 @@ class phpx_form {
         }
         
 
-        $this->text .= " value=\"" . $value . "\" /></p>";      
+        $this->text .= " value=\"" . $value . "\" />";
+        if ($this->labels == true){$this->text .= "</p>";       }
         $this->idSet++;        
         if ($this->instantReturn == true){
             $ret = $this->text;
@@ -270,19 +288,22 @@ class phpx_form {
         }          
     }
     
-    function checkBox($label, $name, $value, $required=false){
-        $this->text .= "<p><label>" . $label . "</label><em>";
+    function checkBox($label, $name, $value=0, $required=false){
+        $id = ($this->useNameForId == true) ? $name : $this->idSet;
+        if ($this->labels == true){$this->text .= "<p><label>" . $label . "</label><em>";}
         if ($required == true){ 
             $this->required = true;
             $this->text .= "*"; 
         }
         else { $this->text .= "&nbsp;&nbsp;"; }
-        $this->text .= "</em><input type=\"checkbox\" id=\"" . $this->idSet . "\" name=\"" . $name . "\"";
+        if ($this->labels == true){$this->text .= "</em>"; }
+        $this->text .= "<input type=\"checkbox\" id=\"" . $id  . "\" name=\"" . $name . "\"";
         if ($required != false && $required != ''){ 
             $this->text .= " class=\"required\"";  
         }
         $checked = ($value == 1 || $value == true) ? 'checked' : '';
-        $this->text .= " $checked /></p>";      
+        $this->text .= " $checked />";
+        if ($this->labels == true){ $this->text .= "</p>";      }
         $this->idSet++;
         if ($this->instantReturn == true){
             $ret = $this->text;
@@ -293,14 +314,15 @@ class phpx_form {
     
     
     function textField($label, $name, $value='', $required=false, $minLength="3"){
-        
-        $this->text .= "<p><label>" . $label . "</label><em>";
+        $id = ($this->useNameForId == true) ? $name : $this->idSet;
+        if ($this->labels == true){$this->text .= "<p><label>" . $label . "</label><em>";}
         if ($required == true){ 
             $this->required = true;
             $this->text .= "*"; 
         }
         else { $this->text .= "&nbsp;&nbsp;"; }
-        $this->text .= "</em><input type=\"text\" id=\"" . $this->idSet . "\" name=\"" . $name . "\"";
+        if ($this->labels == true){$this->text .= "</em>";}
+        $this->text .= "<input type=\"text\" id=\"" . $id . "\" name=\"" . $name . "\"";
         if ($required != false && $required != ''){ 
             if (!is_string($required)){ 
                 $this->text .= " class=\"required\" minlength=\"" . $minLength . "\"";  
@@ -309,7 +331,8 @@ class phpx_form {
                 $this->text .= " class=\"required " . $required . "\" minlength=\"" . $minLength . "\"";      
             }
         }
-        $this->text .= " value=\"" . $value . "\" /></p>";      
+        $this->text .= " value=\"" . $value . "\" />";
+        if ($this->labels == true){$this->text .= "</p>";      }
         $this->idSet++;
         if ($this->instantReturn == true){
             $ret = $this->text;
@@ -319,8 +342,8 @@ class phpx_form {
     }
     
     function dropDown($label, $name, $value='', $list, $blank=false, $required=false, $multiple=false, $onChange=''){
-        
-        if (($label != null && $blank != 'label') || $blank == true){
+        $id = ($this->useNameForId == true) ? $name : $this->idSet;
+        if ((($label != null && $blank != 'label') || $blank == true) && $this->labels == true){
             $this->text .= "<p><label>" . $label . "</label><em>";
             if ($required == true){
                 $this->required = true;
@@ -334,7 +357,7 @@ class phpx_form {
             $this->text .= " multiple size=\"8\" ";
         }
         if ($required == true){ $this->text .= "class=\"required\""; }
-        $this->text .= " id=\"" . $this->idSet . "\" ";
+        $this->text .= " id=\"" . $id . "\" ";
         if ($onChange != ''){
             $this->text .= "onChange=\"$onChange\"";
         }
@@ -361,7 +384,7 @@ class phpx_form {
         
         
         $this->text .= "</select>";
-        if ($label != null && $blank != 'label'){ $this->text .= "</p>"; }
+        if (($label != null && $blank != 'label') && $this->labels == true){ $this->text .= "</p>"; }
         $this->idSet++;    
         if ($this->instantReturn == true){
             $ret = $this->text;
@@ -371,13 +394,15 @@ class phpx_form {
     }
     
     function textArea($label, $name, $value, $required=false, $minLength=8){
-        $this->text .= "<p><label>" . $label . "</label><em>";
+        $id = ($this->useNameForId == true) ? $name : $this->idSet;
+        if ($this->labels == true){$this->text .= "<p><label>" . $label . "</label><em>";}
         if ($required == true){ 
             $this->required = true;
             $this->text .= "*"; 
         }
         else { $this->text .= "&nbsp;&nbsp;"; }
-        $this->text .= "</em><textarea id=\"" . $this->idSet . "\" name=\"" . $name . "\"";
+        if ($this->labels == true){$this->text .= "</em>";}
+        $this->text .= "<textarea id=\"" . $id . "\" name=\"" . $name . "\"";
         if ($required != false && $required != ''){ 
             if (!is_string($required)){ 
                 $this->text .= " class=\"required\" minlength=\"" . $minLength . "\"";  
@@ -386,7 +411,8 @@ class phpx_form {
                 $this->text .= " class=\"required " . $required . "\" minlength=\"" . $minLength . "\"";      
             }
         }
-        $this->text .= ">" . stripslashes($value) . "</textarea></p>";      
+        $this->text .= ">" . stripslashes($value) . "</textarea>";
+        if ($this->labels == true){$this->text .= "</p>";      }
         $this->idSet++;       
         if ($this->instantReturn == true){
             $ret = $this->text;
@@ -396,7 +422,8 @@ class phpx_form {
     }
     
     function hidden($name, $value=''){
-        $this->text .= "<input type=\"hidden\" name=\"" . $name . "\" value=\"" . $value . "\" id=\"" . $this->idSet . "\" />";
+        $id = ($this->useNameForId == true) ? $name : $this->idSet;
+        $this->text .= "<input type=\"hidden\" name=\"" . $name . "\" value=\"" . $value . "\" id=\"" . $id . "\" />";
         $this->idSet++;
         if ($this->instantReturn == true){
             $ret = $this->text;
@@ -406,7 +433,8 @@ class phpx_form {
     }
     
     function freeField($label, $value){
-        $text .= '<p><label>' . $label . '</label><em>&nbsp;</em>' . $value . '</p>';
+       if ($this->labels == true){ $text .= '<p><label>' . $label . '</label><em>&nbsp;</em>' . $value . '</p>';}
+       else { $text .= $value; }
         $this->subText .= $text;
         $this->text .= $text;   
         if ($this->colName){ $col = $this->colName; $this->$col .= $text; }     

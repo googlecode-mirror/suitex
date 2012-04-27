@@ -22,13 +22,20 @@
 #phpxContainer fieldset {
     border: 1px solid #DFDFDF;
     margin-bottom: 10px;
+    padding: 5px;
+}
+
+#phpxContainer textarea { 
+    height: 200px;
+    width: 500px;
 }
 
 #phpxContainer fieldset legend {
     border: 1px solid #DFDFDF;
-    padding: 5px; 
+    padding: 5px 10px; 
     font-size: 12px;
     font-weight: bold;
+    margin-left: 15px;
 }
 
 
@@ -43,6 +50,24 @@
     
     
 }
+
+#phpxContainer .inline td { 
+    width: 100px;
+    vertical-align: top;
+    text-align: center;
+}
+
+
+
+#phpxContainer .inline input[type="text"] { 
+    width: 150px;
+}
+
+#phpxContainer .inline textarea { 
+    width: 250px;
+    height: 200px;
+}
+
 #phpxContainer input[type="submit"], 
 #phpxContainer input[type="button"] {
     padding: 3px 8px; 
