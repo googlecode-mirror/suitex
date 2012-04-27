@@ -9,7 +9,7 @@ class loginX {
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->options = get_option('loginx_options');
-
+        
     }
     
     function loginx_addCSS(){
@@ -53,6 +53,9 @@ class loginX {
             
         }
         else if ($post->ID == $this->options['register_page']){ 
+            require_once(LOGINX_DIR . 'includes/loginx_register_obj.php');
+            $this->registerObj = new loginXRegister();
+            $text = $this->registerObj->registerForm();
         
         }
         else if ($post->ID == $this->options['profile_page']){   
@@ -66,9 +69,23 @@ class loginX {
     }
     
     function loginx_redirect_login(){
-        wp_redirect($this->loginx_getURL());  
-        exit;      
+        
+        if ($this->options['user_login_redirect'] == 'on'){
+            wp_redirect($this->loginx_getURL());  
+            exit; 
+        }
+             
     } 
+    
+    function loginx_redirect_admin(){
+        if ($this->options['user_admin_redirect'] == 'on'){
+             if (in_array('subscriber', array($user->roles))){
+                wp_redirect(get_permalink($this->options['redirect_admin_page']));   
+                exit;
+             }
+        }
+              
+    }     
 }
         
         

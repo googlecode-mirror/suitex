@@ -45,6 +45,7 @@ class loginXLogin extends loginX {
             if (parent::loginx_errorMessage()){
                 $form->freeText(parent::loginx_errorMessage('get'), 'loginx_error');
             }
+            
             $form->textField('Username', 'username', '', true);
             $form->password('Password', 'password', true, 4);
             $form->checkBox('Remember Me?', 'remember', 0);

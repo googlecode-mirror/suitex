@@ -60,10 +60,11 @@ else {
     register_deactivation_hook(__FILE__, array($loginXAdminObj, 'uninstall'));    
     add_action('admin_menu', array($loginXAdminObj, 'adminMenu')); 
     wp_enqueue_script('loginx_admin', LOGINX_URL . 'js/loginx_admin.js', 'jquery');
+    add_action('admin_head', array($loginXAdminObj, 'adminCSS'));
 }
 
 add_action('login_head', array($loginXobj, 'loginx_redirect_login'));
-
+add_action('admin_init', array($loginXobj, 'loginx_redirect_admin'));
 
 function getLoginXURL($return = false){
     global $loginXobj;
