@@ -45,8 +45,7 @@ require_once(LOGINX_DIR . 'includes/loginx_functions.php');
 
 $loginXobj = new loginX(); 
 
-register_activation_hook(__FILE__, array($loginXobj, 'loginx_install'));
-register_deactivation_hook(__FILE__, array($loginXobj, 'loginx_uninstall'));
+
 
 if (!is_admin()){
     add_action('wp_head', array($loginXobj, 'loginx_addCSS'));
@@ -54,7 +53,12 @@ if (!is_admin()){
     add_action('wp', array($loginXobj, 'loginx_login'));
 }
 else {
-    add_action('admin_menu', array($loginXobj, 'loginx_adminMenu')); 
+    require_once(LOGINX_DIR . 'includes/loginx_admin_obj.php');
+    $loginXAdminObj = new loginXAdmin();
+    
+    register_activation_hook(__FILE__, array($loginXAdminObj, 'install'));
+    register_deactivation_hook(__FILE__, array($loginXAdminObj, 'uninstall'));    
+    add_action('admin_menu', array($loginXAdminObj, 'adminMenu')); 
 }
 
 add_action('login_head', array($loginXobj, 'loginx_redirect_login'));
