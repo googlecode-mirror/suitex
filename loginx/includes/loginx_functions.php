@@ -9,6 +9,7 @@ class loginX {
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->options = get_option('loginx_options');
+
     }
     
     function loginx_addCSS(){
