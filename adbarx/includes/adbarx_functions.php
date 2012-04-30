@@ -60,7 +60,7 @@ class adBarX {
         $form->instantReturn = true;
         
         $text = '<div class="wrap"><h2>Ad Bar X</h2>';
-        $text .= $form->startForm('tools.php?page=adbarx/includes/adbarx_functions.php', 'adbarxForm');        
+        $text .= $form->startForm('themes.php?page=adbarx/includes/adbarx_functions.php', 'adbarxForm');        
         $text .= $form->hidden('nonce', wp_create_nonce('adbarx_admin'));
         print($text);
         
@@ -78,7 +78,7 @@ class adBarX {
     }   
     
     function adbarx_adminMenu(){
-        add_management_page('AdBarX', 'AdBarX', 5, __FILE__, array($this, 'adbarx_admin')); 
+        add_theme_page('AdBarX', 'AdBarX', 2, __FILE__, array($this, 'adbarx_admin')); 
     }
     
     
