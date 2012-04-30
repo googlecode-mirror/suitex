@@ -41,9 +41,6 @@ if (!defined('WP_PLUGIN_DIR')){ define('WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugi
       
 define(ADBARX_DIR, WP_PLUGIN_DIR . '/adbarx/');  
 define(ADBARX_URL, WP_PLUGIN_URL . '/adbarx/'); 
-$adbarXVar = true;
-print($adbarXVar . "<BR>");
-
 require_once(ADBARX_DIR . 'includes/adbarx_functions.php');
 
 
