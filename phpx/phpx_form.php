@@ -29,8 +29,8 @@ class phpx_form {
     
     function endForm($buttonText="Submit"){
         if ($this->fieldset == true){ $this->endFieldSet(); }
-        
-        $this->text .= "<p class=\"submit\"><input class=\"submit\" name=\"submit\" type=\"submit\" value=\"" . $buttonText . "\" id=\"" . $this->formId . "_end\" /></p>";        
+
+        $this->text .= "<p class=\"submit\"><input class=\"button submit\" name=\"submit\" type=\"submit\" value=\"" . $buttonText . "\" id=\"" . $this->formId . "_end\" /></p>";        
         $this->text .= "</form>";
         $this->text .= $this->setRequired();
         return $this->text;   
