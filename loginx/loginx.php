@@ -61,6 +61,8 @@ else {
     add_action('admin_menu', array($loginXAdminObj, 'adminMenu')); 
     wp_enqueue_script('loginx_admin', LOGINX_URL . 'js/loginx_admin.js', 'jquery');
     add_action('admin_head', array($loginXAdminObj, 'adminCSS'));
+    add_action('wp_ajax_loginx_admin', array($loginXAdminObj, 'adminAjaxSubmit'));
+    wp_localize_script('loginx_admin', 'loginxAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
 }
 
 add_action('login_head', array($loginXobj, 'loginx_redirect_login'));

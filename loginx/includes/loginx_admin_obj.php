@@ -3,8 +3,17 @@ class loginXAdmin extends loginX {
     
     function __construct(){
         parent::__construct();
-    }
         
+        //do_action('wp_ajax_' . $_POST['action']);
+    }
+    
+
+    function adminAjaxSubmit(){
+        print_r($_POST);
+        exit;
+        
+    }
+    
     function adminForm(){
         
         if ($_POST['nonce']){
@@ -87,7 +96,8 @@ class loginXAdmin extends loginX {
                 $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord - 1 where loginx_field_ord = %d and loginx_field_id != %d limit 1', $ord, $_GET['id']));                
                 
             }
-            $message = true;
+            
+            
         }
         
         
@@ -101,7 +111,7 @@ class loginXAdmin extends loginX {
         }
         $adminURL = 'tools.php?page=loginx/includes/loginx_admin_obj.php';
         $text = '<div class="wrap" id="phpxContainer"><h2>Login X</h2>';
-        if ($message){ $text .= '<p>Options Saved</p>'; }
+        if ($message || $_GET['message']){ $text .= '<p>Options Saved</p>'; }
         $text .= $form->startForm($adminURL, 'loginxForm');        
         $text .= $form->hidden('nonce', $nonce);
         $text .= $form->startFieldSet('General Options');
@@ -136,13 +146,11 @@ class loginXAdmin extends loginX {
             $reg = $row->loginx_field_reg;
         }
         
-        $addField = '<table class="inline"><tr><th>Name</th><th>Label</th><th>Type</th><th>Options</th><th>Required</th><th>On Register</th></tr><tr>';
+        $addField = '<table class="inline"><tr><th>Name</th><th>Label</th><th>Type</th><th>Options</th></tr><tr>';
         $addField .= '<td>' . $form1->textField('Name', 'loginx_field_name', $row->loginx_field_name, true) . '</td>';
         $addField .= '<td>' . $form1->textField('Label', 'loginx_field_label', $row->loginx_field_label, true) . '</td>';
         $addField .= '<td>' . $form1->dropDown('Type', 'loginx_field_type', $row->loginx_field_type, $fieldTypes, false, true) . '</td>';
         $addField .= '<td>' . $form1->textArea('Options', 'loginx_field_options', $row->loginx_field_options) . '</td>';
-        $addField .= '<td>' . $form1->checkbox('Required', 'loginx_field_req', $req) . '</td>';
-        $addField .= '<td>' . $form1->checkbox('On Register', 'loginx_field_reg', $reg) . '</td>';
         $addField .= '</tr></table>';
 
         $text .= '<a name="customFields"></a><fieldset><legend>Custom Fields</legend>';
@@ -154,16 +162,31 @@ class loginXAdmin extends loginX {
         $text .= $form1->endForm();    
         $text .= '</fieldset>';
         
-        $text .= '<a name="customFieldsList"></a><table class="inline"><tr><th>Order</th><th>Name</th><th>Label</th><th>Type</th><th>Required</th><th>On Register</th><th>Active</th><th>Mandatory</th></tr>';
+        $text .= '<a name="customFieldsList"></a><table class="inline"><tr><th>Order</th><th>Name</th><th>Label</th><th>Type</th><th>Required</th><th>On Register</th><th>Active</th></tr>';
         $results = $this->wpdb->get_results("select * from " . $this->wpdb->prefix . "loginx_field order by loginx_field_ord asc");
         $x = 1;
         $count = count($results);
         foreach($results as $row){
             
-            $req = ($row->loginx_field_req == 1) ? '<img src="' . LOGINX_URL . 'images/check.png" border="0" width="16" height="16" alt="On" />' : '--';
-            $reg = ($row->loginx_field_reg == 1) ? '<img src="' . LOGINX_URL . 'images/check.png" border="0" width="16" height="16" alt="On" />' : '--';
-            $active = ($row->loginx_field_active == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="Active" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="Active" />';
-            $mand = ($row->loginx_field_mand == 1) ? '<img src="' . LOGINX_URL . 'images/check.png" border="0" width="16" height="16" alt="On" />' : '--';
+            
+            
+            
+            if ($row->loginx_field_mand == 1){
+                $active = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';   
+                $reg = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';  
+                $req = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';   
+            }   
+            else {
+                $active = ($row->loginx_field_active == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="Active" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="Active" />';
+                $active = '<a href="javascript:loginx_admin_ajax(\'active\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');">' . $active . '</a>';
+                
+                $req = ($row->loginx_field_req == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="Required" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="Required" />';
+                $req = '<a href="' . $adminURL . '&action=req&id=' . $row->loginx_field_id . '&nonce=' . $nonce . '#customFields">' . $req . '</a>';
+
+                $reg = ($row->loginx_field_reg == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="On Register" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="On Register" />';
+                $reg = '<a href="' . $adminURL . '&action=reg&id=' . $row->loginx_field_id . '&nonce=' . $nonce . '#customFields">' . $reg . '</a>';                
+            }
+            
             $edit = '<img src="' . LOGINX_URL . 'images/blank.gif" width="16" height="16" />';
             $delete = '<img src="' . LOGINX_URL . 'images/blank.gif" width="16" height="16" />';
             $up = '<img src="' . LOGINX_URL . 'images/blank.gif" width="16" height="16" />';
@@ -194,8 +217,7 @@ class loginXAdmin extends loginX {
             $text .= '<td class="field_type">' . $fieldTypes[$row->loginx_field_type] . '</td>';
             $text .= '<td class="field_req">' . $req . '</td>';
             $text .= '<td class="field_reg">' . $reg . '</td>';
-            $text .= '<td class="field_active"><a href="' . $adminURL . '&action=active&id=' . $row->loginx_field_id . '&nonce=' . $nonce . '#customFieldsList">' . $active . '</a></td>';
-            $text .= '<td class="field_lock">' . $mand . '</td>';
+            $text .= '<td class="field_active">' . $active . '</td>';
             
             
             
