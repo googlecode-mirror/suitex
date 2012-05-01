@@ -302,9 +302,12 @@ class loginXAdmin extends loginX {
     }
     
     function uninstall(){
-        wp_delete_post($this->options['login_page'], true);
-        delete_option('loginx_options');
+    
     }   
+    
+    function removeData(){
+        
+    }
     
     function adminCSS(){
         print("<link rel='stylesheet' href='" . LOGINX_URL . "css/loginx_admin.css' type='text/css' media='all' />");   
