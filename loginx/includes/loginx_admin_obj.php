@@ -257,7 +257,45 @@ class loginXAdmin extends loginX {
         
         update_option('loginx_options', $options);
         
-        $this->wpdb->query("CREATE TABLE `" . $this->wpdb->prefix . "loginx_field` (`loginx_field_id` INT( 10 ) NOT NULL AUTO_INCREMENT PRIMARY KEY ,`loginx_field_name` VARCHAR( 50 ) NOT NULL,`loginx_field_label` VARCHAR( 200 ) NOT NULL ,`loginx_field_options` TEXT NOT NULL DEFAULT '',`loginx_field_type` VARCHAR( 30 ) NOT NULL ,`loginx_field_reg` TINYINT( 1 ) NOT NULL DEFAULT '0',`loginx_rield_req` TINYINT( 1 ) NOT NULL DEFAULT '0',INDEX ( `loginx_field_reg` ) ,UNIQUE (`loginx_field_name`)) ENGINE = MYISAM ;");     
+        $this->wpdb->query("CREATE TABLE IF NOT EXISTS `" . $this->wpdb->prefix . "loginx_field` (
+  `loginx_field_id` int(10) NOT NULL AUTO_INCREMENT,
+  `loginx_field_name` varchar(50) NOT NULL,
+  `loginx_field_label` varchar(200) NOT NULL,
+  `loginx_field_options` text NOT NULL,
+  `loginx_field_type` varchar(30) NOT NULL,
+  `loginx_field_reg` tinyint(1) NOT NULL DEFAULT '0',
+  `loginx_field_req` tinyint(1) NOT NULL DEFAULT '0',
+  `loginx_field_ord` tinyint(3) NOT NULL DEFAULT '0',
+  `loginx_field_wp` tinyint(1) NOT NULL DEFAULT '0',
+  `loginx_field_mand` tinyint(1) NOT NULL DEFAULT '0',
+  `loginx_field_active` tinyint(1) NOT NULL DEFAULT '0',
+  `loginx_field_lock` tinyint(1) NOT NULL DEFAULT '0',
+  `loginx_field_no_edit` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`loginx_field_id`),
+  UNIQUE KEY `loginx_field_name` (`loginx_field_name`),
+  KEY `loginx_field_reg` (`loginx_field_reg`),
+  KEY `loginx_field_wp` (`loginx_field_wp`,`loginx_field_mand`),
+  KEY `loginx_field_active` (`loginx_field_active`),
+  KEY `loginx_field_lock` (`loginx_field_lock`),
+  KEY `loginx_field_no_edit` (`loginx_field_no_edit`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;");  
+        $this->wpdb->query("INSERT INTO `" . $this->wpdb->prefix . "loginx_field` (`loginx_field_id`, `loginx_field_name`, `loginx_field_label`, `loginx_field_options`, `loginx_field_type`, `loginx_field_reg`, `loginx_field_req`, `loginx_field_ord`, `loginx_field_wp`, `loginx_field_mand`, `loginx_field_active`, `loginx_field_lock`, `loginx_field_no_edit`) VALUES
+(1, 'user_login', 'Username', '', 'text', 1, 1, 1, 1, 1, 1, 1, 1),
+(2, 'user_pass', 'Password', '', 'text', 1, 1, 2, 1, 1, 1, 1, 0),
+(3, 'user_pass_confirm', 'Confirm Password', '', 'text', 1, 1, 3, 1, 0, 1, 1, 0),
+(4, 'user_email', 'Email', '', 'text', 1, 1, 4, 1, 1, 1, 1, 0),
+(5, 'user_url', 'Website', '', 'text', 0, 0, 5, 1, 0, 1, 1, 0),
+(6, 'display_name', 'Display Name', '', 'text', 0, 0, 6, 1, 0, 1, 1, 0),
+(7, 'first_name', 'First Name', '', 'text', 0, 0, 7, 0, 0, 1, 1, 0),
+(8, 'last_name', 'Last Name', '', 'text', 0, 0, 8, 0, 0, 1, 1, 0),
+(9, 'nickname', 'Nickname', '', 'text', 0, 0, 9, 0, 0, 1, 1, 0),
+(10, 'description', 'Bio', '', 'area', 0, 0, 10, 0, 0, 1, 1, 0),
+(11, 'rich_editing', 'Rich Editing', '', 'check', 0, 0, 11, 0, 0, 0, 1, 0),
+(12, 'show_admin_bar_front', 'Show Admin Bar', '', 'check', 0, 0, 12, 0, 0, 0, 1, 0),
+(13, 'aim', 'AOL', '', 'text', 0, 0, 13, 0, 0, 0, 1, 0),
+(14, 'yim', 'Yahoo', '', 'text', 0, 0, 14, 0, 0, 0, 1, 0),
+(15, 'jabber', 'Jabber/Google Talk', '', 'text', 0, 0, 15, 0, 0, 0, 1, 0),
+(16, 'captcha', 'Captcha', '', 'captcha', 1, 1, 17, 0, 0, 1, 1, 0);");   
         $this->wpdb->query('CREATE TABLE `' . $this->wpdb->prefix . 'loginx_key` (`user_id` INT( 10 ) NOT NULL ,`loginx_key` VARCHAR( 32 ) NOT NULL ,`loginx_expire` INT( 11 ) NOT NULL ,INDEX ( `loginx_key` , `loginx_expire` )) ENGINE = MYISAM');
                 
 
