@@ -10,12 +10,15 @@ class phpx_form {
     var $labels = true;
     var $useNameForId = false;
     
-    function startForm($action, $id="theForm", $method="post", $files=false){
+    function startForm($action='', $id="theForm", $method="post", $files=false, $onSubmit=''){
         $this->text = '';
         if ($this->fieldsOnly != true){
             $this->text .= "<form method=\"" . $method . "\" action=\"" . $action . "\" id=\"" . $id . "\"";
             if ($files == true){
                 $this->text .= " enctype=\"multipart/form-data\"";
+            }
+            if ($onSubmit != ''){
+                $this->text .= ' onSubmit="return ' . $onSubmit . '"';
             }
             $this->text .= ">";
         }
