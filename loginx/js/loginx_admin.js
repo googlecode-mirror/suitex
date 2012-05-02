@@ -49,7 +49,7 @@ function loginx_submitAdminForm(){
         jQuery("#loginxFieldForm select[name=loginx_field_type]").val(''); 
         
         jQuery.get(ajaxurl, {action:'loginx_admin'}, function(response){
-            jQuery("#loginxFieldForm input[name=nonce]").val(response);     
+            jQuery("#loginxFieldForm input[name=nonce]").val(response.replace(/^\s+|\s+$/g,""));     
         });
         
                  
@@ -58,7 +58,18 @@ function loginx_submitAdminForm(){
     
 }
 
-function loginx_populateAdminForm(){
+function loginx_populateAdminForm(field_id){
+    jQuery.get(ajaxurl, {action:'loginx_admin', id: field_id}, function(response){
+        jQuery("#loginxFieldForm input[name=loginx_field_name]").val(response.loginx_field_name);
+        jQuery("#loginxFieldForm input[name=loginx_field_id]").val(field_id);
+        jQuery("#loginxFieldForm input[name=loginx_field_label]").val(response.loginx_field_label);
+        jQuery("#loginxFieldForm textarea[name=loginx_field_options]").val(response.loginx_field_options);
+        jQuery("#loginxFieldForm select[name=loginx_field_type]").val(response.loginx_field_type);         
+        jQuery.get(ajaxurl, {action:'loginx_admin'}, function(response){
+            jQuery("#loginxFieldForm input[name=nonce]").val(response.replace(/^\s+|\s+$/g,""));     
+        });
+        
+    });
     
 }
 

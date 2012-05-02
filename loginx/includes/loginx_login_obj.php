@@ -70,7 +70,7 @@ class loginXLogin extends loginX {
                     parent::loginx_errorMessage('Security Token Mismatch');
                 }  
                 else { 
-                    
+                    //check for activated user, and show form to resend email if they  havent activated
                     if ($_GET['password']){
                         if ($user_id = email_exists($_POST['email'])){
                             parent::loginx_successMessage('Check your email for a link with which to reset your password.  The link only be valid for 24 hours.');     

@@ -4,11 +4,13 @@ class loginXAdmin extends loginX {
     function __construct(){
         parent::__construct();
         $this->omit = array('submit', 'nonce', 'action');   
+        $this->fieldTypes = array('text' => 'Text', 'drop' => 'Drop Down', 'check' => 'Check Box', 'radio' => 'Radio', 'area' => 'Text Area', 'date' => 'Date', 'captcha' => 'Captcha', 'pass' => 'Password');
         //do_action('wp_ajax_' . $_POST['action']);
     }
     
     function adminAjaxFieldList(){
-        $nonce = wp_create_nonce('loginx_admin');
+        
+        $nonce = wp_create_nonce('loginx_fields');
         $text .= '<a name="customFieldsList"></a><table class="inline"><tr><th>Order</th><th>Name</th><th>Label</th><th>Type</th><th>Required</th><th>On Register</th><th>Active</th></tr>';
         $results = $this->wpdb->get_results("select * from " . $this->wpdb->prefix . "loginx_field order by loginx_field_ord asc");
         $x = 1;
@@ -28,10 +30,10 @@ class loginXAdmin extends loginX {
                 $active = '<a href="javascript:loginx_admin_ajax(\'active\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');">' . $active . '</a>';
                 
                 $req = ($row->loginx_field_req == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="Required" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="Required" />';
-                $req = '<a href="' . $adminURL . '&action=req&id=' . $row->loginx_field_id . '&nonce=' . $nonce . '#customFields">' . $req . '</a>';
+                $req = '<a href="javascript:loginx_admin_ajax(\'req\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');">' . $req . '</a>';
 
                 $reg = ($row->loginx_field_reg == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="On Register" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="On Register" />';
-                $reg = '<a href="' . $adminURL . '&action=reg&id=' . $row->loginx_field_id . '&nonce=' . $nonce . '#customFields">' . $reg . '</a>';                
+                $reg = '<a href="javascript:loginx_admin_ajax(\'reg\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');">' . $reg . '</a>';                
             }
             
             $edit = '<img src="' . LOGINX_URL . 'images/blank.gif" width="16" height="16" />';
@@ -43,17 +45,17 @@ class loginXAdmin extends loginX {
             
             
             if ($row->loginx_field_wp != 1 && $row->loginx_field_lock != 1){ 
-                $edit = '<a href="' . $adminURL . '&action=edit&id=' . $row->loginx_field_id . '#customFields"><img src="' . LOGINX_URL . 'images/edit.png" border="0" width="16" height="16" alt="Edit" /></a>';
+                $edit = '<a href="javascript:loginx_populateAdminForm(\'' . $row->loginx_field_id . '\')"><img src="' . LOGINX_URL . 'images/edit.png" border="0" width="16" height="16" alt="Edit" /></a>';
             }
             if ($row->loginx_field_wp != 1 && $row->loginx_field_lock != 1){ 
-                $delete = '<a href="javascript:loginx_confirm_delete(\'' . $adminURL . '&action=delete&id=' . $row->loginx_field_id . '&nonce=' . $nonce . '#customFields\');"><img src="' . LOGINX_URL . 'images/delete.png" border="0" width="16" height="16" alt="Delete" /></a>';
+                $delete = '<a href="javascript:loginx_confirm_delete(\'' . $nonce . '\', \'' . $row->loginx_field_id . '\');"><img src="' . LOGINX_URL . 'images/delete.png" border="0" width="16" height="16" alt="Delete" /></a>';
             }
             if ($x != 1){
-                $up = '<a href="' . $adminURL . '&action=up&id=' . $row->loginx_field_id . '&nonce=' . $nonce . '#customFields"><img src="' . LOGINX_URL . 'images/arrow_up_blue.png" border="0" width="16" height="16" alt="Move Up" /></a>'; 
+                $up = '<a href="javascript:loginx_admin_ajax(\'up\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');"><img src="' . LOGINX_URL . 'images/arrow_up_blue.png" border="0" width="16" height="16" alt="Move Up" /></a>'; 
             }
             
             if ($x != $count){
-                $down = '<a href="' . $adminURL . '&action=down&id=' . $row->loginx_field_id . '&nonce=' . $nonce . '#customFields"><img src="' . LOGINX_URL . 'images/arrow_down_blue.png" border="0" width="16" height="16" alt="Move Up" /></a>';
+                $down = '<a href="javascript:loginx_admin_ajax(\'down\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');"><img src="' . LOGINX_URL . 'images/arrow_down_blue.png" border="0" width="16" height="16" alt="Move Up" /></a>';
             }
 
             
@@ -61,7 +63,7 @@ class loginXAdmin extends loginX {
             $text .= '<td class="field_actions">' . $edit . ' ' .  $delete . ' ' . $down . ' ' . $up . '</td>';
             $text .= '<td class="field_name">' . $row->loginx_field_name . '</td>';
             $text .= '<td class="field_label">' . $row->loginx_field_label . '</td>';
-            $text .= '<td class="field_type">' . $fieldTypes[$row->loginx_field_type] . '</td>';
+            $text .= '<td class="field_type">' . $this->fieldTypes[$row->loginx_field_type] . '</td>';
             $text .= '<td class="field_req">' . $req . '</td>';
             $text .= '<td class="field_reg">' . $reg . '</td>';
             $text .= '<td class="field_active">' . $active . '</td>';
@@ -77,40 +79,55 @@ class loginXAdmin extends loginX {
         print($text);
         exit;        
     }
-    
+    function checkNonce($action){
+        if (!wp_verify_nonce($_POST['nonce'], $action)){
+            die('Invalid Security Token: ' . $action . ' ' . $_POST['nonce']);
+        }        
+    }    
 
     function adminAjaxSubmit(){
         if ($_POST['nonce']){
-            if (!wp_verify_nonce($_POST['nonce'], 'loginx_admin')){
-                die('Invalid Security Token');
-            }
-            
-            
+                        
             if ($_POST['sub'] == 'delete'){
+                $this->checkNonce('loginx_fields');
                 $this->wpdb->query($this->wpdb->prepare('delete from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
                 
             }
+            else if ($_POST['sub'] == 'req'){
+                $this->checkNonce('loginx_fields');
+                $old = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_req from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
+                $data['loginx_field_req'] = ($old == 0) ? 1 : 0;
+                $this->wpdb->update($this->wpdb->prefix . 'loginx_field', $data, array('loginx_field_id' => $_POST['id']));                    
+            }
+            else if ($_POST['sub'] == 'reg'){
+                $this->checkNonce('loginx_fields');
+                $old = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_reg from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
+                $data['loginx_field_reg'] = ($old == 0) ? 1 : 0;
+                $this->wpdb->update($this->wpdb->prefix . 'loginx_field', $data, array('loginx_field_id' => $_POST['id']));                
+            }
             else if ($_POST['sub'] == 'active'){
-                
+                $this->checkNonce('loginx_fields');
                 $current = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_active from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
                 
                 $set = ($current == 1)? 0 : 1;
                 $this->wpdb->update($this->wpdb->prefix . 'loginx_field', array('loginx_field_active' => $set), array('loginx_field_id' => $_POST['id']));
             }
             else if ($_POST['sub'] == 'up'){
+                $this->checkNonce('loginx_fields');
                 $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord - 1 where loginx_field_id = %d limit 1', $_POST['id']));
                 $ord = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_ord from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
                 $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord + 1 where loginx_field_ord = %d and loginx_field_id != %d limit 1', $ord, $_POST['id']));
                 
             }
             else if ($_POST['sub'] == 'down'){ 
+                $this->checkNonce('loginx_fields');
                 $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord + 1 where loginx_field_id = %d limit 1', $_POST['id']));
                 $ord = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_ord from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
                 $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord - 1 where loginx_field_ord = %d and loginx_field_id != %d limit 1', $ord, $_POST['id']));                
                 
             } 
             else { 
-                
+                $this->checkNonce('loginx_manage_fields');
                 if ($_POST['loginx_field_id'] == 0){
                     foreach($_POST as $k => $v){
                         if (!in_array($k, $this->omit)){  
@@ -132,17 +149,26 @@ class loginXAdmin extends loginX {
                 }
             }                        
         }
+        if ($_GET['id']){
+            $row = $this->wpdb->get_row($this->wpdb->prepare('select loginx_field_name, loginx_field_label, loginx_field_options, loginx_field_type from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_GET['id']), ARRAY_A);
+            header('Content-type: application/json');
+            print(json_encode($row));
+        }
         else {
-            print(wp_create_nonce('loginx_admin'));
+            print(wp_create_nonce('loginx_manage_fields'));
         }
         exit;  
     }
     
     function adminForm(){
+        
+        
+        
+        wp_enqueue_script('loginx_admin', LOGINX_URL . 'js/loginx_admin.js', 'jquery');
+        
+        
         if ($_POST['nonce']){
-            if (!wp_verify_nonce($_POST['nonce'], 'loginx_admin')){
-                die('Invalid Security Token');
-            }
+            $this->checkNonce('loginx_admin');
             
             
             if (!isset($_POST['loginx_field_id'])){
@@ -171,7 +197,7 @@ class loginXAdmin extends loginX {
         $form = new phpx_form();
         $form1 = new phpx_form();
         $pages = get_pages();
-        $nonce = wp_create_nonce('loginx_admin');
+        
         foreach($pages as $p){
             $pageArray[$p->ID] = $p->post_title;
         }
@@ -179,7 +205,7 @@ class loginXAdmin extends loginX {
         $text = '<div class="wrap" id="phpxContainer"><h2>Login X</h2>';
         if ($message || $_GET['message']){ $text .= '<p>Options Saved</p>'; }
         $text .= $form->startForm($adminURL, 'loginxForm');        
-        $text .= $form->hidden('nonce', $nonce);
+        $text .= $form->hidden('nonce', wp_create_nonce('loginx_admin'));
         $text .= $form->startFieldSet('General Options');
         $text .= $form->dropDown('Profile Page', 'profile_page', $this->options['profile_page'], $pageArray, true);
         $text .= $form->dropDown('Register Page', 'register_page', $this->options['register_page'], $pageArray, true);
@@ -191,6 +217,9 @@ class loginXAdmin extends loginX {
         $text .= $form->textField('ReCaptcha Public Key', 'captcha_public', $this->options['captcha_public']);
         $text .= $form->textField('ReCaptcha Private Key', 'captcha_private', $this->options['captcha_private']);
         $text .= $form->textArea('Password Lookup Text', 'password_text', $this->options['password_text']);
+        $text .= $form->textField('Activation Email Subject', 'act_email_subject', $this->options['act_email_subject']);
+        $text .= $form->textArea('Activation Email Text', 'act_email_text', $this->options['act_email_text']);
+        
         $text .= $form->endForm();
         
         
@@ -201,7 +230,7 @@ class loginXAdmin extends loginX {
         
         
         
-        $fieldTypes = array('text' => 'Text', 'drop' => 'Drop Down', 'check' => 'Check Box', 'radio' => 'Radio', 'area' => 'Text Area', 'date' => 'Date');
+        
         
         $text .= $form1->startForm($adminURL, 'loginxFieldForm', 'post', false, 'false'); 
         $id = 0;
@@ -217,13 +246,13 @@ class loginXAdmin extends loginX {
         $addField = '<table class="inline"><tr><th>Name</th><th>Label</th><th>Type</th><th>Options</th></tr><tr>';
         $addField .= '<td>' . $form1->textField('Name', 'loginx_field_name', $row->loginx_field_name, true) . '</td>';
         $addField .= '<td>' . $form1->textField('Label', 'loginx_field_label', $row->loginx_field_label, true) . '</td>';
-        $addField .= '<td>' . $form1->dropDown('Type', 'loginx_field_type', $row->loginx_field_type, $fieldTypes, false, true) . '</td>';
+        $addField .= '<td>' . $form1->dropDown('Type', 'loginx_field_type', $row->loginx_field_type, $this->fieldTypes, false, true) . '</td>';
         $addField .= '<td>' . $form1->textArea('Options', 'loginx_field_options', $row->loginx_field_options) . '</td>';
         $addField .= '</tr></table>';
 
         $text .= '<a name="customFields"></a><fieldset><legend>Custom Fields</legend>';
         $text .= $form1->startFieldSet('Add Custom User Field');
-        $text .= $form1->hidden('nonce', $nonce);
+        $text .= $form1->hidden('nonce', wp_create_nonce('loginx_manage_fields'));
         $text .= $form1->hidden('loginx_field_id', $id);
         $text .= $form1->freeText($addField);
         
@@ -307,20 +336,20 @@ class loginXAdmin extends loginX {
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;");  
         $this->wpdb->query("INSERT INTO `" . $this->wpdb->prefix . "loginx_field` (`loginx_field_id`, `loginx_field_name`, `loginx_field_label`, `loginx_field_options`, `loginx_field_type`, `loginx_field_reg`, `loginx_field_req`, `loginx_field_ord`, `loginx_field_wp`, `loginx_field_mand`, `loginx_field_active`, `loginx_field_lock`, `loginx_field_no_edit`) VALUES
 (1, 'user_login', 'Username', '', 'text', 1, 1, 1, 1, 1, 1, 1, 1),
-(2, 'user_pass', 'Password', '', 'text', 1, 1, 2, 1, 1, 1, 1, 0),
-(3, 'user_pass_confirm', 'Confirm Password', '', 'text', 1, 1, 3, 1, 0, 1, 1, 0),
-(4, 'user_email', 'Email', '', 'text', 1, 1, 4, 1, 1, 1, 1, 0),
+(2, 'user_pass', 'Password', '', 'pass', 1, 1, 2, 1, 1, 1, 1, 0),
+(3, 'user_pass_confirm', 'Confirm Password', 'confirm:true', 'pass', 1, 1, 3, 1, 0, 1, 1, 0),
+(4, 'user_email', 'Email', 'req:email', 'text', 1, 1, 4, 1, 1, 1, 1, 0),
 (5, 'user_url', 'Website', '', 'text', 0, 0, 5, 1, 0, 1, 1, 0),
 (6, 'display_name', 'Display Name', '', 'text', 0, 0, 6, 1, 0, 1, 1, 0),
-(7, 'first_name', 'First Name', '', 'text', 0, 0, 7, 0, 0, 1, 1, 0),
-(8, 'last_name', 'Last Name', '', 'text', 0, 0, 8, 0, 0, 1, 1, 0),
-(9, 'nickname', 'Nickname', '', 'text', 0, 0, 9, 0, 0, 1, 1, 0),
-(10, 'description', 'Bio', '', 'area', 0, 0, 10, 0, 0, 1, 1, 0),
-(11, 'rich_editing', 'Rich Editing', '', 'check', 0, 0, 11, 0, 0, 0, 1, 0),
-(12, 'show_admin_bar_front', 'Show Admin Bar', '', 'check', 0, 0, 12, 0, 0, 0, 1, 0),
-(13, 'aim', 'AOL', '', 'text', 0, 0, 13, 0, 0, 0, 1, 0),
-(14, 'yim', 'Yahoo', '', 'text', 0, 0, 14, 0, 0, 0, 1, 0),
-(15, 'jabber', 'Jabber/Google Talk', '', 'text', 0, 0, 15, 0, 0, 0, 1, 0),
+(7, 'first_name', 'First Name', '', 'text', 0, 0, 7, 1, 0, 1, 1, 0),
+(8, 'last_name', 'Last Name', '', 'text', 0, 0, 8, 1, 0, 1, 1, 0),
+(9, 'nickname', 'Nickname', '', 'text', 0, 0, 9, 1, 0, 1, 1, 0),
+(10, 'description', 'Bio', '', 'area', 0, 0, 10, 1, 0, 1, 1, 0),
+(11, 'rich_editing', 'Rich Editing', '', 'check', 0, 0, 11, 1, 0, 0, 1, 0),
+(12, 'show_admin_bar_front', 'Show Admin Bar', '', 'check', 0, 0, 12, 1, 0, 0, 1, 0),
+(13, 'aim', 'AOL', '', 'text', 0, 0, 13, 1, 0, 0, 1, 0),
+(14, 'yim', 'Yahoo', '', 'text', 0, 0, 14, 1, 0, 0, 1, 0),
+(15, 'jabber', 'Jabber/Google Talk', '', 'text', 0, 0, 15, 1, 0, 0, 1, 0),
 (16, 'captcha', 'Captcha', '', 'captcha', 1, 1, 17, 0, 0, 1, 1, 0);");   
         $this->wpdb->query('CREATE TABLE `' . $this->wpdb->prefix . 'loginx_key` (`user_id` INT( 10 ) NOT NULL ,`loginx_key` VARCHAR( 32 ) NOT NULL ,`loginx_expire` INT( 11 ) NOT NULL ,INDEX ( `loginx_key` , `loginx_expire` )) ENGINE = MYISAM');
                 
