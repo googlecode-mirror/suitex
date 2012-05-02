@@ -1,3 +1,12 @@
-#phpContainer .inline td.field_name { 
+#phpxContainer .inline td.field_name { 
     width: 200px !important;
+}
+
+#phpxContainer .inline td textarea {
+    width: 600px;
+    height: 200px;
+}
+
+#phpxContainer .inline td select { 
+    margin-top: 17px;
 }

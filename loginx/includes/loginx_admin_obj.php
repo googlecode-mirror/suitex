@@ -3,165 +3,12 @@ class loginXAdmin extends loginX {
     
     function __construct(){
         parent::__construct();
-        
+        $this->omit = array('submit', 'nonce', 'action');   
         //do_action('wp_ajax_' . $_POST['action']);
     }
     
-
-    function adminAjaxSubmit(){
-        print_r($_POST);
-        exit;
-        
-    }
-    
-    function adminForm(){
-        
-        if ($_POST['nonce']){
-            if (!wp_verify_nonce($_POST['nonce'], 'loginx_admin')){
-                die('Invalid Security Token');
-            }
-            $omit = array('submit', 'nonce');
-            $transBin = array('loginx_field_reg', 'loginx_field_req');
-
-            if (!isset($_POST['loginx_field_id'])){
-            
-                foreach($_POST as $k => $v){
-                    if (!in_array($k, $omit)){
-                        $this->options[$k] = $v;
-                    }
-                }
-
-            }
-            else { 
-
-                if ($_POST['action'] == 'order'){ 
-                    
-                }
-                else if ($_POST['loginx_field_id'] == 0){
-                    $this->wpdb->show_errors();
-                    foreach($_POST as $k => $v){
-                        if (!in_array($k, $omit)){
-                            if (in_array($k, $transBin)){
-                                $v = ($v == 'on')? 1 : 0;
-                            }
-                            $fieldArray[$k] = $v;
-                        }
-                    }    
-                    $max = $this->wpdb->get_var($this->wpdb->prepare('select max(loginx_field_ord) from ' . $this->wpdb->prefix . 'loginx_field'));
-                    $fieldArray['loginx_field_ord'] = $max + 1;               
-                    $this->wpdb->insert($this->wpdb->prefix . 'loginx_field', $fieldArray);
-                }
-                else {
-                    $this->wpdb->show_errors();
-                    foreach($_POST as $k => $v){
-                        if (!in_array($k, $omit)){
-                            if (in_array($k, $transBin)){
-                                $v = ($v == 'on')? 1 : 0;
-                            }
-                            $fieldArray[$k] = $v;
-                        }
-                    }                   
-                    $this->wpdb->update($this->wpdb->prefix . 'loginx_field', $fieldArray, array('loginx_field_id' => $_POST['loginx_field_id']));                    
-                }
-                
-            }
-            $message = true;
-            update_option('loginx_options', $this->options);            
-        }
-        else if ($_GET['nonce']){
-            if (!wp_verify_nonce($_GET['nonce'], 'loginx_admin')){
-                die('Invalid Security Token');
-            }            
-            if ($_GET['action'] == 'delete'){
-                $this->wpdb->query($this->wpdb->prepare('delete from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_GET['id']));
-                
-            }
-            else if ($_GET['action'] == 'active'){
-                
-                $current = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_active from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_GET['id']));
-                
-                $set = ($current == 1)? 0 : 1;
-                $this->wpdb->update($this->wpdb->prefix . 'loginx_field', array('loginx_field_active' => $set), array('loginx_field_id' => $_GET['id']));
-            }
-            else if ($_GET['action'] == 'up'){
-                $this->wpdb->show_errors();
-                $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord - 1 where loginx_field_id = %d limit 1', $_GET['id']));
-                $ord = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_ord from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_GET['id']));
-                $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord + 1 where loginx_field_ord = %d and loginx_field_id != %d limit 1', $ord, $_GET['id']));
-                
-            }
-            else { 
-                $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord + 1 where loginx_field_id = %d limit 1', $_GET['id']));
-                $ord = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_ord from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_GET['id']));
-                $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord - 1 where loginx_field_ord = %d and loginx_field_id != %d limit 1', $ord, $_GET['id']));                
-                
-            }
-            
-            
-        }
-        
-        
-        require_once(PHPX_DIR . 'phpx_form.php');
-        $form = new phpx_form();
-        $form1 = new phpx_form();
-        $pages = get_pages();
+    function adminAjaxFieldList(){
         $nonce = wp_create_nonce('loginx_admin');
-        foreach($pages as $p){
-            $pageArray[$p->ID] = $p->post_title;
-        }
-        $adminURL = 'tools.php?page=loginx/includes/loginx_admin_obj.php';
-        $text = '<div class="wrap" id="phpxContainer"><h2>Login X</h2>';
-        if ($message || $_GET['message']){ $text .= '<p>Options Saved</p>'; }
-        $text .= $form->startForm($adminURL, 'loginxForm');        
-        $text .= $form->hidden('nonce', $nonce);
-        $text .= $form->startFieldSet('General Options');
-        $text .= $form->dropDown('Profile Page', 'profile_page', $this->options['profile_page'], $pageArray, true);
-        $text .= $form->dropDown('Register Page', 'register_page', $this->options['register_page'], $pageArray, true);
-        $text .= $form->dropDown('Login Page', 'login_page', $this->options['login_page'], $pageArray, true);
-        $text .= $form->checkbox('Restrict Admin Area', 'user_admin_redirect', $this->options['user_admin_redirect']);
-        $text .= $form->dropDown('Redirect Admin Area To', 'redirect_admin_page', $this->options['redirect_admin_page'], $pageArray, true);
-        $text .= $form->checkbox('Restrict Wordpress Login Page', 'user_login_redirect', $this->options['user_login_redirect']);
-        $text .= $form->checkbox('Require Email Validation on Register', 'email_valid', $this->options['email_valid']);
-        $text .= $form->textField('ReCaptcha Public Key', 'captcha_public', $this->options['captcha_public']);
-        $text .= $form->textField('ReCaptcha Private Key', 'captcha_private', $this->options['captcha_private']);
-        $text .= $form->textArea('Password Lookup Text', 'password_text', $this->options['password_text']);
-        $text .= $form->endForm();
-        
-        
-        
-        
-        $form1->labels = false;
-        $form1->instantReturn = true;
-        
-        $fieldTypes = array('text' => 'Text', 'drop' => 'Drop Down', 'check' => 'Check Box', 'radio' => 'Radio', 'area' => 'Text Area', 'date' => 'Date');
-        
-        $text .= $form1->startForm($adminURL . '#customFieldsList', 'loginxFieldForm'); 
-        $id = 0;
-        $reg = 0;
-        $req = 0;
-        if ($_GET['action'] == 'edit'){
-            $row = $this->wpdb->get_row($this->wpdb->prepare('select * from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_GET['id']));
-            $id = $row->loginx_field_id;
-            $req = $row->loginx_field_req;    
-            $reg = $row->loginx_field_reg;
-        }
-        
-        $addField = '<table class="inline"><tr><th>Name</th><th>Label</th><th>Type</th><th>Options</th></tr><tr>';
-        $addField .= '<td>' . $form1->textField('Name', 'loginx_field_name', $row->loginx_field_name, true) . '</td>';
-        $addField .= '<td>' . $form1->textField('Label', 'loginx_field_label', $row->loginx_field_label, true) . '</td>';
-        $addField .= '<td>' . $form1->dropDown('Type', 'loginx_field_type', $row->loginx_field_type, $fieldTypes, false, true) . '</td>';
-        $addField .= '<td>' . $form1->textArea('Options', 'loginx_field_options', $row->loginx_field_options) . '</td>';
-        $addField .= '</tr></table>';
-
-        $text .= '<a name="customFields"></a><fieldset><legend>Custom Fields</legend>';
-        $text .= $form1->startFieldSet('Add Custom User Field');
-        $text .= $form1->hidden('nonce', $nonce);
-        $text .= $form1->hidden('loginx_field_id', $id);
-        $text .= $form1->freeText($addField);
-        
-        $text .= $form1->endForm();    
-        $text .= '</fieldset>';
-        
         $text .= '<a name="customFieldsList"></a><table class="inline"><tr><th>Order</th><th>Name</th><th>Label</th><th>Type</th><th>Required</th><th>On Register</th><th>Active</th></tr>';
         $results = $this->wpdb->get_results("select * from " . $this->wpdb->prefix . "loginx_field order by loginx_field_ord asc");
         $x = 1;
@@ -227,7 +74,164 @@ class loginXAdmin extends loginX {
         }
         
         $text .= '</table>';
+        print($text);
+        exit;        
+    }
+    
+
+    function adminAjaxSubmit(){
+        if ($_POST['nonce']){
+            if (!wp_verify_nonce($_POST['nonce'], 'loginx_admin')){
+                die('Invalid Security Token');
+            }
+            
+            
+            if ($_POST['sub'] == 'delete'){
+                $this->wpdb->query($this->wpdb->prepare('delete from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
+                
+            }
+            else if ($_POST['sub'] == 'active'){
+                
+                $current = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_active from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
+                
+                $set = ($current == 1)? 0 : 1;
+                $this->wpdb->update($this->wpdb->prefix . 'loginx_field', array('loginx_field_active' => $set), array('loginx_field_id' => $_POST['id']));
+            }
+            else if ($_POST['sub'] == 'up'){
+                $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord - 1 where loginx_field_id = %d limit 1', $_POST['id']));
+                $ord = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_ord from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
+                $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord + 1 where loginx_field_ord = %d and loginx_field_id != %d limit 1', $ord, $_POST['id']));
+                
+            }
+            else if ($_POST['sub'] == 'down'){ 
+                $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord + 1 where loginx_field_id = %d limit 1', $_POST['id']));
+                $ord = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_ord from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
+                $this->wpdb->query($this->wpdb->prepare('update ' . $this->wpdb->prefix . 'loginx_field set loginx_field_ord = loginx_field_ord - 1 where loginx_field_ord = %d and loginx_field_id != %d limit 1', $ord, $_POST['id']));                
+                
+            } 
+            else { 
+                
+                if ($_POST['loginx_field_id'] == 0){
+                    foreach($_POST as $k => $v){
+                        if (!in_array($k, $this->omit)){  
+                            $fieldArray[$k] = $v;
+                        }
+                    }  
+                    $this->wpdb->show_errors();  
+                    $max = $this->wpdb->get_var($this->wpdb->prepare('select max(loginx_field_ord) from ' . $this->wpdb->prefix . 'loginx_field'));
+                    $fieldArray['loginx_field_ord'] = $max + 1;               
+                    $this->wpdb->insert($this->wpdb->prefix . 'loginx_field', $fieldArray);
+                }
+                else {
+                    foreach($_POST as $k => $v){
+                        if (!in_array($k, $this->omit)){
+                            $fieldArray[$k] = $v;
+                        }
+                    }                   
+                    $this->wpdb->update($this->wpdb->prefix . 'loginx_field', $fieldArray, array('loginx_field_id' => $_POST['loginx_field_id']));                    
+                }
+            }                        
+        }
+        else {
+            print(wp_create_nonce('loginx_admin'));
+        }
+        exit;  
+    }
+    
+    function adminForm(){
+        if ($_POST['nonce']){
+            if (!wp_verify_nonce($_POST['nonce'], 'loginx_admin')){
+                die('Invalid Security Token');
+            }
+            
+            
+            if (!isset($_POST['loginx_field_id'])){
+                $checkFields = array('user_admin_redirect', 'user_login_redirect', 'email_valid');
+                
+                foreach($_POST as $k => $v){
+                    if (!in_array($k, $this->omit)){  
+                        $this->options[$k] = $v;
+                    }
+                }
+                foreach($checkFields as $c){
+                    if (!in_array($c, array_keys($_POST))){
+                        $this->options[$c] = '';
+                    }
+                }
+                
+                update_option('loginx_options', $this->options);  
+                $message = true;
+
+            }   
+       
+        }
         
+        
+        require_once(PHPX_DIR . 'phpx_form.php');
+        $form = new phpx_form();
+        $form1 = new phpx_form();
+        $pages = get_pages();
+        $nonce = wp_create_nonce('loginx_admin');
+        foreach($pages as $p){
+            $pageArray[$p->ID] = $p->post_title;
+        }
+        $adminURL = 'tools.php?page=loginx/includes/loginx_admin_obj.php';
+        $text = '<div class="wrap" id="phpxContainer"><h2>Login X</h2>';
+        if ($message || $_GET['message']){ $text .= '<p>Options Saved</p>'; }
+        $text .= $form->startForm($adminURL, 'loginxForm');        
+        $text .= $form->hidden('nonce', $nonce);
+        $text .= $form->startFieldSet('General Options');
+        $text .= $form->dropDown('Profile Page', 'profile_page', $this->options['profile_page'], $pageArray, true);
+        $text .= $form->dropDown('Register Page', 'register_page', $this->options['register_page'], $pageArray, true);
+        $text .= $form->dropDown('Login Page', 'login_page', $this->options['login_page'], $pageArray, true);
+        $text .= $form->checkbox('Restrict Admin Area', 'user_admin_redirect', $this->options['user_admin_redirect']);
+        $text .= $form->dropDown('Redirect Admin Area To', 'redirect_admin_page', $this->options['redirect_admin_page'], $pageArray, true);
+        $text .= $form->checkbox('Restrict Wordpress Login Page', 'user_login_redirect', $this->options['user_login_redirect']);
+        $text .= $form->checkbox('Require Email Validation on Register', 'email_valid', $this->options['email_valid']);
+        $text .= $form->textField('ReCaptcha Public Key', 'captcha_public', $this->options['captcha_public']);
+        $text .= $form->textField('ReCaptcha Private Key', 'captcha_private', $this->options['captcha_private']);
+        $text .= $form->textArea('Password Lookup Text', 'password_text', $this->options['password_text']);
+        $text .= $form->endForm();
+        
+        
+        
+        
+        $form1->labels = false;
+        $form1->instantReturn = true;
+        
+        
+        
+        $fieldTypes = array('text' => 'Text', 'drop' => 'Drop Down', 'check' => 'Check Box', 'radio' => 'Radio', 'area' => 'Text Area', 'date' => 'Date');
+        
+        $text .= $form1->startForm($adminURL, 'loginxFieldForm', 'post', false, 'false'); 
+        $id = 0;
+        $reg = 0;
+        $req = 0;
+        if ($_GET['action'] == 'edit'){
+            $row = $this->wpdb->get_row($this->wpdb->prepare('select * from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_GET['id']));
+            $id = $row->loginx_field_id;
+            $req = $row->loginx_field_req;    
+            $reg = $row->loginx_field_reg;
+        }
+        
+        $addField = '<table class="inline"><tr><th>Name</th><th>Label</th><th>Type</th><th>Options</th></tr><tr>';
+        $addField .= '<td>' . $form1->textField('Name', 'loginx_field_name', $row->loginx_field_name, true) . '</td>';
+        $addField .= '<td>' . $form1->textField('Label', 'loginx_field_label', $row->loginx_field_label, true) . '</td>';
+        $addField .= '<td>' . $form1->dropDown('Type', 'loginx_field_type', $row->loginx_field_type, $fieldTypes, false, true) . '</td>';
+        $addField .= '<td>' . $form1->textArea('Options', 'loginx_field_options', $row->loginx_field_options) . '</td>';
+        $addField .= '</tr></table>';
+
+        $text .= '<a name="customFields"></a><fieldset><legend>Custom Fields</legend>';
+        $text .= $form1->startFieldSet('Add Custom User Field');
+        $text .= $form1->hidden('nonce', $nonce);
+        $text .= $form1->hidden('loginx_field_id', $id);
+        $text .= $form1->freeText($addField);
+        
+        $text .= $form1->endForm();    
+        $text .= '</fieldset>';
+        $text .= '<div id="customFieldsList">';
+
+        $text .= '</div>';
         $text .= '</fieldset>';
         
         
