@@ -1,7 +1,7 @@
 <?php
 class loginXRegister extends loginX {
     
-    var $fieldOptions = array();
+    
     
     function __construct(){
         parent::__construct();
@@ -20,11 +20,33 @@ class loginXRegister extends loginX {
                 parent::loginx_errorMessage('Email Exists.  Do you want to <a href="' . $this->loginx_getURL() . '">Login?</a>');
                 $_POST['user_email'] = '';
             }
+            else if ($_POST['recaptcha_challenge_field']){
+                $data['privatekey'] = $this->options['captcha_private'];
+                $data['remoteip'] = $_SERVER['REMOTE_ADDR'];
+                $data['challenge'] = $_POST['recaptcha_challenge_field'];
+                $data['response'] = $_POST['recaptcha_response_field'];
+
+                
+                $c = curl_init();
+                curl_setopt($c, CURLOPT_URL, 'http://www.google.com/recaptcha/api/verify');    
+                curl_setopt($c, CURLOPT_POST, true);
+                curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($c, CURLOPT_POSTFIELDS, $data);
+                $response = curl_exec($c);
+                $r = explode("\n", $response);
+                if ($r[0] == 'true'){
+                    $cont = true;    
+                }
+                else { 
+                    parent::loginx_errorMessage($this->option['captcha_fail']); 
+                       
+                }
+            }
+
             
             
-            else { 
-                //CAPTCHA
-                $omit = array('submit', 'nonce', 'user_pass_confirm', 'captcha');
+            if ($cont) { 
+                $omit = array('submit', 'nonce', 'user_pass_confirm', 'captcha', 'recaptcha_challenge_field', 'recaptcha_response_field');
                 $wpFields = array();
                 $createArray = array();
                 $metaArray = array();
@@ -52,12 +74,13 @@ class loginXRegister extends loginX {
                     $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
                     add_user_meta($user_id, 'act_key', $actKey, true);
                     
+                    $subject = parent::loginx_emailTrans($this->options['act_email_subject']);
+                    $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['register_page']) . '?act=' . $actKey));
                     
                     
+                    wp_mail($_POST['user_email'], $subject, $message);
                     
-                    wp_mail($_POST['user_email'], get_bloginfo('name') . ' ' . $this->options['act_email_subject'], $this->options['act_email_text']);
-                    
-                    parent::loginx_successMessage('You have been registered<br />Please check your email for activation instructions.');
+                    parent::loginx_successMessage($this->options['register_success_message']);
                     $text = '<div id="loginx_form">' . parent::loginx_successMessage() . '</div>';
                     return $text;                 
                 }
@@ -72,7 +95,6 @@ class loginXRegister extends loginX {
             //check activation key for user
             
         }
-        
         require_once(PHPX_DIR . 'phpx_form.php');
         $form = new phpx_form();
         $form->startForm(get_permalink(), 'loginxRegisterForm');
@@ -80,82 +102,18 @@ class loginXRegister extends loginX {
         if (parent::loginx_errorMessage()){
             $form->freeText(parent::loginx_errorMessage('get'), 'loginx_error');
         }            
-        $results = $this->wpdb->get_results('select loginx_field_name, loginx_field_label, loginx_field_options, loginx_field_type, loginx_field_req from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_reg = 1 order by loginx_field_ord asc');
-        foreach($results as $row){
-            $this->createFieldOptions($row->loginx_field_options);
-            $req = $this->getReq($row, $options);
-            $min = $this->getMin($row, $options);
-            $confirm = $this->getConfirm($row, $options);
-                
-                
-            switch($row->loginx_field_type){
-                case 'text':
-                    $form->textField($row->loginx_field_label, $row->loginx_field_name, $_POST[$row->loginx_field_name], $req, $min);
-                    break;
-                    
-                case 'pass':
-                    $form->password($row->loginx_field_label, $row->loginx_field_name, $req, $min, $confirm);
-                    break;
-                    
-                case 'captcha':
-                    $form->reCaptcha($this->options['captcha_public']);
-                    break;
-                        
-                case 'date':
-                    $form->dateField($row->loginx_field_label, $loginx_field_name, $_POST[$row->loginx_field_name], $req, true);
-                    break;
-                        
-            }                        
-        }
+        $results = $this->wpdb->get_results('select loginx_field_name, loginx_field_label, loginx_field_options, loginx_field_type, loginx_field_req from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_reg = 1 order by loginx_field_ord asc');        
+        
+        $form = parent::publicForm($form, $results);        
+        
+        
+        
+        
+
         $text = '<div id="loginx_form">' . $form->endForm() . '</div>';
         return $text;
     }   
     
-    function createFieldOptions($opts){
-        $this->fieldOptions = array();
-        if ($opts != ''){
-            $rows = explode("\r\n", $opts);
-            foreach($rows as $r){
-                $exp = explode(':', $r);
-            
-                $this->fieldOptions[$exp[0]] = $exp[1];
-            }
-        }
-        
-        
-    }
-    
-    function getReq($row){
 
-        if (in_array('req', array_keys($this->fieldOptions))){
-            $req = $this->fieldOptions['req'];    
-        }
-        else { 
-            $req = ($row->loginx_field_req == 1) ? true : false;            
-        }
-        return $req;                
-    }
-    
-    function getMin($row){
-        if (in_array('min', array_keys($this->fieldOptions))){
-            $min = $this->fieldOptions['min'];    
-        }
-        else { 
-            $min = 6;          
-        }
-        return $min;
-        
-    }
-    
-    function getConfirm($row){
-        if (in_array('confirm', array_keys($this->fieldOptions))){
-            
-            $confirm = true;    
-        }
-        else { 
-            $confirm = false;          
-        }
-        return $confirm;        
-    }
 }  
 ?>

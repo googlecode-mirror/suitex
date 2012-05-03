@@ -1,15 +1,105 @@
 <?php
 class loginXAdmin extends loginX {
     
+    var $omit = array();
+    var $adminPageID = '';
+    var $fieldTypes = array();
+    
+    
     function __construct(){
         parent::__construct();
-        $this->omit = array('submit', 'nonce', 'action');   
+        $this->omit = array('submit', 'nonce', 'action', 'tab', 'checkFields');   
         $this->fieldTypes = array('text' => 'Text', 'drop' => 'Drop Down', 'check' => 'Check Box', 'radio' => 'Radio', 'area' => 'Text Area', 'date' => 'Date', 'captcha' => 'Captcha', 'pass' => 'Password');
         //do_action('wp_ajax_' . $_POST['action']);
     }
+
     
     function adminScreen(){
-        print("TEXT");
+        
+        if ($_POST['nonce']){
+            $this->checkNonce('loginx_admin');
+            
+            
+            if (!isset($_POST['loginx_field_id'])){
+                
+                
+                foreach($_POST as $k => $v){
+                    if (!in_array($k, $this->omit)){  
+                        $this->options[$k] = $v;
+                    }
+                }
+                if ($_POST['checkFields'] == 1){
+                    $checkFields = array('user_admin_redirect', 'user_login_redirect', 'email_valid');
+                    foreach($checkFields as $c){
+                        if (!in_array($c, array_keys($_POST))){
+                            $this->options[$c] = '';
+                        }
+                    }
+                }
+                
+                update_option('loginx_options', $this->options);  
+                $message = true;
+
+            }   
+       
+        }        
+        
+        $text = '<div class="wrap" id="phpxContainer"><h2>Login X</h2>';
+        $text .= '<div id="loginx_tabs">
+            <ul>
+                <li><a href="#tabs-1">General Settings</a></li>
+                <li><a href="#tabs-2">Field Configuration</a></li>
+                <li><a href="#tabs-3">Templates</a></li>
+            </ul>
+            <div id="tabs-1">' . $this->adminForm() . '</div>
+            <div id="tabs-2">' . $this->fieldForm() . '</div>
+            <div id="tabs-3">' . $this->templateForm() . '</div>
+        </div></div>';
+        
+        $text .= '<script language="javascript">
+            jQuery(document).ready(function(){
+                loginxTabs = jQuery("#loginx_tabs").tabs();';
+        if ($_POST['tab']){    
+            $text .= 'loginxTabs.tabs(\'select\', ' . $_POST['tab'] . ');';
+            
+        }
+        $text .= '});</script>';
+        
+        
+        print($text);
+    }
+    
+    function templateForm(){
+
+        
+        
+        
+        require_once(PHPX_DIR . 'phpx_form.php');
+        $form = new phpx_form();
+        
+        $pages = get_pages();
+        
+        foreach($pages as $p){
+            $pageArray[$p->ID] = $p->post_title;
+        }
+        $adminURL = 'tools.php?page=loginx/includes/loginx_admin_obj.php';
+        
+        if ($message || $_GET['message']){ $text .= '<p>Options Saved</p>'; }
+        $text .= $form->startForm($adminURL, 'loginxForm');        
+        $text .= $form->hidden('nonce', wp_create_nonce('loginx_admin'));
+        $text .= $form->textArea('Bad Key/Expired Key Password Reset', 'bad_key', $this->options['bad_key']);
+        $text .= $form->textArea('Captcha Fail', 'captcha_fail', $this->options['captcha_fail']);
+        $text .= $form->textArea('Check Email for Password Reset', 'check_email_password', $this->options['check_email_password']);
+        $text .= $form->textArea('Password Lookup Text', 'password_text', $this->options['password_text']);
+        $text .= $form->textArea('Register Success', 'register_success_message', $this->options['register_success_message']);
+        $text .= $form->textField('Password Reset Email Subject', 'email_password_reset_subject', $this->options['email_password_reset_subject']);
+        $text .= $form->textArea('Password Reset Email Message', 'email_password_reset', $this->options['email_password_reset']);
+        $text .= $form->textField('Activation Email Subject', 'act_email_subject', $this->options['act_email_subject']);
+        $text .= $form->textArea('Activation Email Text', 'act_email_text', $this->options['act_email_text']);
+        $text .= $form->hidden('tab', 2);
+        
+        $text .= $form->endForm();
+        return $text;        
     }
     
     function adminAjaxFieldList(){
@@ -131,6 +221,8 @@ class loginXAdmin extends loginX {
                 
             } 
             else { 
+                
+                
                 $this->checkNonce('loginx_manage_fields');
                 if ($_POST['loginx_field_id'] == 0){
                     foreach($_POST as $k => $v){
@@ -153,7 +245,7 @@ class loginXAdmin extends loginX {
                 }
             }                        
         }
-        if ($_GET['id']){
+        else if ($_GET['id']){
             $row = $this->wpdb->get_row($this->wpdb->prepare('select loginx_field_name, loginx_field_label, loginx_field_options, loginx_field_type from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_GET['id']), ARRAY_A);
             header('Content-type: application/json');
             print(json_encode($row));
@@ -165,53 +257,20 @@ class loginXAdmin extends loginX {
     }
     
     function adminForm(){
-        
-        
-        
-        admin_enqueue_scripts('loginx_admin', LOGINX_URL . 'js/loginx_admin.js', 'jquery');
-        admin_enqueue_scripts('jquery-ui-tabs');
-        
-        
-        if ($_POST['nonce']){
-            $this->checkNonce('loginx_admin');
-            
-            
-            if (!isset($_POST['loginx_field_id'])){
-                $checkFields = array('user_admin_redirect', 'user_login_redirect', 'email_valid');
-                
-                foreach($_POST as $k => $v){
-                    if (!in_array($k, $this->omit)){  
-                        $this->options[$k] = $v;
-                    }
-                }
-                foreach($checkFields as $c){
-                    if (!in_array($c, array_keys($_POST))){
-                        $this->options[$c] = '';
-                    }
-                }
-                
-                update_option('loginx_options', $this->options);  
-                $message = true;
-
-            }   
-       
-        }
-        
-        
         require_once(PHPX_DIR . 'phpx_form.php');
         $form = new phpx_form();
-        $form1 = new phpx_form();
         $pages = get_pages();
         
         foreach($pages as $p){
             $pageArray[$p->ID] = $p->post_title;
         }
         $adminURL = 'tools.php?page=loginx/includes/loginx_admin_obj.php';
-        $text = '<div class="wrap" id="phpxContainer"><h2>Login X</h2>';
+        
         if ($message || $_GET['message']){ $text .= '<p>Options Saved</p>'; }
         $text .= $form->startForm($adminURL, 'loginxForm');        
         $text .= $form->hidden('nonce', wp_create_nonce('loginx_admin'));
-        $text .= $form->startFieldSet('General Options');
+        $text .= $form->hidden('checkFields', 1);
+        
         $text .= $form->dropDown('Profile Page', 'profile_page', $this->options['profile_page'], $pageArray, true);
         $text .= $form->dropDown('Register Page', 'register_page', $this->options['register_page'], $pageArray, true);
         $text .= $form->dropDown('Login Page', 'login_page', $this->options['login_page'], $pageArray, true);
@@ -221,14 +280,15 @@ class loginXAdmin extends loginX {
         $text .= $form->checkbox('Require Email Validation on Register', 'email_valid', $this->options['email_valid']);
         $text .= $form->textField('ReCaptcha Public Key', 'captcha_public', $this->options['captcha_public']);
         $text .= $form->textField('ReCaptcha Private Key', 'captcha_private', $this->options['captcha_private']);
-        $text .= $form->textArea('Password Lookup Text', 'password_text', $this->options['password_text']);
-        $text .= $form->textField('Activation Email Subject', 'act_email_subject', $this->options['act_email_subject']);
-        $text .= $form->textArea('Activation Email Text', 'act_email_text', $this->options['act_email_text']);
         
         $text .= $form->endForm();
+        return $text;
+    }
+    
+    function fieldform(){        
+        require_once(PHPX_DIR . 'phpx_form.php');
         
-        
-        
+        $form1 = new phpx_form();        
         
         $form1->labels = false;
         $form1->instantReturn = true;
@@ -267,15 +327,39 @@ class loginXAdmin extends loginX {
 
         $text .= '</div>';
         $text .= '</fieldset>';
-        
-        
-        $text .= '</div>';
-        print($text);
+
+        return $text;
     }   
     
     function adminMenu(){
-        add_management_page('LoginX', 'LoginX', 5, __FILE__, array($this, 'adminScreen')); 
+        $this->adminPageID = add_management_page('LoginX', 'LoginX', 5, __FILE__, array($this, 'adminScreen')); 
+        wp_enqueue_script('jquery-ui-tabs');        
+        wp_enqueue_script('loginx_admin', LOGINX_URL . 'js/loginx_admin.js');
+        add_action('load-' . $this->adminPageID, array($this, 'loadHelpTab'));
     } 
+    
+    function loadHelpTab(){
+        $screen = get_current_screen();
+
+        if ($screen->id == $this->adminPageID){
+            $screen->add_help_tab(array(
+                'id' => 'loginx_admin_help', 
+                'title' => 'LoginX Help', 
+                'content' => '
+                The list of tags that can be included in your email templates:
+                <ul>
+                    <li><div style="font-weight: bold; width:150px; float:left;">::URL::</div> - Website URL</li>
+                    <li><div style="font-weight: bold; width:150px; float:left;">::BLOGURL::</div> - Blog URL</li>
+                    <li><div style="font-weight: bold; width:150px; float:left;">::BLOGDESC::</div> - Blog Description</li>
+                    <li><div style="font-weight: bold; width:150px; float:left;">::BLOGNAME::</div> - Blog Name</li>
+                    <li><div style="font-weight: bold; width:150px; float:left;">::ADMINEMAIL::</div> - Admin Email (Set in General Settings)</li>
+                    <li><div style="font-weight: bold; width:150px; float:left;">::DATE::</div> - Current Date (Format set in General Settings)</li>
+                    <li><div style="font-weight: bold; width:150px; float:left;">::TIME::</div> - Current Time (Format set in General Settings)</li>
+                    <li><div style="font-weight: bold; width:150px; float:left;">::LINK::</div> - A dynamic tag.  If the email produces a link, like verification or password reset, this will be the link.</li>
+                </ul>'
+            ));             
+        }        
+    }
     
     function install(){
         if (!is_plugin_active('phpx/phpx.php')){

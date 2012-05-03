@@ -52,6 +52,8 @@ else {
     add_action('wp_ajax_loginx_admin', array($loginXAdminObj, 'adminAjaxSubmit'));
     add_action('wp_ajax_loginx_fields', array($loginXAdminObj, 'adminAjaxFieldList'));
     wp_localize_script('loginx_admin', 'loginxAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
+
+
 }
 
 add_action('login_head', array($loginXobj, 'loginx_redirect_login'));

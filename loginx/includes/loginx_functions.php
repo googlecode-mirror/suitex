@@ -5,18 +5,38 @@ class loginX {
     * @global   array   $options
     */
     
+    var $fieldOptions = array();
+    
     function __construct(){
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->options = get_option('loginx_options');
         
+        $this->trans['::URL::'] = get_bloginfo('url');
+        $this->trans['::BLOGURL::'] = get_bloginfo('wpurl');
+        $this->trans['::BLOGNAME::'] = get_bloginfo('name');
+        $this->trans['::BLOGDESC::'] = get_bloginfo('description');
+        $this->trans['::DATE::'] = date(get_option('date_format'));
+        $this->trans['::TIME::'] = date(get_option('time_format'));
+        $this->trans['::ADMINEMAIL::'] = get_bloginfo('admin_email');
     }
     
     function loginx_addCSS(){
         print("<link rel='stylesheet' href='" . LOGINX_URL . "css/loginx.css' type='text/css' media='all' />");      
     }  
     
+    function loginx_emailTrans($text, $special=array()){
+        $text = strtr($text, array_merge($this->trans, $special));
+        return $text;
+    }
+    
     function loginx_login(){
+        global $post;
+        if ($post->ID == $this->options['login_page'] || $post->ID == $this->options['register_page']){ 
+            wp_redirect(get_permalink($this->options['profile_page']));
+            exit;
+        }
+       
         require_once(LOGINX_DIR . 'includes/loginx_login_obj.php');
         $this->loginObj = new loginXLogin();
         $this->loginObj->login();
@@ -59,7 +79,7 @@ class loginX {
         
         }
         else if ($post->ID == $this->options['profile_page']){   
-            
+            $text = "PROFILE PGE";    
         }
         return $text;
     }
@@ -85,7 +105,85 @@ class loginX {
              }
         }
               
-    }     
+    }  
+    
+    function publicForm($form, $results){
+
+        foreach($results as $row){
+            $this->createFieldOptions($row->loginx_field_options);
+            $req = $this->getReq($row, $options);
+            $min = $this->getMin($row, $options);
+            $confirm = $this->getConfirm($row, $options);
+                
+                
+            switch($row->loginx_field_type){
+                case 'text':
+                    $form->textField($row->loginx_field_label, $row->loginx_field_name, $_POST[$row->loginx_field_name], $req, $min);
+                    break;
+                    
+                case 'pass':
+                    $form->password($row->loginx_field_label, $row->loginx_field_name, $req, $min, $confirm);
+                    break;
+                    
+                case 'captcha':
+                    $form->reCaptcha($this->options['captcha_public']);
+                    break;
+                        
+                case 'date':
+                    $form->dateField($row->loginx_field_label, $loginx_field_name, $_POST[$row->loginx_field_name], $req, true);
+                    break;
+                        
+            }                        
+        }        
+        return $form;
+    } 
+    
+    function createFieldOptions($opts){
+        $this->fieldOptions = array();
+        if ($opts != ''){
+            $rows = explode("\r\n", $opts);
+            foreach($rows as $r){
+                $exp = explode(':', $r);
+            
+                $this->fieldOptions[$exp[0]] = $exp[1];
+            }
+        }
+        
+        
+    }
+    
+    function getReq($row){
+
+        if (in_array('req', array_keys($this->fieldOptions))){
+            $req = $this->fieldOptions['req'];    
+        }
+        else { 
+            $req = ($row->loginx_field_req == 1) ? true : false;            
+        }
+        return $req;                
+    }
+    
+    function getMin($row){
+        if (in_array('min', array_keys($this->fieldOptions))){
+            $min = $this->fieldOptions['min'];    
+        }
+        else { 
+            $min = 6;          
+        }
+        return $min;
+        
+    }
+    
+    function getConfirm($row){
+        if (in_array('confirm', array_keys($this->fieldOptions))){
+            
+            $confirm = true;    
+        }
+        else { 
+            $confirm = false;          
+        }
+        return $confirm;        
+    }        
 }
         
         

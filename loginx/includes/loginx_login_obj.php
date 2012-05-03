@@ -25,7 +25,7 @@ class loginXLogin extends loginX {
         else if ($_GET['reset']){
             $user_id = $this->wpdb->get_var($this->wpdb->prepare('select user_id from ' . $this->wpdb->prefix . 'loginx_key where loginx_key = %s and loginx_expire > %d limit 1', $_GET['reset'], time()));
             if (!$user_id){
-                $text = '<div class="loginx_error">Bad Key or Key as Expired.  Please try to reset your password again.</div>';
+                $text = '<div class="loginx_error">' . $this->options['bad_key'] . '</div>';
             }
             else { 
                 $form->startForm(parent::loginx_getURL());
@@ -70,19 +70,15 @@ class loginXLogin extends loginX {
                     parent::loginx_errorMessage('Security Token Mismatch');
                 }  
                 else { 
+                    ///REIVEW_**********************************
                     //check for activated user, and show form to resend email if they  havent activated
                     if ($_GET['password']){
                         if ($user_id = email_exists($_POST['email'])){
-                            parent::loginx_successMessage('Check your email for a link with which to reset your password.  The link only be valid for 24 hours.');     
+                            parent::loginx_successMessage($this->options['check_email_password']);     
                             $key = substr(md5(microtime() . '984ail23623436adsf$$ad34qKLJKLJ$jo3i4kjhlkaklj6t'), 5, 25);
                             $this->wpdb->query($this->wpdb->prepare('insert into ' . $this->wpdb->prefix . 'loginx_key (user_id, loginx_key, loginx_expire) values (%d, %s, %d)', $user_id, $key, time() + 86400));
-                            
-                            $link = get_permalink($this->options['page_id']) . '?reset=' . $key;
-                            //$message = str_replace('::LINK::', $link, $this->options['email_text']);
-                            $message = 'A request has been processed to reset your email.  If you did not request this, you can safely disregard this email.  Otherwise, please follow the link below within the next 24 hours in order to select a new password:<br /><br /><a href="' . $link . '">' . $link . '</a><br /><br />Thank you.';
-                            $headers = 'From: ' . get_bloginfo('name') . ' <' . get_bloginfo('admin_email') . '>' . "\r\ncontent-type: text/html\r\n";
-                            print($message);
-                            //wp_mail($_POST['email'], get_bloginfo('name') . ' Password Reset Request', $message, $headers);
+                            $subject = parent::loginx_emailTrans($this->options['email_password_reset_subject']);
+                            $message = parent::loginx_emailTrans($this->options['email_password_reset'], array('::LINK::' => get_permalink($this->options['page_id']) . '?reset=' . $key));                                  wp_mail($_POST['email'], $subject, $message, $headers);
                         }   
                         else {
                             
@@ -123,6 +119,8 @@ class loginXLogin extends loginX {
             }  
         }
    
-    }    
+    }   
+    
+   
 }
 ?>
