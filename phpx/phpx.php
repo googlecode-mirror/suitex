@@ -66,7 +66,7 @@ register_deactivation_hook(__FILE__, 'phpx_uninstall');
 function phpx_addCSS(){        
     if (is_admin()){
         print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'css/phpx-admin.css" />');         
-        //print('<script>$.noConflict();</script>');
+        print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'jquery-themes/smoothness/jquery-ui-1.8.20.custom.css" />' . "\n"); 
         
     }
     else {

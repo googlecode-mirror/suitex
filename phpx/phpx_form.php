@@ -109,6 +109,26 @@ class phpx_form {
         }          
     }
     
+    function reCaptcha($publicKey){
+        if ($this->labels == true){ $this->text .= "<p><label>" . $label . "</label><em></em>"; }
+        $this->text .= '<script type="text/javascript"
+                            src="http://www.google.com/recaptcha/api/challenge?k=' . $publicKey . '">
+                            </script>
+                            <noscript>
+                                <iframe src="http://www.google.com/recaptcha/api/noscript?k=' . $publicKey . '"
+                                height="300" width="500" frameborder="0"></iframe><br>
+                                <textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea>
+                                <input type="hidden" name="recaptcha_response_field" value="manual_challenge">
+                            </noscript>
+        ';  
+        $this->required = true;  
+        if ($this->instantReturn == true){
+            $ret = $this->text;
+            $this->text = '';
+            return $ret;
+        }              
+    }
+    
     function phoneField($label, $name, $list, $value=array(), $required=false){
         $id = ($this->useNameForId == true) ? $name : $this->idSet;
         if ($this->labels == true){ $this->text .= "<p><label>" . $label . "</label><em>"; }
@@ -267,7 +287,7 @@ class phpx_form {
         }
         else { $this->text .= "&nbsp;&nbsp;"; }
         if ($this->labels == true){ $this->text .= "</em>"; }
-        $this->text = "<input type=\"password\" id=\"" . $id . "\" name=\"" . $name . "\"";
+        $this->text .= "<input type=\"password\" id=\"" . $id . "\" name=\"" . $name . "\"";
         if ($confirm != false){
             $this->text .= " equalTo=\"#" . ($this->idSet - 1) . "\"";
         }
