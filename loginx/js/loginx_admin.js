@@ -1,4 +1,4 @@
-jQuery(function(){
+jQuery(document).ready(function(){
     loginx_refreshFieldList();     
     
     jQuery('#loginxFieldForm_end').click(function(){

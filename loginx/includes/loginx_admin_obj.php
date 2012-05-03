@@ -8,6 +8,10 @@ class loginXAdmin extends loginX {
         //do_action('wp_ajax_' . $_POST['action']);
     }
     
+    function adminScreen(){
+        print("TEXT");
+    }
+    
     function adminAjaxFieldList(){
         
         $nonce = wp_create_nonce('loginx_fields');
@@ -164,7 +168,8 @@ class loginXAdmin extends loginX {
         
         
         
-        wp_enqueue_script('loginx_admin', LOGINX_URL . 'js/loginx_admin.js', 'jquery');
+        admin_enqueue_scripts('loginx_admin', LOGINX_URL . 'js/loginx_admin.js', 'jquery');
+        admin_enqueue_scripts('jquery-ui-tabs');
         
         
         if ($_POST['nonce']){
@@ -269,7 +274,7 @@ class loginXAdmin extends loginX {
     }   
     
     function adminMenu(){
-        add_management_page('LoginX', 'LoginX', 5, __FILE__, array($this, 'adminForm')); 
+        add_management_page('LoginX', 'LoginX', 5, __FILE__, array($this, 'adminScreen')); 
     } 
     
     function install(){
