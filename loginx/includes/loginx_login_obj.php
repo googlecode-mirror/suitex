@@ -18,7 +18,7 @@ class loginXLogin extends loginX {
                 $form->freeText(parent::loginx_errorMessage('get'), 'loginx_error');
             }
             $form->freeText($this->options['password_text']);
-            $form->textField('Email', 'email', '', true);    
+            $form->textField('Email/Username', 'email', '', true);    
             $form->hidden('nonce', wp_create_nonce('loginx'));     
             $text = '<div id="loginx_password">' . $form->endForm() . '</div>';                            
         }
@@ -61,28 +61,47 @@ class loginXLogin extends loginX {
         return $text;   
     }
     
+    function checkActKey($user_id){
+        $count = $this->wpdb->get_var('select count(*) from ' . $this->wpdb->prefix . 'loginx_key where act = 1 and user_id = ' . $user_id . ' limit 1');
+        if ($count == 0){
+            return true;            
+        }
+        $this->wpdb->query('delete from ' . $this->wpdb->prefix . 'loginx_key where user_id = ' . $user_id . ' and act = 2');
+        $resendKey = substr(uniqid(NONCE_KEY), 0, 25);
+        $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'act' => 2, 'loginx_expire' => 0, 'loginx_key' => $resendKey));
+        parent::loginx_errorMessage(parent::loginx_emailTrans($this->options['not_active'], array('::LINK::' => get_permalink($this->options['login_page']) . '?resend=' . $resendKey . '&nonce=' . wp_create_nonce('loginx_resend'))));
+        return false;
+    }
+    
     function login(){
         global $post;
         if ($post->ID == $this->options['login_page']){
-        
+            
+            
+            
+            
             if ($_POST['nonce']){
                 if (!wp_verify_nonce($_POST['nonce'], 'loginx')){
                     parent::loginx_errorMessage('Security Token Mismatch');
                 }  
                 else { 
-                    ///REIVEW_**********************************
-                    //check for activated user, and show form to resend email if they  havent activated
                     if ($_GET['password']){
-                        if ($user_id = email_exists($_POST['email'])){
-                            parent::loginx_successMessage($this->options['check_email_password']);     
-                            $key = substr(md5(microtime() . '984ail23623436adsf$$ad34qKLJKLJ$jo3i4kjhlkaklj6t'), 5, 25);
-                            $this->wpdb->query($this->wpdb->prepare('insert into ' . $this->wpdb->prefix . 'loginx_key (user_id, loginx_key, loginx_expire) values (%d, %s, %d)', $user_id, $key, time() + 86400));
-                            $subject = parent::loginx_emailTrans($this->options['email_password_reset_subject']);
-                            $message = parent::loginx_emailTrans($this->options['email_password_reset'], array('::LINK::' => get_permalink($this->options['page_id']) . '?reset=' . $key));                                  wp_mail($_POST['email'], $subject, $message, $headers);
+                        $email_user_id = email_exists($_POST['email']);
+                        $user_user_id = username_exists($_POST['email']);
+
+                        if ($user_user_id || $email_user_id){
+                            $user_id = ($user_user_id > 0)? $user_user_id : $email_user_id;
+                            if ($this->checkActKey($user_id)){
+                            
+                                parent::loginx_successMessage($this->options['check_email_password']);     
+                                $key = substr(md5(microtime() . NONCE_SALT), 5, 25);
+                                $this->wpdb->query($this->wpdb->prepare('insert into ' . $this->wpdb->prefix . 'loginx_key (user_id, loginx_key, loginx_expire) values (%d, %s, %d)', $user_id, $key, time() + 86400));
+                                $subject = parent::loginx_emailTrans($this->options['email_password_reset_subject']);
+                                $message = parent::loginx_emailTrans($this->options['email_password_reset'], array('::LINK::' => get_permalink($this->options['page_id']) . '?reset=' . $key));                                   wp_mail($_POST['email'], $subject, $message, $headers);
+                            }
                         }   
                         else {
-                            
-                            parent::loginx_errorMessage('Email not Found.');
+                            parent::loginx_errorMessage('Email/Username not Found.');
                         }
                     }
                     else if ($_POST['reset']){
@@ -90,33 +109,69 @@ class loginXLogin extends loginX {
                         if (!$user_id){
                             parent::loginx_errorMessage('Bad Key or Key as Expired.  Please try to reset your password again.');
                         } 
-                        else {
+                        else if ($this->checkActKey($user_id)){
                             wp_update_user(array('ID' => $user_id, 'user_pass' => $_POST['pass']));
                             $this->wpdb->query($this->wpdb->prepare('delete from ' . $this->wpdb->prefix . 'loginx_key where user_id = %d', $user_id));
                             parent::loginx_successMessage('Your password has been updated');
                         }                       
                     }
                     else { 
-                        $user = wp_signon(array('user_login' => $_POST['username'], 'user_password' => $_POST['password'], 'remember' => $_POST['remember']), false);
-                
-                        if (is_wp_error($user)){
-                             parent::loginx_errorMessage($user->get_error_message());    
+                        $user_check = get_userdatabylogin($_POST['username']);
+                        
+                        if ($this->checkActKey($user_check->ID)){
+                        
+                            $user = wp_signon(array('user_login' => $_POST['username'], 'user_password' => $_POST['password'], 'remember' => $_POST['remember']), false);
+                        
+                            if (is_wp_error($user)){
+                                 parent::loginx_errorMessage($user->get_error_message());    
+                            }
+                            else {
+                                
+                                if (!in_array('subscriber', array($user->roles))){
+                                    wp_redirect('/wp-admin');
+                                }
+                                else if ($_POST['redirect_to'] == parent::loginx_getURL() || $_POST['redirect_to'] == ''){
+                                    wp_redirect(get_permalink($this->options['profile_page']));    
+                                }
+                                else { 
+                                    wp_redirect($_POST['redirect_to']);
+                                }
+                                exit;
+                            }
                         }
-                        else {
-                            if (!in_array('subscriber', array($user->roles))){
-                                wp_redirect('/wp-admin');
-                            }
-                            else if ($_POST['redirect_to'] == parent::loginx_getURL() || $_POST['redirect_to'] == ''){
-                                wp_redirect(get_permalink($this->options['profile_page']));    
-                            }
-                            else { 
-                                wp_redirect($_POST['redirect_to']);
-                            }
-                            exit;
-                        }
+                     
                     }
                 }
-            }  
+            } 
+            else if ($_GET['act']){
+                $user_id = $this->wpdb->get_var($this->wpdb->prepare('select user_id from ' . $this->wpdb->prefix . 'loginx_key where loginx_key = %s and act = 1', $_GET['act']));
+                if ($user_id > 0){
+                    $this->wpdb->query($this->wpdb->prepare('delete from ' . $this->wpdb->prefix . 'loginx_key where loginx_key = %s and user_id = %d and act = 1', $_GET['act'], $user_id));
+                    parent::loginx_successMessage($this->options['act_success']);    
+                }
+                else { 
+                    parent::loginx_errorMessage($this->options['act_fail']);
+                }
+                
+http://suitex.com/login-2/?act=d683766b2781d59
+
+                
+            }
+            else if ($_GET['resend']){
+                if (!wp_verify_nonce($_GET['nonce'], 'loginx_resend')){
+                    parent::loginx_errorMessage('Security Token Mismatch');
+                }             
+                else { 
+                    $user_id = $this->wpdb->get_var($this->wpdb->prepare('select user_id from ' . $this->wpdb->prefix . 'loginx_key where loginx_key = %s and act = 2 limit 1', $_GET['resend']));
+                    $this->wpdb->query($this->wpdb->prepare('delete from ' . $this->wpdb->prefix . 'loginx_key where user_id = %d and act = 2', $user_id));
+                    $actKey = $this->wpdb->get_var($this->wpdb->prepare('select loginx_key from ' . $this->wpdb->prefix . 'loginx_key where user_id = %d and act = 1 limit 1', $user_id));
+                    $subject = parent::loginx_emailTrans($this->options['act_email_subject']);
+                    $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
+
+                    //wp_mail($_POST['user_email'], $subject, $message);                    
+                    parent::loginx_successMessage($this->options['act_key_resent']);                
+                }
+            } 
         }
    
     }   

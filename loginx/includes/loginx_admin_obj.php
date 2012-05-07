@@ -87,17 +87,24 @@ class loginXAdmin extends loginX {
         if ($message || $_GET['message']){ $text .= '<p>Options Saved</p>'; }
         $text .= $form->startForm($adminURL, 'loginxForm');        
         $text .= $form->hidden('nonce', wp_create_nonce('loginx_admin'));
+        $text .= $form->startFieldSet('Site Messages');
         $text .= $form->textArea('Bad Key/Expired Key Password Reset', 'bad_key', $this->options['bad_key']);
         $text .= $form->textArea('Captcha Fail', 'captcha_fail', $this->options['captcha_fail']);
         $text .= $form->textArea('Check Email for Password Reset', 'check_email_password', $this->options['check_email_password']);
         $text .= $form->textArea('Password Lookup Text', 'password_text', $this->options['password_text']);
         $text .= $form->textArea('Register Success', 'register_success_message', $this->options['register_success_message']);
+        $text .= $form->textArea('Activation Success', 'act_success', $this->options['act_success']);
+        $text .= $form->textArea('Activation Failure', 'act_fail', $this->options['act_fail']);
+        $text .= $form->textArea('User Not Active', 'not_active', $this->options['not_active']);
+        $text .= $form->textArea('Activation Key Resent', 'act_key_resent', $this->options['act_key_resent']);
+        $text .= $form->endFieldSet();
+        $text .= $form->startFieldSet('Emails');
         $text .= $form->textField('Password Reset Email Subject', 'email_password_reset_subject', $this->options['email_password_reset_subject']);
         $text .= $form->textArea('Password Reset Email Message', 'email_password_reset', $this->options['email_password_reset']);
         $text .= $form->textField('Activation Email Subject', 'act_email_subject', $this->options['act_email_subject']);
         $text .= $form->textArea('Activation Email Text', 'act_email_text', $this->options['act_email_text']);
         $text .= $form->hidden('tab', 2);
-        
+        $text .= $form->endFieldSet();
         $text .= $form->endForm();
         return $text;        
     }
@@ -365,7 +372,9 @@ class loginXAdmin extends loginX {
         if (!is_plugin_active('phpx/phpx.php')){
             die('LoginX requires the PHPX Framework.  Please install PHPX and then reinstall LoginX.');
         }
-
+        else if (count($this->options) != 0){
+            return true;
+        }
         
         
         
@@ -441,6 +450,7 @@ class loginXAdmin extends loginX {
 (15, 'jabber', 'Jabber/Google Talk', '', 'text', 0, 0, 15, 1, 0, 0, 1, 0),
 (16, 'captcha', 'Captcha', '', 'captcha', 1, 1, 17, 0, 0, 1, 1, 0);");   
         $this->wpdb->query('CREATE TABLE `' . $this->wpdb->prefix . 'loginx_key` (`user_id` INT( 10 ) NOT NULL ,`loginx_key` VARCHAR( 32 ) NOT NULL ,`loginx_expire` INT( 11 ) NOT NULL ,INDEX ( `loginx_key` , `loginx_expire` )) ENGINE = MYISAM');
+        $this->wpdb->query('ALTER TABLE `' . $this->wpdb->prefix . 'loginx_key` ADD `act` TINYINT( 1 ) NOT NULL DEFAULT \'0\',ADD INDEX ( `act` ) ');
                 
 
     }

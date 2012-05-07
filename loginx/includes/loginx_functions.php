@@ -32,11 +32,12 @@ class loginX {
     
     function loginx_login(){
         global $post;
-        if ($post->ID == $this->options['login_page'] || $post->ID == $this->options['register_page']){ 
-            wp_redirect(get_permalink($this->options['profile_page']));
-            exit;
-        }
-       
+        if ($post){
+            if (($post->ID == $this->options['login_page'] || $post->ID == $this->options['register_page']) && is_user_logged_in()){ 
+                print('<script language="javascript">window.location = "' .  get_permalink($this->options['profile_page']) . '";</script>');
+                exit;
+            }            
+        }        
         require_once(LOGINX_DIR . 'includes/loginx_login_obj.php');
         $this->loginObj = new loginXLogin();
         $this->loginObj->login();

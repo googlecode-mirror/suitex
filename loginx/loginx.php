@@ -34,11 +34,10 @@ require_once(LOGINX_DIR . 'includes/loginx_functions.php');
 $loginXobj = new loginX(); 
 
 
-
 if (!is_admin()){
     add_action('wp_head', array($loginXobj, 'loginx_addCSS'));
     add_filter('the_content', array($loginXobj, 'loginx_content'));
-    add_action('wp', array($loginXobj, 'loginx_login'));
+    add_action('wp', array($loginXobj, 'loginx_login'));    
 }
 else {
     require_once(LOGINX_DIR . 'includes/loginx_admin_obj.php');

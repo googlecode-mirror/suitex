@@ -8,17 +8,22 @@ class loginXRegister extends loginX {
     }
         
     function registerForm(){
+
         if ($_POST['submit']){
+            $cont = true;    
             if (!wp_verify_nonce($_POST['nonce'], 'loginx_register')){
                 parent::loginx_errorMessage('Security Token Mismatch');
+                $cont = false;
             }            
             else if (username_exists($_POST['user_login'])){ 
                 parent::loginx_errorMessage('Username Exists.  Do you want to <a href="' . $this->loginx_getURL() . '">Login?</a>');
                 $_POST['user_login'] = '';
+                $cont = false;
             }
             else if (email_exists($_POST['user_email'])){
                 parent::loginx_errorMessage('Email Exists.  Do you want to <a href="' . $this->loginx_getURL() . '">Login?</a>');
                 $_POST['user_email'] = '';
+                $cont = false;
             }
             else if ($_POST['recaptcha_challenge_field']){
                 $data['privatekey'] = $this->options['captcha_private'];
@@ -35,17 +40,16 @@ class loginXRegister extends loginX {
                 $response = curl_exec($c);
                 $r = explode("\n", $response);
                 if ($r[0] == 'true'){
-                    $cont = true;    
+                    
                 }
                 else { 
                     parent::loginx_errorMessage($this->option['captcha_fail']); 
+                    $cont = false;
                        
                 }
             }
-
             
-            
-            if ($cont) { 
+            if ($cont == true) { 
                 $omit = array('submit', 'nonce', 'user_pass_confirm', 'captcha', 'recaptcha_challenge_field', 'recaptcha_response_field');
                 $wpFields = array();
                 $createArray = array();
@@ -72,13 +76,14 @@ class loginXRegister extends loginX {
                 
                 if ($this->options['email_valid'] == 'on'){
                     $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
-                    add_user_meta($user_id, 'act_key', $actKey, true);
+                    $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
                     
                     $subject = parent::loginx_emailTrans($this->options['act_email_subject']);
-                    $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['register_page']) . '?act=' . $actKey));
+                    $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
                     
                     
-                    wp_mail($_POST['user_email'], $subject, $message);
+                    print($message);
+                    //wp_mail($_POST['user_email'], $subject, $message);
                     
                     parent::loginx_successMessage($this->options['register_success_message']);
                     $text = '<div id="loginx_form">' . parent::loginx_successMessage() . '</div>';
@@ -91,10 +96,7 @@ class loginXRegister extends loginX {
            
             
         }   
-        else if ($_GET['act']){
-            //check activation key for user
-            
-        }
+
         require_once(PHPX_DIR . 'phpx_form.php');
         $form = new phpx_form();
         $form->startForm(get_permalink(), 'loginxRegisterForm');
