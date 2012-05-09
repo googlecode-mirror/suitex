@@ -80,7 +80,9 @@ class loginX {
         
         }
         else if ($post->ID == $this->options['profile_page']){   
-            $text = "PROFILE PGE";    
+            require_once(LOGINX_DIR . 'includes/loginx_profile_obj.php');
+            $this->profileObj = new loginXProfile();
+            $text = $this->profileObj->init();
         }
         return $text;
     }
@@ -112,9 +114,9 @@ class loginX {
 
         foreach($results as $row){
             $this->createFieldOptions($row->loginx_field_options);
-            $req = $this->getReq($row, $options);
-            $min = $this->getMin($row, $options);
-            $confirm = $this->getConfirm($row, $options);
+            $req = $this->getReq($row);
+            $min = $this->getMin();
+
                 
                 
             switch($row->loginx_field_type){
@@ -123,6 +125,7 @@ class loginX {
                     break;
                     
                 case 'pass':
+                    $confirm = $this->getConfirm();
                     $form->password($row->loginx_field_label, $row->loginx_field_name, $req, $min, $confirm);
                     break;
                     
@@ -131,7 +134,21 @@ class loginX {
                     break;
                         
                 case 'date':
-                    $form->dateField($row->loginx_field_label, $loginx_field_name, $_POST[$row->loginx_field_name], $req, true);
+                    $form->dateField($row->loginx_field_label, $row->loginx_field_name, $_POST[$row->loginx_field_name], $req, true);
+                    break;
+                
+                case 'drop':
+                    $list = $this->createList($row->loginx_field_options);
+                    $blank = $this->getBlank();
+                    $multi = $this->getMulti();
+                    $form->dropDown($row->loginx_field_label, $row->loginx_field_name, $_POST[$row->loginx_field_name], $this->listOptions, $blank, $req, $multi);
+                    break;
+                
+                case 'check':
+                    $form->checkBox($row->loginx_field_label, $row->loginx_field_name, $_POST[$row->loginx_field_name], $req);
+                    break;
+                
+                case 'radio':
                     break;
                         
             }                        
@@ -139,18 +156,45 @@ class loginX {
         return $form;
     } 
     
+    function createList($opts){
+        $checkArray = array('multi', 'blank', 'req');
+        $this->listOptions = array();
+        if ($opts != ''){
+            $rows = explode("\r\n", $opts);
+            foreach($rows as $r){
+                if (substr($r, 0, 5) != 'multi' && substr($r, 0, 5) != 'blank' && substr($r, 0, 3) != 'req' && substr_count($r, '|') != 0){
+                    $e = explode('|', $r);
+                    $this->listOptions[$e[0]] = $e[1];
+                }
+            }
+        }
+    }
+    
     function createFieldOptions($opts){
         $this->fieldOptions = array();
         if ($opts != ''){
             $rows = explode("\r\n", $opts);
             foreach($rows as $r){
                 $exp = explode(':', $r);
-            
                 $this->fieldOptions[$exp[0]] = $exp[1];
             }
         }
-        
-        
+    }
+    
+    function getMulti(){
+        $multi = false;
+        if (in_array('multi', array_keys($this->fieldOptions))){
+            $multi = true;
+        }
+        return $multi;
+    }
+    
+    function getBlank(){
+        $blank = false;
+        if (in_array('blank', array_keys($this->fieldOptions))){
+            $blank = true;
+        }
+        return $blank;
     }
     
     function getReq($row){
@@ -164,7 +208,7 @@ class loginX {
         return $req;                
     }
     
-    function getMin($row){
+    function getMin(){
         if (in_array('min', array_keys($this->fieldOptions))){
             $min = $this->fieldOptions['min'];    
         }
@@ -175,9 +219,8 @@ class loginX {
         
     }
     
-    function getConfirm($row){
+    function getConfirm(){
         if (in_array('confirm', array_keys($this->fieldOptions))){
-            
             $confirm = true;    
         }
         else { 

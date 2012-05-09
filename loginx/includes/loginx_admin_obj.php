@@ -112,7 +112,7 @@ class loginXAdmin extends loginX {
     function adminAjaxFieldList(){
         
         $nonce = wp_create_nonce('loginx_fields');
-        $text .= '<a name="customFieldsList"></a><table class="inline"><tr><th>Order</th><th>Name</th><th>Label</th><th>Type</th><th>Required</th><th>On Register</th><th>Active</th></tr>';
+        $text .= '<a name="customFieldsList"></a><table class="inline"><tr><th>Order</th><th>Name</th><th>Label</th><th>Type</th><th>Required</th><th>On Register</th><th>Profile</th><th>Active</th></tr>';
         $results = $this->wpdb->get_results("select * from " . $this->wpdb->prefix . "loginx_field order by loginx_field_ord asc");
         $x = 1;
         $count = count($results);
@@ -125,6 +125,7 @@ class loginXAdmin extends loginX {
                 $active = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';   
                 $reg = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';  
                 $req = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';   
+                $profile = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';   
             }   
             else {
                 $active = ($row->loginx_field_active == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="Active" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="Active" />';
@@ -135,6 +136,9 @@ class loginXAdmin extends loginX {
 
                 $reg = ($row->loginx_field_reg == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="On Register" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="On Register" />';
                 $reg = '<a href="javascript:loginx_admin_ajax(\'reg\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');">' . $reg . '</a>';                
+                
+                $profile = ($row->loginx_field_profile == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="Profile" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="Profile" />';
+                $profile = '<a href="javascript:loginx_admin_ajax(\'profile\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');">' . $profile . '</a>';                                
             }
             
             $edit = '<img src="' . LOGINX_URL . 'images/blank.gif" width="16" height="16" />';
@@ -167,6 +171,7 @@ class loginXAdmin extends loginX {
             $text .= '<td class="field_type">' . $this->fieldTypes[$row->loginx_field_type] . '</td>';
             $text .= '<td class="field_req">' . $req . '</td>';
             $text .= '<td class="field_reg">' . $reg . '</td>';
+            $text .= '<td class="field_profile">' . $profile . '</td>';
             $text .= '<td class="field_active">' . $active . '</td>';
             
             
@@ -200,6 +205,12 @@ class loginXAdmin extends loginX {
                 $data['loginx_field_req'] = ($old == 0) ? 1 : 0;
                 $this->wpdb->update($this->wpdb->prefix . 'loginx_field', $data, array('loginx_field_id' => $_POST['id']));                    
             }
+            else if ($_POST['sub'] == 'profile'){
+                $this->checkNonce('loginx_fields');
+                $old = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_profile from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
+                $data['loginx_field_profile'] = ($old == 0) ? 1 : 0;
+                $this->wpdb->update($this->wpdb->prefix . 'loginx_field', $data, array('loginx_field_id' => $_POST['id']));                    
+            }            
             else if ($_POST['sub'] == 'reg'){
                 $this->checkNonce('loginx_fields');
                 $old = $this->wpdb->get_var($this->wpdb->prepare('select loginx_field_reg from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_id = %d limit 1', $_POST['id']));
@@ -451,6 +462,7 @@ class loginXAdmin extends loginX {
 (16, 'captcha', 'Captcha', '', 'captcha', 1, 1, 17, 0, 0, 1, 1, 0);");   
         $this->wpdb->query('CREATE TABLE `' . $this->wpdb->prefix . 'loginx_key` (`user_id` INT( 10 ) NOT NULL ,`loginx_key` VARCHAR( 32 ) NOT NULL ,`loginx_expire` INT( 11 ) NOT NULL ,INDEX ( `loginx_key` , `loginx_expire` )) ENGINE = MYISAM');
         $this->wpdb->query('ALTER TABLE `' . $this->wpdb->prefix . 'loginx_key` ADD `act` TINYINT( 1 ) NOT NULL DEFAULT \'0\',ADD INDEX ( `act` ) ');
+        $this->wpdb->query('ALTER TABLE `' . $this->wpdb->prefix . 'loginx_field` ADD `loginx_field_profile` TINYINT( 1 ) NOT NULL DEFAULT \'0\',ADD INDEX ( `loginx_field_profile` ) ');
                 
 
     }

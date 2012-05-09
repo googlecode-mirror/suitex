@@ -15,3 +15,27 @@
     margin-bottom:15px;
 
 }
+
+.loginx_profile { 
+    position: relative;
+}
+
+.loginx_profile #loginx_profile_avatar { 
+    text-align: center;
+    width: 20%;
+    float: left;
+}
+
+.loginx_profile #loginx_profile_info {
+    float: right;
+    width: 80%;
+}
+
+.loginx_profile #loginx_profile_info h2 {
+    margin-top: 0;
+}
+
+.loginx_profile #loginx_profile_links {
+    width: 100%;
+    text-align: center;
+}
