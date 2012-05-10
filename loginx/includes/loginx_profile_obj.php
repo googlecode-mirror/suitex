@@ -42,7 +42,37 @@ class loginXProfile extends loginX {
         }
         $trans['::POSTS::'] = $this->formatList('Latest Posts', $user, $this->getPosts($user->ID));
         $trans['::COMMENTS::'] = $this->formatList('Latest Comments', $user, $this->getComments($user->ID), 'comment');
+        $trans['::PURCHASES::'] = $this->formatList('Latest Purchases', $user, $this->getPurchases($user->ID, 'woo'), 'purchase');
         $this->text = strtr(file_get_contents(LOGINX_DIR . 'templates/showProfile.tpl.php'), $trans);        
+    }
+    
+    function getPurchases($id, $type){
+        $data = array();
+        if ($this->options['show_purchases'] == 'on'){
+            switch($type){
+                case 'woo':
+                    $results = $this->wpdb->get_results($this->wpdb->prepare('select post_id from ' . $this->wpdb->postmeta . ' where meta_key = %s and meta_value = %d', '_customer_user', $id));
+                    if ($results){
+                        foreach($results as $row){
+                            $meta = get_post_custom($row->post_id);
+                            if (in_array('_completed_date', array_keys($meta))){
+                                $date = date(get_option('date_format'), strtotime($meta['_completed_date'][0]));
+                                foreach($meta['_order_items'] as $item){
+                                    
+                                    $itemData = unserialize($item);
+                                    print_r($itemData);
+                                    foreach($itemData as $i){
+                                        $v .= '<a href="' . get_permalink($i['id']) . '">' . $i['name'] . '</a> - <span class="loginx_em"> ' . $date . '</span><br />';
+                                    }
+                                }
+                                $data[] = substr($v, 0, -6);
+                            }
+                        }
+                    }  
+                    break;
+            }
+        } 
+        return $data;
     }
     
     function formatList($title, $user='', $data=array(), $type='post'){
@@ -62,7 +92,8 @@ class loginXProfile extends loginX {
                     $list .= '<a href="' . get_permalink($this->options['profile_page']) . '?u=' . $user->user_nicename . '&v=c">View All Comments</a>';   
                     break;
             }
-            //VIEW ALL *****REIVEW
+            
+            
             $list .= '</div>';
         }
         return $list;

@@ -14,10 +14,13 @@
         </div>
         <div class="clear">&nbsp;</div>
     </div>
-    <div id="loginx_profile_posts">
+    <div class="loginx_profile_list">
+        ::PURCHASES::
+    </div>    
+    <div class="loginx_profile_list">
         ::POSTS::
     </div>
-    <div id="loginx_profile_comments">
+    <div class="loginx_profile_list">
         ::COMMENTS::
     </div>
     <div class="clear">&nbsp;</div>

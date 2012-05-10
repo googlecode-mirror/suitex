@@ -29,7 +29,7 @@ class loginXAdmin extends loginX {
                     }
                 }
                 if ($_POST['checkFields'] == 1){
-                    $checkFields = array('user_admin_redirect', 'user_login_redirect', 'email_valid', 'anon_fields');
+                    $checkFields = array('user_admin_redirect', 'user_login_redirect', 'email_valid', 'anon_fields', 'show_purchases');
                     foreach($checkFields as $c){
                         if (!in_array($c, array_keys($_POST))){
                             $this->options[$c] = '';
@@ -297,6 +297,7 @@ class loginXAdmin extends loginX {
         $text .= $form->checkbox('Restrict Wordpress Login Page', 'user_login_redirect', $this->options['user_login_redirect']);
         $text .= $form->checkbox('Require Email Validation on Register', 'email_valid', $this->options['email_valid']);
         $text .= $form->checkbox('Allow Guests to view Profiles', 'anon_profiles', $this->options['anon_profiles']);
+        $text .= $form->checkbox('Show Purchases on Profile', 'show_purchases', $this->options['show_purchases']);
         $text .= $form->textField('ReCaptcha Public Key', 'captcha_public', $this->options['captcha_public']);
         $text .= $form->textField('ReCaptcha Private Key', 'captcha_private', $this->options['captcha_private']);
         
