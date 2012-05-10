@@ -6,6 +6,7 @@ class loginX {
     */
     
     var $fieldOptions = array();
+    var $avatar_user_id;
     
     function __construct(){
         global $wpdb;
@@ -42,6 +43,13 @@ class loginX {
         $this->loginObj = new loginXLogin();
         $this->loginObj->login();
         
+    }
+    
+    function loginx_comment_url($text){
+        global $comment;
+        $user = get_userdata($comment->user_id); 
+        $text = get_permalink($this->options['profile_page']) . '?u=' . $user->user_nicename;
+        return $text;
     }
     
     function loginx_errorMessage($message = ''){
@@ -227,7 +235,41 @@ class loginX {
             $confirm = false;          
         }
         return $confirm;        
-    }        
+    }  
+    
+    function loginx_rpx_avatar_filter($avatar){   
+        
+        if (!rpx_configured()){ return $avatar; }
+        $rpx_avatar_option = get_option(RPX_AVATAR_OPTION);
+        if ($rpx_avatar_option != 'true'){
+            return $avatar;
+        } 
+        
+        $rpx_avatar = $avatar;
+        $rpx_photo = '';
+        if (in_the_loop() != false){  
+            $zero = 0;
+            $comment = get_comment($zero);  
+            
+            $user_id = ($comment == '') ? $GLOBALS['avatar_user_id'] : $comment->user_id;
+            if (!is_wp_error($user_id)){  
+
+                $user = get_userdata($user_id);
+                if (!is_wp_error($user)){ 
+                    if (isset($user->rpx_photo)){
+                        $rpx_photo = $user->rpx_photo;
+                    }
+                }
+            }
+        }    
+        if ( !empty($rpx_photo) ) {     
+            $avatar = str_replace("'", '"', $avatar);
+            $pattern = '/src="[^"]*"/';
+            $replace = 'src="'.$rpx_photo.'"';
+            $rpx_avatar = preg_replace($pattern, $replace, $avatar);
+        }
+        return $rpx_avatar;
+    }          
 }
         
         
