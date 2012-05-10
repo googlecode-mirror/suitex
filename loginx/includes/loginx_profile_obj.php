@@ -60,7 +60,7 @@ class loginXProfile extends loginX {
                                 foreach($meta['_order_items'] as $item){
                                     
                                     $itemData = unserialize($item);
-                                    print_r($itemData);
+                                    
                                     foreach($itemData as $i){
                                         $v .= '<a href="' . get_permalink($i['id']) . '">' . $i['name'] . '</a> - <span class="loginx_em"> ' . $date . '</span><br />';
                                     }
@@ -89,7 +89,7 @@ class loginXProfile extends loginX {
                     break;
                     
                 case 'comment':
-                    $list .= '<a href="' . get_permalink($this->options['profile_page']) . '?u=' . $user->user_nicename . '&v=c">View All Comments</a>';   
+                   // $list .= '<a href="' . get_permalink($this->options['profile_page']) . '?u=' . $user->user_nicename . '&v=c">View All Comments</a>';   
                     break;
             }
             
@@ -124,9 +124,103 @@ class loginXProfile extends loginX {
     }
     
     function editProfile(){
+        global $current_user;
+        get_currentuserinfo();
+        
         if ($_POST['submit']){
+            $cont = true;    
+            if (!wp_verify_nonce($_POST['nonce'], 'loginx_profile')){
+                parent::loginx_errorMessage('Security Token Mismatch');
+                $cont = false;
+            }   
+
+            else if ($current_user->user_email != $_POST['user_email']){
+                if (email_exists($_POST['user_email'])){
+                    parent::loginx_errorMessage('Email already exists.');
+                    $cont = false;
+                }
+                else if ($this->options['email_valid'] == 'on'){
+                    $emailVerify = true;
+                    $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
+                    $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
+                    
+                    $subject = parent::loginx_emailTrans($this->options['act_email_subject']);
+                    $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
+                    print($message);
+                    //wp_mail($_POST['user_email'], $subject, $message);
+                }
+                
+            }    
             
+            if ($cont == true){
+                $omit = array('submit', 'nonce', 'user_pass_confirm', 'captcha', 'recaptcha_challenge_field', 'recaptcha_response_field');
+                $wpFields = array();
+                $createArray = array();
+                $metaArray = array();
+                $results = $this->wpdb->get_results('select loginx_field_name, loginx_field_wp from ' . $this->wpdb->prefix . 'loginx_field');
+                foreach($results as $row){
+                    if ($row->loginx_field_wp == 1){
+                        $wpFields[] = $row->loginx_field_name;                   
+                    }
+                    else { 
+                        $metaFields[] = $row->loginx_field_name;
+                    }
+                }
+                foreach($_POST as $k => $v){
+                    if (!in_array($k, $omit)){
+                        if (in_array($k, $wpFields)){
+                            if ($_POST[$k] != ''){
+                                $updateArray[$k] = $v;
+                            }
+                        }    
+                        else { 
+                            $metaArray[$k] = $v;
+                        }
+                    }
+                }
+                
+                $updateArray['ID'] = $current_user->ID;
+                wp_update_user($updateArray);
+                
+                foreach($metaArray as $k => $v){
+                    update_user_meta($current_user->ID, $k, $v);
+                }
+                
+                foreach($metaFields as $m){
+                    if (!in_array($m, array_keys($metaArray))){
+                        delete_user_meta($current_user->ID, $m);    
+                    }
+                }
+                
+                $message = ($emailVerify == true) ? $this->options['profile_email_verify_message'] : '';
+                $messgae .= $this->options['profile_success_message'];
+                parent::loginx_successMessage($message);
+                
+                
+            }        
         }
+        require_once(PHPX_DIR . 'phpx_form.php');
+        $form = new phpx_form();
+        $form->startForm(get_permalink() . '?edit=1', 'loginxProfileForm');
+        $form->hidden('nonce', wp_create_nonce('loginx_profile'));
+        $form->hidden('loginx_form', 1);
+        if (parent::loginx_errorMessage()){
+            $form->freeText(parent::loginx_errorMessage('get'), 'loginx_error');
+        }     
+        else if (parent::loginx_successMessage()){
+            $form->freeText(parent::loginx_successMessage('get'), 'loginx_success');
+        }       
+        $results = $this->wpdb->get_results('select loginx_field_name, loginx_field_label, loginx_field_options, loginx_field_type, loginx_field_req, loginx_field_no_edit from ' . $this->wpdb->prefix . 'loginx_field where loginx_field_profile = 1 order by loginx_field_ord asc');        
+        
+        
+        
+        
+        parent::setFormValue($current_user);
+        $form = parent::publicForm($form, $results, false);        
+        
+
+        $this->text .= '<div id="loginx_form">' . $form->endForm() . '</div>';
+        
         
     }
 }

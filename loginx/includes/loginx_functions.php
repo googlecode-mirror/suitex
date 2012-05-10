@@ -6,7 +6,6 @@ class loginX {
     */
     
     var $fieldOptions = array();
-    var $avatar_user_id;
     
     function __construct(){
         global $wpdb;
@@ -115,26 +114,50 @@ class loginX {
                 exit;
              }
         }
-              
     }  
     
-    function publicForm($form, $results){
-
+    function setFormValue($obj){
+        $this->userObj = $obj;
+    }
+    
+    function getFormValue($field){
+        if (isset($_POST['loginx_form'])){
+            $usePost = true;
+            $value = $_POST[$field];
+        }
+        else { 
+            $value = $this->userObj->$field;
+        }
+        return $value;
+    }
+    
+    function publicForm($form, $results, $register=true){
+        
         foreach($results as $row){
             $this->createFieldOptions($row->loginx_field_options);
             $req = $this->getReq($row);
             $min = $this->getMin();
+            $disabled = ($row->loginx_field_no_edit == 1) ? true : false;
 
                 
                 
             switch($row->loginx_field_type){
                 case 'text':
-                    $form->textField($row->loginx_field_label, $row->loginx_field_name, $_POST[$row->loginx_field_name], $req, $min);
+                    $form->textField($row->loginx_field_label, $row->loginx_field_name, $this->getFormValue($row->loginx_field_name), $req, $min, $disabled);
                     break;
                     
                 case 'pass':
+                    if ($register != true){ $req = false; }
                     $confirm = $this->getConfirm();
+                    if (!$this->passStart){ 
+                        $form->startFieldSet('Only enter passwords if changing'); 
+                        $this->passStart = 1; 
+                    }
+                    else { $this->passStart++; }
                     $form->password($row->loginx_field_label, $row->loginx_field_name, $req, $min, $confirm);
+                    if ($this->passStart > 1){
+                        $form->endFieldSet();
+                    }
                     break;
                     
                 case 'captcha':
@@ -142,18 +165,18 @@ class loginX {
                     break;
                         
                 case 'date':
-                    $form->dateField($row->loginx_field_label, $row->loginx_field_name, $_POST[$row->loginx_field_name], $req, true);
+                    $form->dateField($row->loginx_field_label, $row->loginx_field_name, $this->getFormValue($row->loginx_field_name), $req, true);
                     break;
                 
                 case 'drop':
                     $list = $this->createList($row->loginx_field_options);
                     $blank = $this->getBlank();
                     $multi = $this->getMulti();
-                    $form->dropDown($row->loginx_field_label, $row->loginx_field_name, $_POST[$row->loginx_field_name], $this->listOptions, $blank, $req, $multi);
+                    $form->dropDown($row->loginx_field_label, $row->loginx_field_name, $this->getFormValue($row->loginx_field_name), $this->listOptions, $blank, $req, $multi);
                     break;
                 
                 case 'check':
-                    $form->checkBox($row->loginx_field_label, $row->loginx_field_name, $_POST[$row->loginx_field_name], $req);
+                    $form->checkBox($row->loginx_field_label, $row->loginx_field_name, $this->getFormValue($row->loginx_field_name), $req);
                     break;
                 
                 case 'radio':
