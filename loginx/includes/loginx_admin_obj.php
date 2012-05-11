@@ -96,13 +96,19 @@ class loginXAdmin extends loginX {
         $text .= $form->textArea('Activation Success', 'act_success', $this->options['act_success']);
         $text .= $form->textArea('Activation Failure', 'act_fail', $this->options['act_fail']);
         $text .= $form->textArea('User Not Active', 'not_active', $this->options['not_active']);
-        $text .= $form->textArea('Activation Key Resent', 'act_key_resent', $this->options['act_key_resent']);
+        
+        $text .= $form->textArea('Profile Email Verify Message', 'profile_email_verify_message', $this->options['profile_email_verify_message']);
+        $text .= $form->textArea('Profile Success Message', 'profile_success_message', $this->options['profile_success_message']);
+        $text .= $form->textArea('Password Change Success Message', ' password_change_success_message', $this->options['password_change_success_message']);
+       
         $text .= $form->endFieldSet();
         $text .= $form->startFieldSet('Emails');
         $text .= $form->textField('Password Reset Email Subject', 'email_password_reset_subject', $this->options['email_password_reset_subject']);
         $text .= $form->textArea('Password Reset Email Message', 'email_password_reset', $this->options['email_password_reset']);
         $text .= $form->textField('Activation Email Subject', 'act_email_subject', $this->options['act_email_subject']);
         $text .= $form->textArea('Activation Email Text', 'act_email_text', $this->options['act_email_text']);
+        $text .= $form->textArea('Password WAS Reset Subject', 'email_password_was_reset_subject', $this->options['email_password_was_reset_subject']);
+        $text .= $form->textArea('Password WAS Reset Email', 'email_password_was_reset', $this->options['email_password_was_reset']);
         $text .= $form->hidden('tab', 2);
         $text .= $form->endFieldSet();
         $text .= $form->endForm();

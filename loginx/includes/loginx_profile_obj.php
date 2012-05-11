@@ -13,11 +13,40 @@ class loginXProfile extends loginX {
         }        
         if ($_GET['edit'] == 1){
             $this->editProfile();
-        }    
+        }  
+        else if ($_GET['password'] == 1 || $this->password == true){
+            $this->showPasswordForm();
+        }  
         else { 
+            
             $this->showProfile();
         }
         return $this->text;
+    }
+    
+    function showPasswordForm(){
+        if ($_GET['c'] == 1){
+            $this->text = '<div id="loginx_form"><p class="loginx_success">' . parent::loginx_emailTrans($this->options['password_change_success_message'], array('::LINK::' => get_permalink($this->options['profile_page']))) . '</p></div>';
+            return true;
+        }
+        
+        require_once(PHPX_DIR . 'phpx_form.php');
+        $form = new phpx_form();
+        $form->startForm(get_permalink(), 'loginxPasswordForm');
+        $form->hidden('nonce', wp_create_nonce('loginx_password'));
+        $form->hidden('loginx_form', 1);
+        $form->hidden('loginx_password', 1);
+        if (parent::loginx_errorMessage()){
+            $form->freeText(parent::loginx_errorMessage('get'), 'loginx_error');
+        }     
+        
+        $form->password('Password', 'user_pass', true, 6);
+        $form->password('Confirm Password', 'user_pass_confirm', true, 6, true);
+        $this->text .= '<div id="loginx_form">' . $form->endForm() . '</div>';
+        
+        
+        
+        
     }
     
     function showProfile(){
@@ -35,7 +64,7 @@ class loginXProfile extends loginX {
         $trans['::REGDATE::'] = date(get_option('date_format'), strtotime($user->user_registered));
         $trans['::INFO::'] = $user->user_description;
         if ($user->ID == $current_user->ID){ 
-            $trans['::LINKS::'] = '<a href="' . get_permalink($this->options['profile_page']) . '?edit=1">Edit Profile</a>'; 
+            $trans['::LINKS::'] = '<a href="' . get_permalink($this->options['profile_page']) . '?edit=1">Edit Profile</a> | <a href="' . get_permalink($this->options['profile_page']) . '?password=1">Change Password</a>'; 
         }
         else { 
             $trans['::LINKS::'] = ''; 
@@ -153,6 +182,8 @@ class loginXProfile extends loginX {
             }    
             
             if ($cont == true){
+                $_POST['user_login'] = $current_user->user_login;
+                
                 $omit = array('submit', 'nonce', 'user_pass_confirm', 'captcha', 'recaptcha_challenge_field', 'recaptcha_response_field');
                 $wpFields = array();
                 $createArray = array();
@@ -193,7 +224,7 @@ class loginXProfile extends loginX {
                 }
                 
                 $message = ($emailVerify == true) ? $this->options['profile_email_verify_message'] : '';
-                $messgae .= $this->options['profile_success_message'];
+                $message .= $this->options['profile_success_message'];
                 parent::loginx_successMessage($message);
                 
                 

@@ -6,6 +6,7 @@ class loginX {
     */
     
     var $fieldOptions = array();
+    var $showPasswordForm = false;
     
     function __construct(){
         global $wpdb;
@@ -38,10 +39,38 @@ class loginX {
                 exit;
             }            
         }        
+        
+        $this->updateUserPassword();
+        
         require_once(LOGINX_DIR . 'includes/loginx_login_obj.php');
         $this->loginObj = new loginXLogin();
         $this->loginObj->login();
         
+    }
+    
+    function updateUserPassword(){
+        if ($_POST['loginx_password'] != 1){
+            return false;
+        }
+        if (!wp_verify_nonce($_POST['nonce'], 'loginx_password')){
+            $this->loginx_errorMessage('Security Token Mismatch');
+            $this->showPasswordForm = true;
+            return false;
+        }  
+        
+        if ($_POST['user_pass'] != $_POST['user_pass_confirm']){
+            $this->loginx_errorMessage('Passwords did not match');
+            $this->showPasswordForm = true;
+            return false;
+        }
+        
+        global $current_user;
+        get_currentuserinfo();        
+        
+        wp_update_user(array('ID' => $current_user->ID, 'user_pass' => $_POST['user_pass']));
+        
+        //wp_mail($current_user->user_email, $this->options['email_password_was_reset_subject'], $this->loginx_emailTrans($this->options['email_password_was_reset']));
+        wp_redirect(get_permalink($this->options['profile_page']) . '?password=1&c=1');
     }
     
     function loginx_comment_url($text){
@@ -71,6 +100,7 @@ class loginX {
     }
     
     function loginx_content($text){
+        
         global $post;
         if ($post->ID == $this->options['login_page']){        
             if (!is_object($this->loginObj)){
@@ -89,6 +119,8 @@ class loginX {
         else if ($post->ID == $this->options['profile_page']){   
             require_once(LOGINX_DIR . 'includes/loginx_profile_obj.php');
             $this->profileObj = new loginXProfile();
+            $this->profileObj->password = $this->showPasswordForm;
+            $this->profileObj->errorMessage = $this->errorMessage;
             $text = $this->profileObj->init();
         }
         return $text;
@@ -147,17 +179,8 @@ class loginX {
                     break;
                     
                 case 'pass':
-                    if ($register != true){ $req = false; }
-                    $confirm = $this->getConfirm();
-                    if (!$this->passStart){ 
-                        $form->startFieldSet('Only enter passwords if changing'); 
-                        $this->passStart = 1; 
-                    }
-                    else { $this->passStart++; }
+                    if ($register != true){ break; }
                     $form->password($row->loginx_field_label, $row->loginx_field_name, $req, $min, $confirm);
-                    if ($this->passStart > 1){
-                        $form->endFieldSet();
-                    }
                     break;
                     
                 case 'captcha':
@@ -175,6 +198,10 @@ class loginX {
                     $form->dropDown($row->loginx_field_label, $row->loginx_field_name, $this->getFormValue($row->loginx_field_name), $this->listOptions, $blank, $req, $multi);
                     break;
                 
+                case 'area':
+                    $form->textArea($row->loginx_field_label, $row->loginx_field_name, $this->getFormValue($row->loginx_field_name));
+                    break;
+                    
                 case 'check':
                     $form->checkBox($row->loginx_field_label, $row->loginx_field_name, $this->getFormValue($row->loginx_field_name), $req);
                     break;
