@@ -118,7 +118,7 @@ class loginXAdmin extends loginX {
     function adminAjaxFieldList(){
         
         $nonce = wp_create_nonce('loginx_fields');
-        $text .= '<a name="customFieldsList"></a><table class="inline"><tr><th>Order</th><th>Name</th><th>Label</th><th>Type</th><th>Required</th><th>On Register</th><th>Profile</th><th>Active</th></tr>';
+        $text .= '<a name="customFieldsList"></a><table class="inline"><tr><th>Order</th><th>Name</th><th>Label</th><th>Type</th><th>Required</th><th>On Register</th><th>Profile</th></tr>';
         $results = $this->wpdb->get_results("select * from " . $this->wpdb->prefix . "loginx_field order by loginx_field_ord asc");
         $x = 1;
         $count = count($results);
@@ -128,14 +128,13 @@ class loginXAdmin extends loginX {
             
             
             if ($row->loginx_field_mand == 1){
-                $active = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';   
+                
                 $reg = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';  
                 $req = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';   
                 $profile = '<img src="' . LOGINX_URL . 'images/lock.png" border="0" width="16" height="16" alt="Locked" />';   
             }   
             else {
-                $active = ($row->loginx_field_active == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="Active" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="Active" />';
-                $active = '<a href="javascript:loginx_admin_ajax(\'active\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');">' . $active . '</a>';
+
                 
                 $req = ($row->loginx_field_req == 1) ? '<img src="' . LOGINX_URL . 'images/nav_plain_green.png" border="0" width="16" height="16" alt="Required" />' : '<img src="' . LOGINX_URL . 'images/nav_plain_red.png" border="0" width="16" height="16" alt="Required" />';
                 $req = '<a href="javascript:loginx_admin_ajax(\'req\', \'' . $nonce . '\', \'' . $row->loginx_field_id . '\');">' . $req . '</a>';
@@ -178,7 +177,7 @@ class loginXAdmin extends loginX {
             $text .= '<td class="field_req">' . $req . '</td>';
             $text .= '<td class="field_reg">' . $reg . '</td>';
             $text .= '<td class="field_profile">' . $profile . '</td>';
-            $text .= '<td class="field_active">' . $active . '</td>';
+            
             
             
             
