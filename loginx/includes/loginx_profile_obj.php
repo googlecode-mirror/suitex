@@ -7,10 +7,11 @@ class loginXProfile extends loginX {
     }
     
     public function init(){
-        if (!is_user_logged_in() && ($this->options['anon_profiles'] != 'on' || isset($_GET['edit']))){
+        if (!is_user_logged_in() && ($this->options['anon_profiles'] != 'on' || isset($_GET['edit']) || !is_numeric($_GET['id']) || isset($_GET['password']))){
             print('<script language="javascript">window.location = "' .  get_permalink($this->options['login_page']) . '";</script>');
             exit;
-        }        
+        }
+
         if ($_GET['edit'] == 1){
             $this->editProfile();
         }  
