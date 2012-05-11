@@ -263,14 +263,17 @@ class loginXProfile extends loginX {
             $user_data = rpx_user_data();
             if (!empty($user_data->rpx_provider)){
                 $provider = htmlentities($user_data->rpx_provider);
-                $text .= "<h3>Currently connected to echo $provider</h3>";
+                $text .= "<h3>Currently connected to $provider</h3>";
                 $removable = get_option(RPX_REMOVABLE_OPTION);
                 if ($removable == 'true'){ 
                     $text .= "<p>You can remove all $provider data and disconnect your account from $provider by clicking <a href=\"?action=" . RPX_REMOVE_ACTION . "\">remove</a>.
                     <br><strong>Be certain before you click \"remove\" and set a password for this account so you can use it without social sign in.</strong></p>";
                 }
+                else { 
+                    $text = rpx_buttons(RPX_BUTTONS_STYLE_LARGE, RPX_CONNECT_PROMPT);
+                }
             }
-            $ret = $text . rpx_buttons(RPX_BUTTONS_STYLE_LARGE, RPX_CONNECT_PROMPT);
+            $ret = $text;
             return $ret;
         }
     }    
