@@ -279,6 +279,7 @@ class phpx_form {
     }
     
     function password($label, $name, $required=false, $minLength="8", $confirm=false){
+        
         $id = ($this->useNameForId == true) ? $name : $this->idSet;
         if ($this->labels == true){ $this->text .= "<p><label>" . $label . "</label><em>"; }
         if ($required == true){ 
@@ -301,9 +302,13 @@ class phpx_form {
         }
         
 
-        $this->text .= " value=\"" . $value . "\" />";
+        $this->text .= " />";
         if ($this->labels == true){$this->text .= "</p>";       }
         $this->idSet++;        
+        
+        
+        
+        
         if ($this->instantReturn == true){
             $ret = $this->text;
             $this->text = '';
