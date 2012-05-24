@@ -69,7 +69,7 @@ class loginX {
         
         wp_update_user(array('ID' => $current_user->ID, 'user_pass' => $_POST['user_pass']));
         
-        //wp_mail($current_user->user_email, $this->options['email_password_was_reset_subject'], $this->loginx_emailTrans($this->options['email_password_was_reset']));
+        wp_mail($current_user->user_email, $this->options['email_password_was_reset_subject'], $this->loginx_emailTrans($this->options['email_password_was_reset']));
         wp_redirect(get_permalink($this->options['profile_page']) . '?password=1&c=1');
     }
     
@@ -289,7 +289,7 @@ class loginX {
     
     function loginx_rpx_avatar_filter($avatar){   
         
-        if (!rpx_configured()){ return $avatar; }
+        if (!function_exists('rpx_configured')){ return $avatar; }
         $rpx_avatar_option = get_option(RPX_AVATAR_OPTION);
         if ($rpx_avatar_option != 'true'){
             return $avatar;

@@ -82,8 +82,8 @@ class loginXRegister extends loginX {
                     $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
                     
                     
-                    print($message);
-                    //wp_mail($_POST['user_email'], $subject, $message);
+                    
+                    wp_mail($_POST['user_email'], $subject, $message);
                     
                     parent::loginx_successMessage($this->options['register_success_message']);
                     $text = '<div id="loginx_form">' . parent::loginx_successMessage() . '</div>';

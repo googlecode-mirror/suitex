@@ -164,7 +164,7 @@ class loginXProfile extends loginX {
                 $cont = false;
             }   
 
-            else if ($current_user->user_email != $_POST['user_email']){
+            else if ($current_user->user_email != $_POST['user_email'] && $_POST['user_email'] != '' && isset($_POST['user_email'])){
                 if (email_exists($_POST['user_email'])){
                     parent::loginx_errorMessage('Email already exists.');
                     $cont = false;
@@ -176,8 +176,8 @@ class loginXProfile extends loginX {
                     
                     $subject = parent::loginx_emailTrans($this->options['act_email_subject']);
                     $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
-                    print($message);
-                    //wp_mail($_POST['user_email'], $subject, $message);
+                    
+                    wp_mail($_POST['user_email'], $subject, $message);
                 }
                 
             }    

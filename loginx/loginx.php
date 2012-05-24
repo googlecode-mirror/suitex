@@ -39,7 +39,6 @@ if (!is_admin()){
     add_filter('the_content', array($loginXobj, 'loginx_content'));
     add_filter('get_comment_author_url', array($loginXobj, 'loginx_comment_url'));
     add_action('wp', array($loginXobj, 'loginx_login'));    
-    
     add_filter('get_avatar', array($loginXobj, 'loginx_rpx_avatar_filter'), 12);
 }
 else {

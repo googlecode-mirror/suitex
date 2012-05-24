@@ -97,7 +97,7 @@ class loginXLogin extends loginX {
                                 $key = substr(md5(microtime() . NONCE_SALT), 5, 25);
                                 $this->wpdb->query($this->wpdb->prepare('insert into ' . $this->wpdb->prefix . 'loginx_key (user_id, loginx_key, loginx_expire) values (%d, %s, %d)', $user_id, $key, time() + 86400));
                                 $subject = parent::loginx_emailTrans($this->options['email_password_reset_subject']);
-                                $message = parent::loginx_emailTrans($this->options['email_password_reset'], array('::LINK::' => get_permalink($this->options['page_id']) . '?reset=' . $key));                                   wp_mail($_POST['email'], $subject, $message, $headers);
+                                $message = parent::loginx_emailTrans($this->options['email_password_reset'], array('::LINK::' => get_permalink($this->options['page_id']) . '?reset=' . $key));                                           wp_mail($_POST['email'], $subject, $message, $headers);
                             }
                         }   
                         else {
@@ -153,9 +153,6 @@ class loginXLogin extends loginX {
                     parent::loginx_errorMessage($this->options['act_fail']);
                 }
                 
-http://suitex.com/login-2/?act=d683766b2781d59
-
-                
             }
             else if ($_GET['resend']){
                 if (!wp_verify_nonce($_GET['nonce'], 'loginx_resend')){
@@ -168,7 +165,7 @@ http://suitex.com/login-2/?act=d683766b2781d59
                     $subject = parent::loginx_emailTrans($this->options['act_email_subject']);
                     $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
 
-                    //wp_mail($_POST['user_email'], $subject, $message);                    
+                    wp_mail($_POST['user_email'], $subject, $message);                    
                     parent::loginx_successMessage($this->options['act_key_resent']);                
                 }
             } 

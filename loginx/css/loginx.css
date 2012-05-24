@@ -13,6 +13,8 @@
     width: 80%;
     padding:17px 17px 17px 55px;
     margin-bottom:15px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
 
 }
 

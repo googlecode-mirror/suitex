@@ -387,10 +387,11 @@ class loginXAdmin extends loginX {
     }
     
     function install(){
+
         if (!is_plugin_active('phpx/phpx.php')){
             die('LoginX requires the PHPX Framework.  Please install PHPX and then reinstall LoginX.');
         }
-        else if (count($this->options) != 0){
+        else if (isset($this->options['login'])){
             return true;
         }
         
@@ -475,7 +476,7 @@ class loginXAdmin extends loginX {
     }
     
     function uninstall(){
-    
+        delete_option('loginx_options');
     }   
     
     function removeData(){
