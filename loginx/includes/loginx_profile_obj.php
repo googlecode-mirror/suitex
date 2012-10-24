@@ -65,7 +65,17 @@ class loginXProfile extends loginX {
         $trans['::REGDATE::'] = date(get_option('date_format'), strtotime($user->user_registered));
         $trans['::INFO::'] = $user->user_description;
         if ($user->ID == $current_user->ID){ 
-            $trans['::LINKS::'] = '<a href="' . get_permalink($this->options['profile_page']) . '?edit=1">Edit Profile</a> | <a href="' . get_permalink($this->options['profile_page']) . '?password=1">Change Password</a>'; 
+            
+            $passwordLink = '<a href="' . get_permalink($this->options['profile_page']) . '?password=1">Change Password</a>';
+            if (is_woocommerce_active()){
+                $passwordLink = '<a href="' . get_permalink(woocommerce_get_page_id('change_password')) . '">Change Password</a> | <a href="' . get_permalink(woocommerce_get_page_id('myaccount')) . '">My Account</a>';    
+                
+            }
+            
+            
+            
+            
+            $trans['::LINKS::'] = '<a href="' . get_permalink($this->options['profile_page']) . '?edit=1">Edit Profile</a> | ' . $passwordLink . $myAccountLink; 
         }
         else { 
             $trans['::LINKS::'] = ''; 

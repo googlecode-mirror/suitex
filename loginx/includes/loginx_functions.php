@@ -125,15 +125,24 @@ class loginX {
         }
         return $text;
     }
+
+    function loginx_getRegisterURL($extra=''){
+        return get_permalink($this->options['register_page']) . '/' . $extra;
+    }
     
-    function loginx_getURL(){
-        return get_permalink($this->options['login_page']);
+    function loginx_getURL($extra=''){
+        return get_permalink($this->options['login_page']) . '/' . $extra;
     }
     
     function loginx_redirect_login(){
         
         if ($this->options['user_login_redirect'] == 'on'){
-            wp_redirect($this->loginx_getURL());  
+            if ($_GET['action'] == 'lostpassword'){
+                $extra = '?password=1';
+            }
+            
+            
+            wp_redirect($this->loginx_getURL($extra));  
             exit; 
         }
              
@@ -319,7 +328,26 @@ class loginX {
             $rpx_avatar = preg_replace($pattern, $replace, $avatar);
         }
         return $rpx_avatar;
-    }          
+    }
+    
+    function wcLoginWidget(){
+        print('<a href="' . $this->loginx_getRegisterURL() . '">Register?</a><br />');
+        
+        if (function_exists('rpx_init')){
+            print('Log in with:' . do_shortcode('[rpxlogin]'));    
+        }        
+    }    
+    
+    function wcLoginWidgetLinks($links){
+        $logout = array_pop($links);
+        
+        
+        
+        $links['My Profile'] = $this->loginx_getURL();
+        $links[__('Logout', 'woocommerce')] = $logout;
+        
+        return $links;
+    }     
 }
         
         

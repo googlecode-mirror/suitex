@@ -40,6 +40,8 @@ if (!is_admin()){
     add_filter('get_comment_author_url', array($loginXobj, 'loginx_comment_url'));
     add_action('wp', array($loginXobj, 'loginx_login'));    
     add_filter('get_avatar', array($loginXobj, 'loginx_rpx_avatar_filter'), 12);
+    add_action('woocommerce_login_widget_logged_out_after_form', array($loginXobj, 'wcLoginWidget'));
+    add_filter('woocommerce_login_widget_logged_in_links', array($loginXobj, 'wcLoginWidgetLinks'));
 }
 else {
     require_once(LOGINX_DIR . 'includes/loginx_admin_obj.php');
@@ -53,6 +55,7 @@ else {
     add_action('wp_ajax_loginx_admin', array($loginXAdminObj, 'adminAjaxSubmit'));
     add_action('wp_ajax_loginx_fields', array($loginXAdminObj, 'adminAjaxFieldList'));
     wp_localize_script('loginx_admin', 'loginxAjax', array('ajaxurl' => admin_url('admin-ajax.php')));
+    
     
 
 
