@@ -149,8 +149,13 @@ class loginX {
     } 
     
     function loginx_redirect_admin(){
+        global $current_user;
+        get_currentuserinfo();
+        
+
+        
         if ($this->options['user_admin_redirect'] == 'on'){
-             if (in_array('subscriber', array($user->roles))){
+             if ($current_user->user_level < 10){
                 wp_redirect(get_permalink($this->options['redirect_admin_page']));   
                 exit;
              }
@@ -339,11 +344,21 @@ class loginX {
     }    
     
     function wcLoginWidgetLinks($links){
+        global $current_user;
+        get_currentuserinfo();
+        
+        
+        
         $logout = array_pop($links);
+        $password = array_pop($links);
         
         
+        $links['My profile'] = $this->loginx_getURL();
+        $links['Site Admin'] = get_admin_url();
         
-        $links['My Profile'] = $this->loginx_getURL();
+        if ($current_user->user_level > 1){
+            
+        }
         $links[__('Logout', 'woocommerce')] = $logout;
         
         return $links;
