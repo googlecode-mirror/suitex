@@ -69,14 +69,13 @@ class tabXObj {
     
     function adminMenu(){
         if (current_user_can('publish_pages')){
-            add_management_page('TabX', 'TabX', 2, __FILE__, array($this, 'adminPage')); 
+            add_management_page('Slide Out Tab', 'Slide Out Tab', 2, __FILE__, array($this, 'adminPage')); 
         }        
     }
     
     function adminPage(){
         if (current_user_can('publish_pages')){
             if ($_POST['submit']){
-
                 $omit = array('submit', 'wp_nonce');
                 if (!wp_verify_nonce($_POST['wp_nonce'], 'tabx')){ die('Invalid Token'); }
                 foreach($_POST as $k => $v){
@@ -84,7 +83,7 @@ class tabXObj {
                         $this->options[$k] = $v;
                     }
                 }
-                if ($_FILES){
+                if ($_FILES['image']['name'] != ''){
                     $file = wp_handle_upload($_FILES['image'], array('test_form' => false));
                     $this->options['image'] = $file['url'];
                 }
@@ -95,26 +94,25 @@ class tabXObj {
             }
             
             $envArray = array('Development', 'Production');
-            
+
             require_once(PHPX_DIR . 'phpx_form.php');
             $form = new phpx_form();
   
-            $text = '<div class="wrap" id="phpxContainer"><h2>Tab X</h2>';
+            $text = '<div class="wrap" id="phpxContainer"><h2>Slide Out Tab</h2>';
      
             if ($message || $_GET['message']){ $text .= $message; }
             $text .= $form->startForm('tools.php?page=tabx/tabx.php', 'tabxForm', 'post', true);  
             $text .= $form->hidden('wp_nonce', wp_create_nonce('tabx'));
             $text .= $form->textField('Link Text', 'link_text', $this->options['link_text']);
-            
             ob_start();
 
-            wp_editor($this->options['content'], 'tabxcontent', array('textarea_name' => 'content'));
+            wp_editor(stripslashes($this->options['content']), 'tabxcontent', array('textarea_name' => 'content'));
             $text .= $form->freeText(ob_get_contents());
             ob_end_clean();
             
             $locationArray = array('top' => 'top', 'bottom' => 'bottom', 'left' => 'left', 'right' => 'right');
             $actionArray = array('click' => 'click', 'hover' => 'hover');
-            $fixedArray = array(true => 'True', false => 'False');
+            $fixedArray = array('true' => 'True', 'false' => 'False');
             $text .= $form->fileField('Image', 'image');
             $text .= $form->freeText('<strong>Current Image: </strong><br /><img src="' . $this->options['image'] . '" />');
             $text .= $form->textField('Image Height', 'height', $this->options['height']);
@@ -134,6 +132,7 @@ class tabXObj {
     
     function footer(){
 
+
         $text = "<script type=\"text/javascript\">
             jQuery(function(){
                 jQuery('.tabx-div').tabSlideOut({
@@ -152,7 +151,7 @@ class tabXObj {
             </script>";
         $text .= '<div class="tabx-div">
             <a class="handle" href="#">' . $this->options['link_text'] . '</a>
-            ' . $this->options['content'] . '
+            ' . stripslashes($this->options['content']) . '
       
         </div>';
         print($text);
