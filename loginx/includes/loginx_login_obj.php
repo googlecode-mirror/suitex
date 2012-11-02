@@ -48,7 +48,8 @@ class loginXLogin extends loginX {
             
             $form->textField('Username', 'username', '', true);
             $form->password('Password', 'password', true, 4);
-            $form->checkBox('Remember Me?', 'remember', 0);
+            //$form->checkBox('Remember Me?', 'remember', 0);
+            $form->hidden('remember', 'forever');
             $form->hidden('nonce', wp_create_nonce('loginx'));
             $form->freeText('<div id="loginx_password_link"><a href="' . get_permalink() . '?password=1">Forgot Login/Password?</a></div>');
             $form->freeText('<div id="loginx_register_link"><a href="' . get_permalink($this->options['register_page']) . '">Register</a></div>');

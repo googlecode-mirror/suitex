@@ -62,7 +62,7 @@ else {
 }
 
 add_action('login_head', array($loginXobj, 'loginx_redirect_login'));
-add_action('admin_init', array($loginXobj, 'loginx_redirect_admin'));
+add_action('admin_head', array($loginXobj, 'loginx_redirect_admin'), 100);
 
 function getLoginXURL($return = false){
     global $loginXobj;

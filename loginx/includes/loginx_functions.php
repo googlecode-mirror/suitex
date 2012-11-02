@@ -102,7 +102,7 @@ class loginX {
     function loginx_content($text){
         
         global $post;
-        if ($post->ID == $this->options['login_page']){        
+        if ($post->ID == $this->options['login_page']){    
             if (!is_object($this->loginObj)){
                 require_once(LOGINX_DIR . 'includes/loginx_login_obj.php');
                 $this->loginObj = new loginXLogin();
@@ -151,8 +151,6 @@ class loginX {
     function loginx_redirect_admin(){
         global $current_user;
         get_currentuserinfo();
-        
-
         
         if ($this->options['user_admin_redirect'] == 'on'){
              if ($current_user->user_level < 10){
@@ -354,11 +352,12 @@ class loginX {
         
         
         $links['My profile'] = $this->loginx_getURL();
-        $links['Site Admin'] = get_admin_url();
+        
         
         if ($current_user->user_level > 1){
-            
+            $links['Site Admin'] = get_admin_url();    
         }
+        $links[__('Course Site', 'woocommerce')] = 'http://course.suitex.com';
         $links[__('Logout', 'woocommerce')] = $logout;
         
         return $links;
