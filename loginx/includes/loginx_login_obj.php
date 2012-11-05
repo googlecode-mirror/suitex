@@ -6,6 +6,8 @@ class loginXLogin extends loginX {
     }
     
     function loginForm(){
+        do_action('loginx_before_login_form');
+        
         require_once(PHPX_DIR . '/phpx_form.php');
         $form = new phpx_form();
         if (parent::loginx_successMessage()){
@@ -59,6 +61,7 @@ class loginXLogin extends loginX {
             
             $text = '<div id="loginx_form">' . $form->endForm() . '</div>';
         } 
+        do_action('loginx_after_login_form');
         return $text;   
     }
     
