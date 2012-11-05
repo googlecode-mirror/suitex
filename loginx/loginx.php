@@ -1,27 +1,19 @@
 <?php
 /*
-Plugin Name: LoginX
-Plugin URI: http://www.phpx.org
-Description: 
+Plugin Name: Login Register Profile
+Plugin URI: http://www.xmtek.net
+Description: Keep users on your page, out of the administration area for login, profile updates, and registration
 Version: 0.1
 Author: Xnuiem
 Author URI: http://www.thisrand.com
 
 */
 
-/*  Copyright 2009-2012 Xnuiem  (email : scripts @T thisrand D07 com)
-
+/*  Copyright 2012 XM Tek LLC
+This software is released under the Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) (http://creativecommons.org/licenses/by-sa/3.0/deed.en_US)
 
 */
 
-/**
- * 
- * @since 2.6
- */
-
- 
- 
- 
 if (!defined('WP_CONTENT_URL')){ define('WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' ); }
 if (!defined('WP_CONTENT_DIR')){ define('WP_CONTENT_DIR', ABSPATH . 'wp-content' ); }
 if (!defined('WP_PLUGIN_URL')){ define('WP_PLUGIN_URL', WP_CONTENT_URL. '/plugins' ); }
