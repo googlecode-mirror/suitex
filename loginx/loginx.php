@@ -30,6 +30,8 @@ if (!is_admin()){
     add_action('wp_head', array($loginXobj, 'loginx_addCSS'));
     add_filter('the_content', array($loginXobj, 'loginx_content'));
     add_filter('get_comment_author_url', array($loginXobj, 'loginx_comment_url'));
+    add_filter('the_author_posts_link', array($loginXobj, 'loginx_author_url'));
+    
     add_action('wp', array($loginXobj, 'loginx_login'));    
     add_filter('get_avatar', array($loginXobj, 'loginx_rpx_avatar_filter'), 12);
     add_action('woocommerce_login_widget_logged_out_after_form', array($loginXobj, 'wcLoginWidget'));

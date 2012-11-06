@@ -80,6 +80,15 @@ class loginX {
         return $text;
     }
     
+    function loginx_author_url($text){
+
+        global $post;
+        $user = get_userdata($post->post_author);
+        $text = '<a href="' . get_permalink($this->options['profile_page']) . '?u=' . $user->user_nicename . '">' . $user->display_name . '</a>';
+        return $text;
+    }
+    
+    
     function loginx_errorMessage($message = ''){
         if ($message == ''){
             if ($this->errorMessage){ return true; }
