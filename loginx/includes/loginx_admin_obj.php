@@ -441,7 +441,7 @@ If you did not request this email, please contact us at ::URL::','act_email_subj
         
         update_option('loginx_options', $options);
         
-        $this->wpdb->query("CREATE TABLE IF NOT EXISTS `" . $this->wpdb->prefix . "_loginx_field` (
+        $this->wpdb->query("CREATE TABLE IF NOT EXISTS `" . $this->wpdb->prefix . "loginx_field` (
   `loginx_field_id` int(10) NOT NULL AUTO_INCREMENT,
   `loginx_field_name` varchar(50) NOT NULL,
   `loginx_field_label` varchar(200) NOT NULL,
