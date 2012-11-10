@@ -5,6 +5,11 @@ class loginXRegister extends loginX {
     
     function __construct(){
         parent::__construct();
+        if (parent::useWoo()){
+            print('<script>window.location.href = "' . get_permalink(woocommerce_get_page_id('myaccount')) . '";</script>');
+            exit;
+  
+        }
     }
         
     function registerForm(){

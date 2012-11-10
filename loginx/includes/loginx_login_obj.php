@@ -8,6 +8,14 @@ class loginXLogin extends loginX {
     function loginForm(){
         do_action('loginx_before_login_form');
         
+        if (parent::useWoo() && !$_GET['password'] && !$_POST['reset'] && !$_GET['reset'] && !$_GET['resend'] && !$_GET['act']){
+            print('<script>window.location.href = "' . get_permalink(woocommerce_get_page_id('myaccount')) . '";</script>');
+            exit;
+        }          
+        
+        
+        
+        
         require_once(PHPX_DIR . '/phpx_form.php');
         $form = new phpx_form();
         if (parent::loginx_successMessage()){
@@ -33,7 +41,8 @@ class loginXLogin extends loginX {
                 $form->startForm(parent::loginx_getURL());
                 if (parent::loginx_errorMessage()){
                     $form->freeText(parent::loginx_errorMessage('get'), 'loginx_error');
-                }                    
+                }    
+                $form->freeText($this->options['password_reset_text']);                
                 $form->password('Password', 'pass', true, 6);
                 $form->password('Confirm Password', 'pass_confirm', true, 6, true);
                 $form->hidden('nonce', wp_create_nonce('loginx'));
@@ -65,25 +74,13 @@ class loginXLogin extends loginX {
         return $text;   
     }
     
-    function checkActKey($user_id){
-        $count = $this->wpdb->get_var('select count(*) from ' . $this->wpdb->prefix . 'loginx_key where act = 1 and user_id = ' . $user_id . ' limit 1');
-        if ($count == 0){
-            return true;            
-        }
-        $this->wpdb->query('delete from ' . $this->wpdb->prefix . 'loginx_key where user_id = ' . $user_id . ' and act = 2');
-        $resendKey = substr(uniqid(NONCE_KEY), 0, 25);
-        $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'act' => 2, 'loginx_expire' => 0, 'loginx_key' => $resendKey));
-        parent::loginx_errorMessage(parent::loginx_emailTrans($this->options['not_active'], array('::LINK::' => get_permalink($this->options['login_page']) . '?resend=' . $resendKey . '&nonce=' . wp_create_nonce('loginx_resend'))));
-        return false;
-    }
+
+    
+    
     
     function login(){
         global $post;
         if ($post->ID == $this->options['login_page']){
-            
-            
-            
-            
             if ($_POST['nonce']){
                 if (!wp_verify_nonce($_POST['nonce'], 'loginx')){
                     parent::loginx_errorMessage('Security Token Mismatch');
@@ -95,13 +92,14 @@ class loginXLogin extends loginX {
 
                         if ($user_user_id || $email_user_id){
                             $user_id = ($user_user_id > 0)? $user_user_id : $email_user_id;
-                            if ($this->checkActKey($user_id)){
-                            
-                                parent::loginx_successMessage($this->options['check_email_password']);     
+                            if (parent::checkActKey($user_id)){
+                                $user = get_userdata($user_id);
+                                parent::loginx_successMessage($this->options['check_email_password'], array('::EMAIL::' => $user->user_email));     
                                 $key = substr(md5(microtime() . NONCE_SALT), 5, 25);
                                 $this->wpdb->query($this->wpdb->prepare('insert into ' . $this->wpdb->prefix . 'loginx_key (user_id, loginx_key, loginx_expire) values (%d, %s, %d)', $user_id, $key, time() + 86400));
                                 $subject = parent::loginx_emailTrans($this->options['email_password_reset_subject']);
-                                $message = parent::loginx_emailTrans($this->options['email_password_reset'], array('::LINK::' => get_permalink($this->options['page_id']) . '?reset=' . $key));                                           wp_mail($_POST['email'], $subject, $message, $headers);
+                                $message = parent::loginx_emailTrans($this->options['email_password_reset'], array('::LINK::' => get_permalink($this->options['login_page']) . '?reset=' . $key));                     
+                                wp_mail($user->user_email, $subject, $message, $headers);
                             }
                         }   
                         else {
@@ -113,16 +111,16 @@ class loginXLogin extends loginX {
                         if (!$user_id){
                             parent::loginx_errorMessage('Bad Key or Key as Expired.  Please try to reset your password again.');
                         } 
-                        else if ($this->checkActKey($user_id)){
+                        else if (parent::checkActKey($user_id)){
                             wp_update_user(array('ID' => $user_id, 'user_pass' => $_POST['pass']));
                             $this->wpdb->query($this->wpdb->prepare('delete from ' . $this->wpdb->prefix . 'loginx_key where user_id = %d', $user_id));
-                            parent::loginx_successMessage('Your password has been updated');
+                            parent::loginx_successMessage($this->options['password_change_success_message'], array('::LINK::' => get_permalink(parent::loginx_getURL())));
                         }                       
                     }
                     else { 
                         $user_check = get_userdatabylogin($_POST['username']);
                         
-                        if ($this->checkActKey($user_check->ID)){
+                        if (parent::checkActKey($user_check->ID)){
                         
                             $user = wp_signon(array('user_login' => $_POST['username'], 'user_password' => $_POST['password'], 'remember' => $_POST['remember']), false);
                         
@@ -159,6 +157,7 @@ class loginXLogin extends loginX {
                 
             }
             else if ($_GET['resend']){
+
                 if (!wp_verify_nonce($_GET['nonce'], 'loginx_resend')){
                     parent::loginx_errorMessage('Security Token Mismatch');
                 }             

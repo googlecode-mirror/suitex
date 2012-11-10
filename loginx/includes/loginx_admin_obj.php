@@ -29,7 +29,7 @@ class loginXAdmin extends loginX {
                     }
                 }
                 if ($_POST['checkFields'] == 1){
-                    $checkFields = array('user_admin_redirect', 'user_login_redirect', 'email_valid', 'anon_fields', 'show_purchases');
+                    $checkFields = array('user_admin_redirect', 'user_login_redirect', 'email_valid', 'anon_fields', 'show_purchases', 'use_woo', 'woo_login_widget');
                     foreach($checkFields as $c){
                         if (!in_array($c, array_keys($_POST))){
                             $this->options[$c] = '';
@@ -71,9 +71,12 @@ class loginXAdmin extends loginX {
     
     function templateForm(){
 
-        
-        
-        
+        /*print('array(');
+        foreach($this->options as $k => $v){
+            print("'$k' => '$v',");
+        }
+        print(');');
+        exit;*/
         require_once(PHPX_DIR . 'phpx_form.php');
         $form = new phpx_form();
         
@@ -92,14 +95,16 @@ class loginXAdmin extends loginX {
         $text .= $form->textArea('Captcha Fail', 'captcha_fail', $this->options['captcha_fail']);
         $text .= $form->textArea('Check Email for Password Reset', 'check_email_password', $this->options['check_email_password']);
         $text .= $form->textArea('Password Lookup Text', 'password_text', $this->options['password_text']);
+        $text .= $form->textArea('Password Reset Text', 'password_reset_text', $this->options['password_reset_text']);
         $text .= $form->textArea('Register Success', 'register_success_message', $this->options['register_success_message']);
         $text .= $form->textArea('Activation Success', 'act_success', $this->options['act_success']);
         $text .= $form->textArea('Activation Failure', 'act_fail', $this->options['act_fail']);
         $text .= $form->textArea('User Not Active', 'not_active', $this->options['not_active']);
+        $text .= $form->textArea('Activation Key Resent', 'act_key_resent', $this->options['act_key_resent']);
         
         $text .= $form->textArea('Profile Email Verify Message', 'profile_email_verify_message', $this->options['profile_email_verify_message']);
         $text .= $form->textArea('Profile Success Message', 'profile_success_message', $this->options['profile_success_message']);
-        $text .= $form->textArea('Password Change Success Message', ' password_change_success_message', $this->options['password_change_success_message']);
+        $text .= $form->textArea('Password Change Success Message', 'password_change_success_message', $this->options['password_change_success_message']);
        
         $text .= $form->endFieldSet();
         $text .= $form->startFieldSet('Emails');
@@ -107,7 +112,7 @@ class loginXAdmin extends loginX {
         $text .= $form->textArea('Password Reset Email Message', 'email_password_reset', $this->options['email_password_reset']);
         $text .= $form->textField('Activation Email Subject', 'act_email_subject', $this->options['act_email_subject']);
         $text .= $form->textArea('Activation Email Text', 'act_email_text', $this->options['act_email_text']);
-        $text .= $form->textArea('Password WAS Reset Subject', 'email_password_was_reset_subject', $this->options['email_password_was_reset_subject']);
+        $text .= $form->textField('Password WAS Reset Subject', 'email_password_was_reset_subject', $this->options['email_password_was_reset_subject']);
         $text .= $form->textArea('Password WAS Reset Email', 'email_password_was_reset', $this->options['email_password_was_reset']);
         $text .= $form->hidden('tab', 2);
         $text .= $form->endFieldSet();
@@ -306,6 +311,12 @@ class loginXAdmin extends loginX {
         $text .= $form->textField('ReCaptcha Public Key', 'captcha_public', $this->options['captcha_public']);
         $text .= $form->textField('ReCaptcha Private Key', 'captcha_private', $this->options['captcha_private']);
         
+        $text .= $form->startFieldSet('WooCommerce');
+        $text .= $form->checkbox('Use WooCommerce Login/Registration', 'use_woo', $this->options['use_woo']);
+        $text .= $form->checkbox('Add Links to WooCommerce Login Widget', 'woo_login_widget', $this->options['woo_login_widget']);
+        $text .= $form->endFieldSet();
+        
+        
         $text .= $form->endForm();
         return $text;
     }
@@ -381,6 +392,7 @@ class loginXAdmin extends loginX {
                     <li><div style="font-weight: bold; width:150px; float:left;">::DATE::</div> - Current Date (Format set in General Settings)</li>
                     <li><div style="font-weight: bold; width:150px; float:left;">::TIME::</div> - Current Time (Format set in General Settings)</li>
                     <li><div style="font-weight: bold; width:150px; float:left;">::LINK::</div> - A dynamic tag.  If the email produces a link, like verification or password reset, this will be the link.</li>
+                    
                 </ul>'
             ));             
         }        
@@ -424,8 +436,8 @@ class loginXAdmin extends loginX {
         $page['post_content']   = 'This page is used to display your Profile via LoginX.';
 
         $profile_id = wp_insert_post($page);        
-        $options =  array('login_page' => $page_id, 'login' => true, 'register_page' => $register_id, 'profile_id' => $profile_id);
-        
+        $options =  array('login_page' => $page_id, 'login' => true, 'register_page' => $register_id, 'profile_id' => $profile_id,'user_admin_redirect' => 'on','redirect_admin_page' => '153','user_login_redirect' => 'on','email_valid' => 'on','captcha_public' => '','captcha_private' => '','anon_fields' => '','show_purchases' => '','bad_key' => 'Token expired.  Please try again.','captcha_fail' => 'Image verification failed.','check_email_password' => 'An email was set to ::EMAIL:: with instructions to complete your password reset.','password_text' => 'Please enter your username or email address and an email will be sent to you with instructions to reset your password.','register_success_message' => 'Registration successful.','act_success' => 'Activation successful.','act_fail' => 'Activation Failed.  Please check your link and try again.','not_active' => 'User not active.','profile_email_verify_message' => 'Your profile has been updated, but your email will need to be re-verified before you can login.','profile_success_message' => 'Profile Updated.','password_change_success_message' => 'Password Updated.','email_password_reset_subject' => '::BLOGNAME:: - Password Reset Request','email_password_reset' => 'A request was processed at ::BLOGNAME:: to reset your password.  In order to reset your password, please follow this link:<br /><br />::LINK::<br /><br />
+If you did not request this email, please contact us at ::URL::','act_email_subject' => '::BLOGNAME:: - Activate User (Action Required)','act_email_text' => 'Please verify your email address by following this link: <br /><br />::LINK::<br /><br />Your user account will be inactive until this is completed.<br /><br />If you did not request this email, please contact us at ::URL::','email_password_was_reset_subject' => '::BLOGNAME:: - Password Reset Notification','email_password_was_reset' => 'Your password at ::BLOGNAME:: has been reset.<br /><br />If you did not request this email, please contact us at ::URL::', 'act_key_resent' => 'Activation Key Re-sent.  Please check your email.', 'password_reset_text' => 'Please enter your new password and confirm.');
         
         update_option('loginx_options', $options);
         

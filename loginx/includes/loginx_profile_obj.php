@@ -67,7 +67,7 @@ class loginXProfile extends loginX {
         if ($user->ID == $current_user->ID){ 
             
             $passwordLink = '<a href="' . get_permalink($this->options['profile_page']) . '?password=1">Change Password</a>';
-            if (is_woocommerce_active()){
+            if (parent::useWoo()){
                 $passwordLink = '<a href="' . get_permalink(woocommerce_get_page_id('change_password')) . '">Change Password</a> | <a href="' . get_permalink(woocommerce_get_page_id('myaccount')) . '">My Account</a>';    
                 
             }
@@ -182,7 +182,7 @@ class loginXProfile extends loginX {
                 else if ($this->options['email_valid'] == 'on'){
                     $emailVerify = true;
                     $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
-                    $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
+                    $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $current_user->ID, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
                     
                     $subject = parent::loginx_emailTrans($this->options['act_email_subject']);
                     $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));

@@ -13,6 +13,8 @@ class loginX {
         $this->wpdb = $wpdb;
         $this->options = get_option('loginx_options');
         
+
+        
         $this->trans['::URL::'] = get_bloginfo('url');
         $this->trans['::BLOGURL::'] = get_bloginfo('wpurl');
         $this->trans['::BLOGNAME::'] = get_bloginfo('name');
@@ -29,6 +31,13 @@ class loginX {
     function loginx_emailTrans($text, $special=array()){
         $text = strtr($text, array_merge($this->trans, $special));
         return $text;
+    }
+    
+    function useWoo(){
+        
+        $ret = (is_woocommerce_active() && $this->options['use_woo'] == 'on') ? true : false;
+        return $ret;
+        
     }
     
     function loginx_login(){
@@ -98,14 +107,14 @@ class loginX {
         $this->errorMessage = str_replace(get_bloginfo('wpurl') . '/wp-login.php?action=lostpassword', $this->loginx_getURL() . '?password=1', $message);
     }
     
-    function loginx_successMessage($message = ''){
+    function loginx_successMessage($message = '', $transArray = array()){
         if ($message == ''){
             if ($this->successMessage){ return true; }
             return false;
         }
         else if ($message == 'get'){ return $this->successMessage; }
         
-        $this->successMessage = $message;
+        $this->successMessage = strtr($message, $transArray);
     }
     
     function loginx_content($text){
@@ -115,7 +124,9 @@ class loginX {
             if (!is_object($this->loginObj)){
                 require_once(LOGINX_DIR . 'includes/loginx_login_obj.php');
                 $this->loginObj = new loginXLogin();
+               
             }
+             
             $text = $this->loginObj->loginForm();
             
         }
@@ -136,10 +147,19 @@ class loginX {
     }
 
     function loginx_getRegisterURL($extra=''){
-        return get_permalink($this->options['register_page']) . '/' . $extra;
+        if ($this->useWoo()){
+            $url = get_permalink(woocommerce_get_page_id('myaccount'));
+        }    
+        else { 
+            $url = get_permalink($this->options['register_page']) . '/' . $extra;
+        }
+        return $url;
     }
     
     function loginx_getURL($extra=''){
+        //if ($this->useWoo()){
+        //    return get_permalink(woocommerce_get_page_id('myaccount'));   
+        //}
         return get_permalink($this->options['login_page']) . '/' . $extra;
     }
     
@@ -147,11 +167,15 @@ class loginX {
         
         if ($this->options['user_login_redirect'] == 'on'){
             if ($_GET['action'] == 'lostpassword'){
-                $extra = '?password=1';
+                $url = $this->loginx_getURL('?password=1');
             }
-            
-            
-            wp_redirect($this->loginx_getURL($extra));  
+            else if ($this->useWoo()){
+                $url = get_permalink(woocommerce_get_page_id('myaccount'));
+            }    
+            else { 
+                $url = $this->loginx_getURL();
+            }       
+            wp_redirect($url);  
             exit; 
         }
              
@@ -163,8 +187,14 @@ class loginX {
         
         if ($this->options['user_admin_redirect'] == 'on'){
              if ($current_user->user_level < 10){
-                wp_redirect(get_permalink($this->options['redirect_admin_page']));   
-                exit;
+                 if ($this->useWoo()){
+                     $page_id = woocommerce_get_page_id('myaccount');
+                 }
+                 else { 
+                     $page_id = $this->options['redirect_admin_page'];
+                 }
+                 wp_redirect(get_permalink($page_id));   
+                 exit;
              }
         }
     }  
@@ -343,34 +373,63 @@ class loginX {
     }
     
     function wcLoginWidget(){
-        print('<a href="' . $this->loginx_getRegisterURL() . '">Register?</a><br />');
+        if ($this->options['woo_login_widget'] == 'on'){
+            print('<a href="' . $this->loginx_getRegisterURL() . '">Register?</a><br />');
         
-        if (function_exists('rpx_init')){
-            print('Log in with:' . do_shortcode('[rpxlogin]'));    
-        }        
+            if (function_exists('rpx_init')){
+                print('Log in with:' . do_shortcode('[rpxlogin]'));    
+            }        
+        }
     }    
     
     function wcLoginWidgetLinks($links){
-        global $current_user;
-        get_currentuserinfo();
+        if ($this->options['woo_login_widget'] == 'on'){
+            global $current_user;
+            get_currentuserinfo();
         
         
         
-        $logout = array_pop($links);
-        $password = array_pop($links);
+            $logout = array_pop($links);
+            $password = array_pop($links);
         
         
-        $links['My profile'] = $this->loginx_getURL();
+            $links['My profile'] = $this->loginx_getURL();
         
         
-        if ($current_user->user_level > 1){
-            $links['Site Admin'] = get_admin_url();    
+            if ($current_user->user_level > 1){
+                $links['Site Admin'] = get_admin_url();    
+            }
+            $links[__('Course Site', 'woocommerce')] = 'http://course.suitex.com';
+            $links[__('Logout', 'woocommerce')] = $logout;
         }
-        $links[__('Course Site', 'woocommerce')] = 'http://course.suitex.com';
-        $links[__('Logout', 'woocommerce')] = $logout;
-        
         return $links;
-    }     
+    }   
+    
+    function loginx_login_hook(){
+        if ($this->useWoo()){
+            $user_check = get_userdatabylogin($_POST['username']);
+            if (!$this->checkActKey($user_check->ID)){
+                global $woocommerce;
+                $woocommerce->add_error($this->loginx_errorMessage('get'));
+                wp_redirect(get_permalink(woocommerce_get_page_id('myaccount')));
+                exit;
+            }
+        } 
+             
+    } 
+    
+    function checkActKey($user_id){
+        $count = $this->wpdb->get_var('select count(*) from ' . $this->wpdb->prefix . 'loginx_key where act = 1 and user_id = ' . $user_id . ' limit 1');
+        if ($count == 0){
+            return true;            
+        }
+        
+        $this->wpdb->query('delete from ' . $this->wpdb->prefix . 'loginx_key where user_id = ' . $user_id . ' and act = 2');
+        $resendKey = substr(md5(uniqid(NONCE_KEY)), 0, 25);
+        $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'act' => 2, 'loginx_expire' => 0, 'loginx_key' => $resendKey));
+        $this->loginx_errorMessage($this->loginx_emailTrans($this->options['not_active'], array('::LINK::' => get_permalink($this->options['login_page']) . '?resend=' . $resendKey . '&nonce=' . wp_create_nonce('loginx_resend'))));
+        return false;
+    }    
 }
         
         
