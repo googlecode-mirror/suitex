@@ -114,6 +114,14 @@ class loginXAdmin extends loginX {
         $text .= $form->textArea('Activation Email Text', 'act_email_text', $this->options['act_email_text']);
         $text .= $form->textField('Password WAS Reset Subject', 'email_password_was_reset_subject', $this->options['email_password_was_reset_subject']);
         $text .= $form->textArea('Password WAS Reset Email', 'email_password_was_reset', $this->options['email_password_was_reset']);
+        
+        $text .= $form->textField('New User Password Subject', 'email_new_user_password_subject', $this->options['email_new_user_password_subject']);
+        $text .= $form->textArea('New User Password Email', 'email_new_user_password_text', $this->options['email_new_user_password_text']);
+        
+        
+        
+        
+        
         $text .= $form->hidden('tab', 2);
         $text .= $form->endFieldSet();
         $text .= $form->endForm();
@@ -437,7 +445,7 @@ class loginXAdmin extends loginX {
 
         $profile_id = wp_insert_post($page);        
         $options =  array('login_page' => $login_id, 'login' => true, 'register_page' => $register_id, 'profile_page' => $profile_id,'user_admin_redirect' => 'on','redirect_admin_page' => '153','user_login_redirect' => 'on','email_valid' => 'on','captcha_public' => '','captcha_private' => '','anon_fields' => '','show_purchases' => '','bad_key' => 'Token expired.  Please try again.','captcha_fail' => 'Image verification failed.','check_email_password' => 'An email was set to ::EMAIL:: with instructions to complete your password reset.','password_text' => 'Please enter your username or email address and an email will be sent to you with instructions to reset your password.','register_success_message' => 'Registration successful.','act_success' => 'Activation successful.','act_fail' => 'Activation Failed.  Please check your link and try again.','not_active' => 'User not active.','profile_email_verify_message' => 'Your profile has been updated, but your email will need to be re-verified before you can login.','profile_success_message' => 'Profile Updated.','password_change_success_message' => 'Password Updated.','email_password_reset_subject' => '::BLOGNAME:: - Password Reset Request','email_password_reset' => 'A request was processed at ::BLOGNAME:: to reset your password.  In order to reset your password, please follow this link:<br /><br />::LINK::<br /><br />
-If you did not request this email, please contact us at ::URL::','act_email_subject' => '::BLOGNAME:: - Activate User (Action Required)','act_email_text' => 'Please verify your email address by following this link: <br /><br />::LINK::<br /><br />Your user account will be inactive until this is completed.<br /><br />If you did not request this email, please contact us at ::URL::','email_password_was_reset_subject' => '::BLOGNAME:: - Password Reset Notification','email_password_was_reset' => 'Your password at ::BLOGNAME:: has been reset.<br /><br />If you did not request this email, please contact us at ::URL::', 'act_key_resent' => 'Activation Key Re-sent.  Please check your email.', 'password_reset_text' => 'Please enter your new password and confirm.');
+If you did not request this email, please contact us at ::URL::','act_email_subject' => '::BLOGNAME:: - Activate User (Action Required)','act_email_text' => 'Please verify your email address by following this link: <br /><br />::LINK::<br /><br />Your user account will be inactive until this is completed.<br /><br />If you did not request this email, please contact us at ::URL::','email_password_was_reset_subject' => '::BLOGNAME:: - Password Reset Notification','email_password_was_reset' => 'Your password at ::BLOGNAME:: has been reset.<br /><br />If you did not request this email, please contact us at ::URL::', 'act_key_resent' => 'Activation Key Re-sent.  Please check your email.', 'password_reset_text' => 'Please enter your new password and confirm.', 'email_new_user_password_subject' => '::BLOG:: Action Required: Please Confirm your Email', 'email_new_user_password_text' => 'Please follow the below link to confirm your email and choose a new password.<br><br>::LINK::');
         
         update_option('loginx_options', $options);
         
