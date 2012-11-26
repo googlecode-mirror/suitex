@@ -56,10 +56,14 @@ else {
 }
 
 add_action('wp_authenticate', array($loginXobj, 'loginx_login_hook'), 1);
-
+add_filter('wp_mail_content_type', 'loginXSetContentType');
 
 add_action('login_head', array($loginXobj, 'loginx_redirect_login'));
 add_action('admin_head', array($loginXobj, 'loginx_redirect_admin'), 100);
+
+function loginXSetContentType(){
+    return 'text/html';
+}
 
 function getLoginXURL($return = false){
     global $loginXobj;
