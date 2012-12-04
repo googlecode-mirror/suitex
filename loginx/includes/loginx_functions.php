@@ -429,15 +429,7 @@ class loginX {
         $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'act' => 2, 'loginx_expire' => 0, 'loginx_key' => $resendKey));
         $this->loginx_errorMessage($this->loginx_emailTrans($this->options['not_active'], array('::LINK::' => get_permalink($this->options['login_page']) . '?resend=' . $resendKey . '&nonce=' . wp_create_nonce('loginx_resend'))));
         return false;
-    } 
-    
-    function newUserPasswordEmail($user_id){
-            
-        
-        
-        
-        
-    }   
+    }    
 }
         
         

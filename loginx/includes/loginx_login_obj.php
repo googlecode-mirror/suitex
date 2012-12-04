@@ -145,6 +145,13 @@ class loginXLogin extends loginX {
                     }
                 }
             } 
+            else if ($_GET['act'] == 'logout'){
+                
+                die("HERE");
+                
+                
+                
+            }
             else if ($_GET['act']){
                 $user_id = $this->wpdb->get_var($this->wpdb->prepare('select user_id from ' . $this->wpdb->prefix . 'loginx_key where loginx_key = %s and act = 1', $_GET['act']));
                 if ($user_id > 0){
