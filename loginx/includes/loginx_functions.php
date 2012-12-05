@@ -216,6 +216,8 @@ class loginX {
     
     function publicForm($form, $results, $register=true){
         
+        $form->hidden('loginx_profile', '1');
+        
         foreach($results as $row){
             $this->createFieldOptions($row->loginx_field_options);
             $req = $this->getReq($row);

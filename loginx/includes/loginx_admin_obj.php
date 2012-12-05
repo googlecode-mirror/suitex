@@ -15,6 +15,10 @@ class loginXAdmin extends loginX {
 
     
     function adminScreen(){
+        wp_enqueue_script('jquery-ui-tabs');        
+        wp_enqueue_script('loginx_admin', LOGINX_URL . 'js/loginx_admin.js');
+        add_action('load-' . $this->adminPageID, array($this, 'loadHelpTab'));
+        
         
         if ($_POST['nonce']){
             $this->checkNonce('loginx_admin');
@@ -369,9 +373,6 @@ class loginXAdmin extends loginX {
     
     function adminMenu(){
         $this->adminPageID = add_management_page('LoginX', 'LoginX', 5, __FILE__, array($this, 'adminScreen')); 
-        wp_enqueue_script('jquery-ui-tabs');        
-        wp_enqueue_script('loginx_admin', LOGINX_URL . 'js/loginx_admin.js');
-        add_action('load-' . $this->adminPageID, array($this, 'loadHelpTab'));
     } 
     
     function loadHelpTab(){
