@@ -63,7 +63,7 @@ class loginXProfile extends loginX {
         $trans['::AVATAR::'] = get_avatar($user->user_email, 92);
         $trans['::DISPLAYNAME::'] = $user->display_name;
         $trans['::REGDATE::'] = date(get_option('date_format'), strtotime($user->user_registered));
-        $trans['::INFO::'] = $user->user_description;
+        $trans['::INFO::'] = str_replace("\r\n", '<br />', $user->user_description);
         if ($user->ID == $current_user->ID){ 
             
             $passwordLink = '<a href="' . get_permalink($this->options['profile_page']) . '?password=1">Change Password</a>';
