@@ -27,6 +27,7 @@ $tabXObj = new tabXObj();
 if (!is_admin()){
     wp_enqueue_script('tabx', TABX_URL . 'jquery.tabSlideOut.v1.3.js', 'jquery');
     wp_enqueue_style('tabx', TABX_URL . 'tabx.css');
+    wp_enqueue_style('tabx-custom', TABX_URL . 'custom.css');
     add_action('wp_footer', array($tabXObj, 'footer'));
 }
 else { 
@@ -44,10 +45,10 @@ class tabXObj {
     
     function install(){
         if (!is_plugin_active('phpx/phpx.php')){
-            die('TabX requires the PHPX Framework.  Please install PHPX and then reinstall TabX.');
+            die('Slide Out Tab requires the PHPX Framework.  Please install PHPX and then reinstall Slide Out Tab.');
         }
         
-        if (count($this->options) == 0){
+        if (count($this->options) == 0 || !is_array($this->options)){
             $this->options['image'] = TABX_URL . 'contact_tab.gif';
             $this->options['link_text'] = 'Contact';
             $this->options['content'] = '<h3>Contact Us</h3><br />This is where you can put your contact information.';
@@ -58,7 +59,7 @@ class tabXObj {
             $this->options['action'] = 'click';
             $this->options['top'] = 200;
             $this->options['left'] = 20;
-            $this->options['fixed'] = false;           
+            $this->options['fixed'] = 'false';           
             update_option('tabx_options', $this->options);
         }
     }
@@ -94,7 +95,7 @@ class tabXObj {
             }
             
             $envArray = array('Development', 'Production');
-
+            
             require_once(PHPX_DIR . 'phpx_form.php');
             $form = new phpx_form();
   
@@ -104,6 +105,7 @@ class tabXObj {
             $text .= $form->startForm('tools.php?page=tabx/tabx.php', 'tabxForm', 'post', true);  
             $text .= $form->hidden('wp_nonce', wp_create_nonce('tabx'));
             $text .= $form->textField('Link Text', 'link_text', $this->options['link_text']);
+            
             ob_start();
 
             wp_editor(stripslashes($this->options['content']), 'tabxcontent', array('textarea_name' => 'content'));
@@ -131,7 +133,6 @@ class tabXObj {
     }
     
     function footer(){
-
 
         $text = "<script type=\"text/javascript\">
             jQuery(function(){

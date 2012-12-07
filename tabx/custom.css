@@ -1,0 +1,22 @@
+.tabx-div {
+    padding: 20px;
+    width: 230px;
+    background: #eee;
+    border: 1px solid #b2b2b2;
+    border-top-right-radius:10px;
+    border-bottom-right-radius:10px;
+    text-align: right;
+}   
+
+.tabx-div div.tabx_item { 
+    padding-bottom: 30px;
+    
+}
+
+.tabx-div div h2 { 
+    padding: 0;
+    color: #43635b;
+    font-weight: normal;
+    font-size: 2em;
+}
+
