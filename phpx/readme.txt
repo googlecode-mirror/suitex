@@ -1,14 +1,18 @@
 === phpX ===
 Contributors: Xnuiem
+Donate link: http://www.phpx.org
 Tags: automatic, integration, plugin, admin
 Requires at least: 3.0.0
-Tested up to: 3.4.2
+Tested up to: 3.2.1
 Stable tag: 0.1
 
-A lightweight developoment framework for WordPress
+
 
 == Description ==
-PHPX is a development framework to speed up the development time of Wordpress Plugins by providing more CSS, JavaScript, and Form functionality in an OO wrapper.  It makes plugin development easier and more powerful in less time.
+PHPX is a development framework to speed up the development time of Wordpress Plugins
+
+
+
 
 == Installation ==
 
@@ -17,7 +21,6 @@ PHPX is a development framework to speed up the development time of Wordpress Pl
 
 
 == Frequently Asked Questions ==
-
 
 == Change Log ==
 

@@ -75,7 +75,7 @@
 
 
 .phpxContainer form label { width: 250px; float: left; font-weight: bold; }
-em { font-weight: bold; padding-right: 1em; vertical-align: top; color: #ff0000; }
+.error em { font-weight: bold; padding-right: 1em; vertical-align: top; color: #ff0000; }
 .error {
     font-weight: normal;
 }

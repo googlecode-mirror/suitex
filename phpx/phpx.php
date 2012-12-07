@@ -1,17 +1,29 @@
 <?php
 /*
 Plugin Name: phpX
-Plugin URI: http://www.xmtek.net
+Plugin URI: http://www.phpx.org
 Description: A development framework plugin
 Version: 0.1
-Author: XM Tek LLC
-Author URI: http://www.xmtek.net
+Author: Xnuiem
+Author URI: http://www.thisrand.com
 
 */
 
-/*  Copyright 2012 XM Tek LLC
+/*  Copyright 1997-2011 Xnuiem  (email : scripts @T thisrand D07 com)
 
-This software is released under the Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) (http://creativecommons.org/licenses/by-sa/3.0/deed.en_US)
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 /**
