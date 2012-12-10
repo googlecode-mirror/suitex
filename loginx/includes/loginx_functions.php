@@ -454,7 +454,9 @@ class loginX {
                     
                     $this->loginx_successMessage($this->options['register_success_message']);
                     $text = '<div id="loginx_form">' . $this->loginx_successMessage() . '</div>';
-                    return $text;                 
+                    return $text;    
+                    
+                    exit;             
                 }
                 else {
                     wp_redirect(get_permalink($this->options['profile_page']));
