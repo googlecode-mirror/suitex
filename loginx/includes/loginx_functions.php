@@ -435,36 +435,37 @@ class loginX {
     
     function woo_register($user_id) {
         
-        if ($user_id) {
-            
-            if (isset($_POST['first_name'])) update_user_meta( $user_id, 'first_name', $_POST['first_name']);
-            if (isset($_POST['last_name'])) update_user_meta( $user_id, 'last_name', $_POST['last_name']);
-            
-            if ($this->options['email_valid'] == 'on'){
-                $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
-                $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
+        if ($this->useWoo()){
+            if ($user_id) {
                 
-                $subject = $this->loginx_emailTrans($this->options['act_email_subject']);
-                $message = $this->loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
+                if (isset($_POST['first_name'])) update_user_meta( $user_id, 'first_name', $_POST['first_name']);
+                if (isset($_POST['last_name'])) update_user_meta( $user_id, 'last_name', $_POST['last_name']);
                 
-                wp_mail($_POST['user_email'], $subject, $message);
-                
-                do_action( 'woo_register_created_customer', $user_id );
-                
-                $this->loginx_successMessage($this->options['register_success_message']);
-                $text = '<div id="loginx_form">' . $this->loginx_successMessage() . '</div>';
-                return $text;                 
-            }
-            else {
-                wp_redirect(get_permalink($this->options['profile_page']));
-            }
+                if ($this->options['email_valid'] == 'on'){
+                    $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
+                    $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
+                    
+                    $subject = $this->loginx_emailTrans($this->options['act_email_subject']);
+                    $message = $this->loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
+                    
+                    wp_mail($_POST['user_email'], $subject, $message);
+                    
+                    do_action( 'woo_register_created_customer', $user_id );
+                    
+                    $this->loginx_successMessage($this->options['register_success_message']);
+                    $text = '<div id="loginx_form">' . $this->loginx_successMessage() . '</div>';
+                    return $text;                 
+                }
+                else {
+                    wp_redirect(get_permalink($this->options['profile_page']));
+                }
 
-        } 
-        else {
-            return false;  
+            } 
+            else {
+                return false;  
+            }
+  
         }
-    
-        
     }    
     
         
