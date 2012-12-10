@@ -436,6 +436,10 @@ class loginX {
     function woo_register($user_id) {
         
         if ($user_id) {
+            
+            if (isset($_POST['first_name'])) update_user_meta( $user_id, 'first_name', $_POST['first_name']);
+            if (isset($_POST['last_name'])) update_user_meta( $user_id, 'last_name', $_POST['last_name']);
+            
             if ($this->options['email_valid'] == 'on'){
                 $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
                 $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
