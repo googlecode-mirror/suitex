@@ -445,6 +445,8 @@ class loginX {
                 
                 wp_mail($_POST['user_email'], $subject, $message);
                 
+                do_action( 'woo_register_created_customer', $user_id );
+                
                 loginx_successMessage($this->options['register_success_message']);
                 $text = '<div id="loginx_form">' . loginx_successMessage() . '</div>';
                 return $text;                 
