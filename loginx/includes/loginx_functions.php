@@ -452,10 +452,10 @@ class loginX {
                     
                     do_action( 'woo_register_created_customer', $user_id );
                     
-                    $this->loginx_successMessage($this->options['register_success_message']);
-                    $text = '<div id="loginx_form">' . $this->loginx_successMessage() . '</div>';
-                    return $text;    
-                    
+                    $i = wp_nonce_tick(); 
+                    $nonce = substr(wp_hash($i . 'dit_logout' . 0, 'nonce'), -12, 10);
+                    wp_redirect(get_permalink(woocommerce_get_page_id('myaccount')) . '?cs_error=' . $this->options['register_success_message'] . '&_nonce=' . $nonce);
+                        
                     exit;             
                 }
                 else {
