@@ -236,7 +236,7 @@ class loginXProfile extends loginX {
                 
                 $message = ($emailVerify == true) ? $this->options['profile_email_verify_message'] : '';
                 $message .= $this->options['profile_success_message'];
-                do_action('loginx_after_profile_save');
+                do_action('loginx_after_profile_save', $emailVerify);
                 parent::loginx_successMessage($message);
                 
                 
