@@ -431,7 +431,37 @@ class loginX {
         $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'act' => 2, 'loginx_expire' => 0, 'loginx_key' => $resendKey));
         $this->loginx_errorMessage($this->loginx_emailTrans($this->options['not_active'], array('::LINK::' => get_permalink($this->options['login_page']) . '?resend=' . $resendKey . '&nonce=' . wp_create_nonce('loginx_resend'))));
         return false;
+    }
+    
+    function woo_register($user_id) {
+        
+        if ($user_id) {
+            if ($this->options['email_valid'] == 'on'){
+                $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
+                $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
+                
+                $subject = loginx_emailTrans($this->options['act_email_subject']);
+                $message = loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
+                
+                wp_mail($_POST['user_email'], $subject, $message);
+                
+                loginx_successMessage($this->options['register_success_message']);
+                $text = '<div id="loginx_form">' . loginx_successMessage() . '</div>';
+                return $text;                 
+            }
+            else {
+                wp_redirect(get_permalink($this->options['profile_page']));
+            }
+
+        } 
+        else {
+            return false;  
+        }
+    
+        
     }    
+    
+        
 }
         
         
