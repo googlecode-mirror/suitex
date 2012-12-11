@@ -450,7 +450,7 @@ class loginX {
                     
                     wp_mail($_POST['user_email'], $subject, $message);
                     
-                    do_action( 'woo_register_created_customer', $user_id );
+                    do_action( 'woo_register_created_prospect', $user_id );
                     
                     $i = wp_nonce_tick(); 
                     $nonce = substr(wp_hash($i . 'dit_logout' . 0, 'nonce'), -12, 10);
