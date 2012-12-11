@@ -25,7 +25,8 @@ class loginX {
     }
     
     function loginx_addCSS(){
-        print("<link rel='stylesheet' href='" . LOGINX_URL . "css/loginx.css' type='text/css' media='all' />");      
+        wp_register_style('loginx-style', plugins_url('css/loginx.css', __FILE__));
+        wp_enqueue_style('loginx-style');        
     }  
     
     function loginx_emailTrans($text, $special=array()){
