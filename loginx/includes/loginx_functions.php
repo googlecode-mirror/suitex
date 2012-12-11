@@ -436,6 +436,7 @@ class loginX {
     
     function woo_register($user_id) {
         
+        
         if ($this->useWoo()){
             if ($user_id) {
                 
@@ -450,11 +451,13 @@ class loginX {
                     $message = $this->loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
                     
                     wp_mail($_POST['email'], $subject, $message);                               
+                                                
                     
-                    do_action( 'woo_register_created_prospect', $user_id );
+                    do_action( 'loginx_after_woocommerce_register', $user_id );
                     
                     $i = wp_nonce_tick(); 
                     $nonce = substr(wp_hash($i . 'dit_logout' . 0, 'nonce'), -12, 10);
+                    
                     wp_redirect(get_permalink(woocommerce_get_page_id('myaccount')) . '?cs_error=' . urlencode($this->options['register_success_message']) . '&_nonce=' . $nonce);
                         
                     exit;             
