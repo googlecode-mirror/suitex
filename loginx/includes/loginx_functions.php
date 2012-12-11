@@ -449,7 +449,7 @@ class loginX {
                     $subject = $this->loginx_emailTrans($this->options['act_email_subject']);
                     $message = $this->loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
                     
-                    wp_mail($_POST['user_email'], $subject, $message);                               
+                    wp_mail($_POST['email'], $subject, $message);                               
                     
                     do_action( 'woo_register_created_prospect', $user_id );
                     
