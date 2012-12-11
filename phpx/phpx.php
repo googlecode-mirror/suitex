@@ -43,17 +43,17 @@ if (!session_id()){ session_start(); }
 
 
 if (!is_admin()){
-    wp_deregister_script('jquery');
-    wp_deregister_script('jquery-ui-core');
-    wp_register_script('jquery', PHPX_URL . 'js/jquery-1.5.1.min.js');
-    wp_register_script('jquery-ui-core', PHPX_URL . 'js/jquery-ui-1.8.13.custom.min.js');
-    wp_register_script('jquery-validate', PHPX_URL . 'js/jquery.validate.min.js');
+    //wp_deregister_script('jquery');
+    //wp_deregister_script('jquery-ui-core');
+    //wp_register_script('jquery', PHPX_URL . 'js/jquery-1.5.1.min.js');
+    //wp_register_script('jquery-ui-core', PHPX_URL . 'js/jquery-ui-1.8.13.custom.min.js');
+    wp_register_script('jquery-validate', PHPX_URL . 'js/jquery.validate.min.js', 'jquery');
     wp_enqueue_script('phpx', PHPX_URL . 'js/phpx.js', array('jquery', 'jquery-ui-core', 'jquery-validate', 'jquery-form'));
     add_action('wp_head', 'phpx_addCSS'); 
 }
 else {
     add_action('admin_head', 'phpx_addCSS');    
-    wp_register_script('jquery-validate', PHPX_URL . 'js/jquery.validate.min.js');
+    wp_register_script('jquery-validate', PHPX_URL . 'js/jquery.validate.min.js', 'jquery');
     wp_enqueue_script('phpx', PHPX_URL . 'js/phpx.js', array('jquery', 'jquery-ui-core', 'jquery-validate', 'jquery-form'));
 }
 
@@ -65,15 +65,17 @@ register_deactivation_hook(__FILE__, 'phpx_uninstall');
 
 function phpx_addCSS(){        
     if (is_admin()){
-        print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'css/phpx-admin.css" />');         
-        print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'jquery-themes/smoothness/jquery-ui-1.8.20.custom.css" />' . "\n"); 
+        wp_register_style('phpx-admin-style', plugins_url('css/phpx-admin.css', __FILE__));
+        wp_register_style('phpx-admin-jquery-style', plugins_url('jquery-themes/smoothness/jquery-ui-1.8.20.custom.css', __FILE__));
+        wp_enqueue_style('phpx-admin-style');
+        wp_enqueue_style('phpx-admin-jquery-style');
         
     }
     else {
-        print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'css/phpx.css" />' . "\n");  
-        print('<link type="text/css" rel="stylesheet" href="' . PHPX_URL . 'jquery-themes/redmond/jquery-theme.css" />' . "\n");   
-        print('<meta name="framework" content="phpX Framework 0.1" />' . "\n");
-       
+        wp_register_style('phpx-style', plugins_url('css/phpx.css', __FILE__));
+        wp_register_style('phpx-jquery-style', plugins_url('jquery-themes/redmond/jquery-theme.css', __FILE__));
+        wp_enqueue_style('phpx-style');
+        wp_enqueue_style('phpx-jquery-style');
     }
 }
 
