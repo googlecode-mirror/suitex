@@ -280,10 +280,10 @@ class loginXProfile extends loginX {
                     $text .= "<p>You can remove all $provider data and disconnect your account from $provider by clicking <a href=\"?action=" . RPX_REMOVE_ACTION . "\">remove</a>.
                     <br><strong>Be certain before you click \"remove\" and set a password for this account so you can use it without social sign in.</strong></p>";
                 }
-                else { 
-                    $text = rpx_buttons(RPX_BUTTONS_STYLE_LARGE, RPX_CONNECT_PROMPT);
-                }
             }
+            else { 
+                $text = rpx_buttons(RPX_BUTTONS_STYLE_LARGE, RPX_CONNECT_PROMPT);
+            }            
             $ret = $text;
             return $ret;
         }
