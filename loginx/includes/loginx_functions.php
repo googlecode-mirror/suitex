@@ -25,7 +25,7 @@ class loginX {
     }
     
     function loginx_addCSS(){
-        wp_register_style('loginx-style', plugins_url('css/loginx.css', __FILE__));
+        wp_register_style('loginx-style', plugins_url('../css/loginx.css', __FILE__));
         wp_enqueue_style('loginx-style');        
     }  
     
