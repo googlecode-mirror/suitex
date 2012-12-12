@@ -65,15 +65,15 @@ register_deactivation_hook(__FILE__, 'phpx_uninstall');
 
 function phpx_addCSS(){        
     if (is_admin()){
-        wp_register_style('phpx-admin-style', plugins_url('css/phpx-admin.css', __FILE__));
-        wp_register_style('phpx-admin-jquery-style', plugins_url('jquery-themes/smoothness/jquery-ui-1.8.20.custom.css', __FILE__));
+        wp_register_style('phpx-admin-style', plugins_url('phpx/css/phpx-admin.css'));
+        wp_register_style('phpx-admin-jquery-style', plugins_url('phpx/jquery-themes/smoothness/jquery-ui-1.8.20.custom.css'));
         wp_enqueue_style('phpx-admin-style');
         wp_enqueue_style('phpx-admin-jquery-style');
         
     }
     else {
-        wp_register_style('phpx-style', plugins_url('css/phpx.css', __FILE__));
-        wp_register_style('phpx-jquery-style', plugins_url('jquery-themes/redmond/jquery-theme.css', __FILE__));
+        wp_register_style('phpx-style', plugins_url('phpx/css/phpx.css'));
+        wp_register_style('phpx-jquery-style', plugins_url('phpx/jquery-themes/redmond/jquery-theme.css'));
         wp_enqueue_style('phpx-style');
         wp_enqueue_style('phpx-jquery-style');
     }
