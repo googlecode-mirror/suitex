@@ -472,7 +472,28 @@ class loginX {
             }
   
         }
-    }    
+    } 
+    
+    function awx_register($user_id, $email) {
+        
+        if ($this->useWoo()){
+            if ($user_id) {
+                if ($this->options['email_valid'] == 'on'){
+                    $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
+                    $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
+                    
+                    $subject = $this->loginx_emailTrans($this->options['act_email_subject']);
+                    $message = $this->loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
+                    
+                    wp_mail($email, $subject, $message);                               
+                    return true;             
+                }
+            } 
+            else {
+                return false;  
+            }
+        }
+    }   
     
         
 }
