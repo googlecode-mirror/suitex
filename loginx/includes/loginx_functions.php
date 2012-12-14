@@ -439,7 +439,7 @@ class loginX {
         
         if ($this->useWoo()){
             if ($user_id) {
-                
+                $user = get_userdata($user_id); 
                 if (isset($_POST['first_name'])) update_user_meta( $user_id, 'first_name', $_POST['first_name']);
                 if (isset($_POST['last_name'])) update_user_meta( $user_id, 'last_name', $_POST['last_name']);
                 
@@ -474,10 +474,11 @@ class loginX {
         }
     } 
     
-    function awx_register($user_id, $email) {
+    function awx_register($user_id) {
         
         if ($this->useWoo()){
             if ($user_id) {
+                $user = get_userdata($user_id); 
                 if ($this->options['email_valid'] == 'on'){
                     $actKey = substr(md5(microtime() . NONCE_SALT), 5, 15);
                     $this->wpdb->insert($this->wpdb->prefix . 'loginx_key', array('user_id' => $user_id, 'loginx_key' => $actKey, 'loginx_expire' => 0, 'act' => 1));
@@ -485,7 +486,7 @@ class loginX {
                     $subject = $this->loginx_emailTrans($this->options['act_email_subject']);
                     $message = $this->loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
                     
-                    wp_mail($email, $subject, $message);                               
+                    wp_mail($user->user_email, $subject, $message);                               
                     return true;             
                 }
             } 
