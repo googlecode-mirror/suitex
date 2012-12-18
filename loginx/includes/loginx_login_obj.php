@@ -149,9 +149,12 @@ class loginXLogin extends loginX {
                 $user_id = $this->wpdb->get_var($this->wpdb->prepare('select user_id from ' . $this->wpdb->prefix . 'loginx_key where loginx_key = %s and act = 1', $_GET['act']));
                 if ($user_id > 0){
                     $this->wpdb->query($this->wpdb->prepare('delete from ' . $this->wpdb->prefix . 'loginx_key where loginx_key = %s and user_id = %d and act = 1', $_GET['act'], $user_id));
+                    
+                    parent::wooRedirect($this->options['act_success']);    
                     parent::loginx_successMessage($this->options['act_success']);    
                 }
                 else { 
+                    parent::wooRedirect($this->options['act_false'], true);    
                     parent::loginx_errorMessage($this->options['act_fail']);
                 }
                 

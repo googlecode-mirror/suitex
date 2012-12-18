@@ -455,10 +455,6 @@ class loginX {
                     
                     do_action( 'loginx_after_woocommerce_register', $user_id );
                     
-                    $i = wp_nonce_tick(); 
-                    $nonce = substr(wp_hash($i . 'dit_logout' . 0, 'nonce'), -12, 10);
-                    
-                    wp_redirect(get_permalink(woocommerce_get_page_id('myaccount')) . '?cs_message=' . urlencode($this->options['register_success_message']) . '&_nonce=' . $nonce);
                         
                     exit;             
                 }
@@ -494,7 +490,28 @@ class loginX {
                 return false;  
             }
         }
-    }   
+    }  
+    
+    function wooRedirect($message, $error = false){
+        if (!$this->useWoo()){
+            return false;
+        }
+        
+        if ($error === false){
+            $type = 'cs_message';
+        }
+        else { 
+            $type = 'cs_error';
+        }
+        
+        $i = wp_nonce_tick(); 
+        $nonce = substr(wp_hash($i . 'dit_logout' . 0, 'nonce'), -12, 10);
+                    
+        wp_redirect(get_permalink(woocommerce_get_page_id('myaccount')) . '?' . $type . '=' . urlencode($message) . '&_nonce=' . $nonce);
+        exit;
+        
+        
+    } 
     
         
 }
