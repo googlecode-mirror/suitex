@@ -57,7 +57,7 @@ else {
 
 add_action('wp_authenticate', array($loginXobj, 'loginx_login_hook'), 1);
 add_action('woocommerce_created_prospect', array($loginXobj, 'woo_register'), 100);
-add_action('loginx_after_awx_register', array($loginXobj, 'awx_register'), 100);
+
 
 
 add_action('login_head', array($loginXobj, 'loginx_redirect_login'));

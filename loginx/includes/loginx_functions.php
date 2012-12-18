@@ -470,7 +470,7 @@ class loginX {
         }
     } 
     
-    function awx_register($user_id) {
+    function remoteRegister($user_id) {
         
         if ($this->useWoo()){
             if ($user_id) {
