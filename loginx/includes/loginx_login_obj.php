@@ -154,7 +154,7 @@ class loginXLogin extends loginX {
                     parent::loginx_successMessage($this->options['act_success']);    
                 }
                 else { 
-                    parent::wooRedirect($this->options['act_false'], true);    
+                    parent::wooRedirect($this->options['act_fail'], true);    
                     parent::loginx_errorMessage($this->options['act_fail']);
                 }
                 
