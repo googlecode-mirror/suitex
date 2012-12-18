@@ -458,7 +458,7 @@ class loginX {
                     $i = wp_nonce_tick(); 
                     $nonce = substr(wp_hash($i . 'dit_logout' . 0, 'nonce'), -12, 10);
                     
-                    wp_redirect(get_permalink(woocommerce_get_page_id('myaccount')) . '?cs_error=' . urlencode($this->options['register_success_message']) . '&_nonce=' . $nonce);
+                    wp_redirect(get_permalink(woocommerce_get_page_id('myaccount')) . '?cs_message=' . urlencode($this->options['register_success_message']) . '&_nonce=' . $nonce);
                         
                     exit;             
                 }
