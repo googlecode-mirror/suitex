@@ -56,7 +56,7 @@ else {
 }
 
 add_action('wp_authenticate', array($loginXobj, 'loginx_login_hook'), 1);
-add_action('woocommerce_created_prospect', array($loginXobj, 'woo_register'), 100);
+add_action('woocommerce_created_customer', array($loginXobj, 'woo_register'), 100);
 
 
 
