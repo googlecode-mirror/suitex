@@ -436,9 +436,9 @@ class loginX {
     
     function woo_register($user_id) {
         
-        
         if ($this->useWoo()){
             if ($user_id) {
+                
                 $user = get_userdata($user_id); 
                 if (isset($_POST['first_name'])) update_user_meta( $user_id, 'first_name', $_POST['first_name']);
                 if (isset($_POST['last_name'])) update_user_meta( $user_id, 'last_name', $_POST['last_name']);
@@ -451,20 +451,20 @@ class loginX {
                     $message = $this->loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
                     
                     wp_mail($_POST['email'], $subject, $message);                               
-                    
+
                     do_action( 'loginx_after_woocommerce_register', $user_id );
-                    $this->wooRedirect($this->options['register_success_message']);
+                    if ($_POST['register'] == 'Register'){
+                        $this->wooRedirect($this->options['register_success_message']);
+                    }
                 }
                 else {
                     wp_redirect(get_permalink($this->options['profile_page']));
                     exit;
                 }
-
             } 
             else {
                 return false;  
             }
-  
         }
     } 
     
