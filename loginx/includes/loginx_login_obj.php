@@ -166,12 +166,13 @@ class loginXLogin extends loginX {
                 }             
                 else { 
                     $user_id = $this->wpdb->get_var($this->wpdb->prepare('select user_id from ' . $this->wpdb->prefix . 'loginx_key where loginx_key = %s and act = 2 limit 1', $_GET['resend']));
+                    $user = get_userdata($user_id);
                     $this->wpdb->query($this->wpdb->prepare('delete from ' . $this->wpdb->prefix . 'loginx_key where user_id = %d and act = 2', $user_id));
                     $actKey = $this->wpdb->get_var($this->wpdb->prepare('select loginx_key from ' . $this->wpdb->prefix . 'loginx_key where user_id = %d and act = 1 limit 1', $user_id));
                     $subject = parent::loginx_emailTrans($this->options['act_email_subject']);
                     $message = parent::loginx_emailTrans($this->options['act_email_text'], array('::LINK::' => get_permalink($this->options['login_page']) . '?act=' . $actKey));
 
-                    wp_mail($_POST['user_email'], $subject, $message);                    
+                    wp_mail($user->user_email, $subject, $message);                    
                     parent::loginx_successMessage($this->options['act_key_resent']);                
                 }
             } 
