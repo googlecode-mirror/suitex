@@ -98,7 +98,7 @@ class loginXLogin extends loginX {
                                 $key = substr(md5(microtime() . NONCE_SALT), 5, 25);
                                 $this->wpdb->query($this->wpdb->prepare('insert into ' . $this->wpdb->prefix . 'loginx_key (user_id, loginx_key, loginx_expire) values (%d, %s, %d)', $user_id, $key, time() + 86400));
                                 $subject = parent::loginx_emailTrans($this->options['email_password_reset_subject']);
-                                $message = parent::loginx_emailTrans($this->options['email_password_reset'], array('::LINK::' => get_permalink($this->options['login_page']) . '?reset=' . $key));                     
+                                $message = parent::loginx_emailTrans($this->options['email_password_reset'], array('::USERNAME::' => $user->user_login, '::LINK::' => get_permalink($this->options['login_page']) . '?reset=' . $key));                     
                                 wp_mail($user->user_email, $subject, $message, $headers);
                             }
                         }   
