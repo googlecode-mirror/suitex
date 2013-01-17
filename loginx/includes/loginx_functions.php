@@ -187,8 +187,12 @@ class loginX {
         get_currentuserinfo();
         
         if ($this->options['user_admin_redirect'] == 'on'){
-             if ($current_user->user_level < 10){
-                 if ($this->useWoo()){
+         
+            if ($current_user->user_level < 10){    
+                if ($this->useWoo()){
+                     if (!in_array('customer', $current_user->roles) && !in_array('subscriber', $current_user->roles)){
+                         return true;
+                     }
                      $page_id = woocommerce_get_page_id('myaccount');
                  }
                  else { 
