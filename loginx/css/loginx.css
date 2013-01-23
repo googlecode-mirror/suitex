@@ -42,3 +42,7 @@
     width: 100%;
     text-align: center;
 }
+
+#loginx_password em { 
+    color: #ff0000;
+}
